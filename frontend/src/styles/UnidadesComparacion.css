@@ -1,0 +1,61 @@
+.tabla-comparacion-container {
+  padding: 20px;
+  background-color: #2d3748;
+  border-radius: 8px;
+  color: white;
+  margin: 20px;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+}
+
+.tabla-comparacion {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #4a5568;
+  border-radius: 4px;
+}
+
+.tabla-comparacion th,
+.tabla-comparacion td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #2d3748;
+}
+
+.tabla-comparacion th {
+  background-color: #2d3748;
+  color: white;
+  font-weight: bold;
+}
+
+.nombre-unidad {
+  background-color: #2d3748;
+  font-weight: bold;
+  text-align: left !important;
+}
+
+.celda-daño {
+  font-family: monospace;
+  background-color: #4a5568;
+}
+
+.celda-daño:hover {
+  background-color: #718096;
+}
+
+.cargando {
+  text-align: center;
+  padding: 20px;
+  color: white;
+  font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+  .tabla-comparacion th,
+  .tabla-comparacion td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+} 

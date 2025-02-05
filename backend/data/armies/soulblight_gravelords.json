@@ -1,0 +1,69 @@
+{
+  "name": "Soulblight Gravelords",
+  "color": "#8B0000",
+  "units": {
+    "Grave Guard": {
+      "name": "Grave Guard",
+      "models": 10,
+      "wounds": 1,
+      "movement": 4,
+      "control_points": 2,
+      "save": 3,
+      "ward": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Cursed Blade",
+          "attacks": 2,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 2,
+          "crit_type": "none"
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Eternal Warriors",
+          "description": "Can be reanimated by necromancy spells"
+        }
+      ]
+    },
+    "Blood Knights": {
+      "name": "Blood Knights",
+      "models": 5,
+      "wounds": 3,
+      "movement": 10,
+      "control_points": 2,
+      "save": 3,
+      "ward": 4,
+      "tags": ["cavalry"],
+      "attack_profiles": [
+        {
+          "name": "Blood Lance",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 2,
+          "crit_type": "mortal"
+        },
+        {
+          "name": "Hooves and Fangs",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 4,
+          "damage": 1,
+          "rend": 0,
+          "crit_type": "auto_wound"
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Blood Charge",
+          "description": "Add 1 to damage in the turn they charge"
+        }
+      ]
+    }
+  }
+} 

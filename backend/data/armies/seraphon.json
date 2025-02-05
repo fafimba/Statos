@@ -1,0 +1,58 @@
+{
+  "name": "Seraphon",
+  "color": "#00CED1",
+  "units": {
+    "Saurus Guard": {
+      "name": "Saurus Guard",
+      "models": 5,
+      "wounds": 2,
+      "movement": 5,
+      "control_points": 1,
+      "save": 3,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Celestite Spear",
+          "attacks": 2,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "crit_type": "mortal"
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Celestite Shields",
+          "description": "Add 1 to save rolls"
+        }
+      ]
+    },
+    "Kroxigor": {
+      "name": "Kroxigor",
+      "models": 3,
+      "wounds": 4,
+      "movement": 6,
+      "control_points": 2,
+      "save": 4,
+      "tags": ["monster"],
+      "attack_profiles": [
+        {
+          "name": "Massive Claw",
+          "attacks": 4,
+          "hit": 4,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "crit_type": "mortal"
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brute Force",
+          "description": "Add 1 to damage against units with 10+ models"
+        }
+      ]
+    }
+  }
+} 

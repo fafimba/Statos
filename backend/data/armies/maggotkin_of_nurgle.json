@@ -1,0 +1,88 @@
+{
+  "name": "Maggotkin of Nurgle",
+  "color": "#556B2F",
+  "units": {
+    "Plaguebearers": {
+      "name": "Plaguebearers",
+      "models": 5,
+      "wounds": 2,
+      "movement": 4,
+      "control_points": 1,
+      "save": 6,
+      "ward": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Plaguesword",
+          "attacks": 1,
+          "hit": 4,
+          "wound": 3,
+          "damage": 1,
+          "rend": 0,
+          "crit_type": "mortal"
+        }
+      ],
+      "abilities": [],
+      "keywords": ["infantry", "ward (5+)"]
+    },
+    "Pusgoyle Blightlord": {
+      "name": "Pusgoyle Blightlord",
+      "models": 1,
+      "wounds": 8,
+      "movement": 8,
+      "control_points": 2,
+      "save": 4,
+      "ward": 5,
+      "tags": ["cavalry", "fly"],
+      "attack_profiles": [
+        {
+          "name": "Blighted Scythe",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 2,
+          "crit_type": "none"
+        },
+        {
+          "name": "Rot Fly's Mouthparts and Sting",
+          "attacks": 6,
+          "hit": 4,
+          "wound": 2,
+          "damage": 1,
+          "rend": 0,
+          "crit_type": "companion"
+        }
+      ],
+      "abilities": [],
+      "keywords": ["cavalry", "fly", "ward (5+)"]
+    },
+    "Putrid Blightkings": {
+      "name": "Putrid Blightkings",
+      "models": 5,
+      "wounds": 3,
+      "movement": 4,
+      "control_points": 2,
+      "save": 3,
+      "ward": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Rotting Weapons",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "crit_type": "two_hits"
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Nurgle's Blessing",
+          "description": "Heal 1 wound at the start of each round"
+        }
+      ]
+    }
+  }
+} 

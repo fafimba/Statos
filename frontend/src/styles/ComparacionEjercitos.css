@@ -1,0 +1,84 @@
+.comparacion-ejercitos {
+  padding: 20px;
+  background-color: #2d3748;
+  border-radius: 8px;
+  color: white;
+  margin: 20px;
+}
+
+.selectores {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.selector-ejercito {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selector-ejercito select {
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #4a5568;
+  color: white;
+  border: 1px solid #718096;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+.tabla-daño {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #4a5568;
+  border-radius: 4px;
+}
+
+.tabla-daño th,
+.tabla-daño td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #2d3748;
+}
+
+.tabla-daño th {
+  background-color: #2d3748;
+  font-weight: bold;
+}
+
+.nombre-unidad {
+  background-color: #2d3748;
+  font-weight: bold;
+  text-align: left !important;
+}
+
+.celda-daño {
+  font-family: monospace;
+  transition: background-color 0.3s;
+}
+
+.celda-daño:hover {
+  filter: brightness(1.2);
+}
+
+.cargando {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+  .selectores {
+    flex-direction: column;
+  }
+
+  .tabla-daño th,
+  .tabla-daño td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+} 
