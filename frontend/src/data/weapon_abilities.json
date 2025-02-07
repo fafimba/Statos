@@ -35,27 +35,19 @@
     "effect": {
       "type": "modifier",
       "target": "damage",
-      "value": 1
+      "value": 1,
+      "display": {
+        "in_profile": true,
+        "in_damage_calc": true
+      }
     }
   },
   "companion": {
     "name": "Companion",
-    "description": "Always attacks with main weapon",
+    "description": "Not affected by modifiers",
     "type": "fixed",
     "effect": {
       "type": "companion"
-    }
-  },
-  "brute_force": {
-    "name": "Brute Force",
-    "description": "+1 damage against units with 10+ models",
-    "type": "fixed",
-    "effect": {
-      "type": "special",
-      "action": "modifier",
-      "target": "damage",
-      "value": 1,
-      "condition": "enemy_models >= 10"
     }
   }
 } 

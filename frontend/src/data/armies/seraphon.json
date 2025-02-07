@@ -2,38 +2,99 @@
   "name": "Seraphon",
   "color": "#00CED1",
   "units": {
-    "Saurus Guard": {
-      "name": "Saurus Guard",
+    "Saurus Warriors": {
+      "name": "Saurus Warriors",
       "models": 5,
       "wounds": 2,
       "movement": 5,
       "control_points": 1,
-      "save": 3,
+      "save": 4,
       "tags": ["infantry"],
       "attack_profiles": [
         {
-          "name": "Celestite Spear",
+          "name": "Celestite Club",
           "type": "melee",
           "attacks": 2,
           "hit": 3,
           "wound": 3,
-          "damage": 2,
+          "damage": 1,
           "rend": 1,
-          "abilities": ["mortal_critical"]
+          "abilities": []
         }
       ],
       "ability": {
-        "name": "Celestial Shield",
-        "description": "Improve this unit's Save roll by 1 against Range attacks",
-        "type": "fixed",
+        "name": "Ordered Cohorts",
+        "description": "Add 1 to save rolls for this unit while it is contesting an objective you control",
+        "type": "toggleable",
         "effect": {
           "type": "modifier",
           "target": "save",
-          "value": 1,
+          "value": -1,
           "condition": {
-            "type": "enemy_weapon",
-            "property": "type",
-            "value": "range"
+            "type": "objective_control",
+            "property": "controlling",
+            "value": true
+          },
+          "display": {
+            "in_profile": true,
+            "in_damage_calc": true
+          }
+        }
+      }
+    },
+    "Saurus Oldblood on Carnosaur": {
+      "name": "Saurus Oldblood on Carnosaur",
+      "models": 1,
+      "wounds": 14,
+      "movement": 10,
+      "control_points": 5,
+      "save": 4,
+      "tags": ["monster", "hero"],
+      "attack_profiles": [
+        {
+          "name": "Sunbolt Gauntlet",
+          "type": "range",
+          "range": 12,
+          "attacks": "D6",
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": ["shoot_in_combat"]
+        },
+        {
+          "name": "Carnosaur's Massive Jaws",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 2,
+          "damage": 3,
+          "rend": 2,
+          "abilities": ["companion"]
+        },
+        {
+          "name": "Relic Celestite Weapon",
+          "type": "melee",
+          "attacks": 5,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "ability": {
+        "name": "Battle Damaged",
+        "description": "While this unit has 10 or more damage points, the Attacks characteristic of its Carnosaur's Massive Jaws is 1",
+        "type": "toggleable",
+        "effect": {
+          "type": "modifier",
+          "target": "attacks",
+          "value": -2,
+          "affects_profile": "Carnosaur's Massive Jaws",
+          "display": {
+            "in_profile": true,
+            "in_damage_calc": true
           }
         }
       }
@@ -41,35 +102,40 @@
     "Kroxigor": {
       "name": "Kroxigor",
       "models": 3,
-      "wounds": 4,
-      "movement": 6,
+      "wounds": 6,
+      "movement": 5,
       "control_points": 2,
       "save": 4,
-      "tags": ["monster"],
+      "tags": ["infantry"],
       "attack_profiles": [
         {
-          "name": "Massive Claw",
+          "name": "Drakebite Maul",
           "type": "melee",
           "attacks": 4,
           "hit": 4,
-          "wound": 3,
+          "wound": 2,
           "damage": 2,
           "rend": 1,
-          "abilities": ["mortal_critical", "brute_force"]
+          "abilities": []
         }
       ],
       "ability": {
-        "name": "Primal Rage",
-        "description": "Add 1 to Hit rolls when this unit has suffered any wounds",
+        "name": "Brutal Blows",
+        "description": "This unit's melee weapons have Crit (2 Hits) if the target unit has 5 or more models",
         "type": "toggleable",
         "effect": {
-          "type": "modifier", 
-          "target": "hit",
-          "value": -1,
+          "type": "conditional_ability",
+          "ability": "two_hits",
           "condition": {
-            "type": "self",
-            "property": "wounded",
-            "value": true
+            "type": "enemy_unit",
+            "property": "models",
+            "operator": ">=",
+            "value": 5
+          },
+          "affects": "all_profiles",
+          "display": {
+            "in_profile": true,
+            "in_damage_calc": true
           }
         }
       }

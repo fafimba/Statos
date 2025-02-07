@@ -2,34 +2,110 @@
   "name": "Soulblight Gravelords",
   "color": "#8B0000",
   "units": {
-    "Grave Guard": {
-      "name": "Grave Guard",
-      "models": 10,
-      "wounds": 1,
-      "movement": 4,
+    "Vampire Lord": {
+      "name": "Vampire Lord",
+      "models": 1,
+      "wounds": 5,
+      "movement": 6,
       "control_points": 2,
       "save": 3,
-      "ward": 5,
-      "tags": ["infantry"],
+      "ward": 6,
+      "tags": ["hero", "wizard", "infantry", "vampire"],
       "attack_profiles": [
         {
-          "name": "Cursed Blade",
-          "type": "range",
-          "attacks": 2,
+          "name": "Dynastic War-relic",
+          "type": "melee",
+          "attacks": 5,
           "hit": 3,
           "wound": 3,
           "damage": 2,
-          "rend": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "ability": {
+        "name": "Vampiric Might",
+        "description": "This unit heals 1 wound for each enemy model it slays in melee",
+        "type": "fixed",
+        "effect": {
+          "type": "heal_on_kill",
+          "value": 1,
+          "trigger": "melee_kill",
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": false
+          }
+        }
+      }
+    },
+    "Deathrattle Skeletons": {
+      "name": "Deathrattle Skeletons",
+      "models": 10,
+      "wounds": 1,
+      "movement": 4,
+      "control_points": 1,
+      "save": 5,
+      "ward": 6,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Ancient Weapon",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 4,
+          "damage": 1,
+          "rend": 0,
           "abilities": []
         }
       ],
       "ability": {
         "name": "Deathless Minions",
-        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 5+, that wound is negated",
+        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 6+, that wound is negated",
         "type": "fixed",
         "effect": {
           "type": "ward",
-          "value": 5
+          "value": 6,
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": true
+          }
+        }
+      }
+    },
+    "Vargheists": {
+      "name": "Vargheists",
+      "models": 3,
+      "wounds": 4,
+      "movement": 12,
+      "control_points": 1,
+      "save": 5,
+      "ward": 6,
+      "tags": ["infantry", "vampire", "fly"],
+      "attack_profiles": [
+        {
+          "name": "Murderous Fangs and Talons",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": ["double_hit_critical"]
+        }
+      ],
+      "ability": {
+        "name": "The Scent of Gore",
+        "description": "Add 1 to wound rolls for attacks made by this unit that target a damaged unit",
+        "type": "toggleable",
+        "effect": {
+          "type": "modifier",
+          "target": "wound",
+          "value": 1,
+          "display": {
+            "in_profile": true,
+            "in_damage_calc": true
+          }
         }
       }
     },
@@ -38,44 +114,42 @@
       "models": 5,
       "wounds": 3,
       "movement": 10,
-      "control_points": 2,
+      "control_points": 1,
       "save": 3,
-      "ward": 4,
-      "tags": ["cavalry"],
+      "ward": 6,
+      "tags": ["cavalry", "vampire"],
       "attack_profiles": [
         {
-          "name": "Blood Lance",
+          "name": "Templar Lance or Templar Blade",
           "type": "melee",
           "attacks": 3,
           "hit": 3,
           "wound": 3,
-          "damage": 2,
-          "rend": 2,
-          "abilities": ["mortal_critical", "charge_damage"]
+          "damage": 1,
+          "rend": 1,
+          "abilities": ["charge_damage"]
         },
         {
-          "name": "Hooves and Fangs",
+          "name": "Nightmare's Hooves and Teeth",
           "type": "melee",
           "attacks": 3,
-          "hit": 4,
-          "wound": 4,
+          "hit": 5,
+          "wound": 3,
           "damage": 1,
           "rend": 0,
-          "abilities": ["auto_wound_critical", "companion"]
+          "abilities": ["companion"]
         }
       ],
       "ability": {
-        "name": "Martial Pride",
-        "description": "Add 1 to Hit rolls when targeting Heroes or Monsters",
+        "name": "Deathless Minions",
+        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 6+, that wound is negated",
         "type": "fixed",
         "effect": {
-          "type": "modifier",
-          "target": "hit",
-          "value": -1,
-          "condition": {
-            "type": "enemy_unit",
-            "property": "tags",
-            "value": ["hero", "monster"]
+          "type": "ward",
+          "value": 6,
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": true
           }
         }
       }

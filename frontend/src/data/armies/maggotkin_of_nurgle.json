@@ -30,11 +30,11 @@
         "effect": {
           "type": "modifier",
           "target": "hit",
-          "value": 1,
-          "condition": {
-            "type": "enemy_weapon",
-            "property": "type",
-            "value": "range"
+          "value": -1,
+          "affects": "enemy_attacks",
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": true
           }
         }
       },
@@ -80,6 +80,10 @@
           "damage": {
             "type": "mortal",
             "value": "D3"
+          },
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": true
           }
         }
       },
@@ -113,7 +117,11 @@
         "effect": {
           "type": "heal",
           "value": 1,
-          "trigger": "start_of_round"
+          "trigger": "start_of_round",
+          "display": {
+            "in_profile": false,
+            "in_damage_calc": false
+          }
         }
       },
       "keywords": ["infantry", "ward (5+)"]

@@ -1,12 +1,28 @@
+import { weapon_abilities } from '../data/weapon_abilities';
+
 // Función para calcular la probabilidad de éxito
 const calcularProbabilidad = (objetivo) => {
-  const exitosPosibles = 7 - objetivo;
+  const exitosPosibles = 7 - Math.max(1, Math.min(6, objetivo));
   return Math.max(0, exitosPosibles / 6);
 };
 
 // Función auxiliar para redondear a 2 decimales
 const round2 = (num) => {
   return Math.round(num * 100) / 100;
+};
+
+// Función para calcular el valor medio de un dado
+const calcularValorDado = (dado) => {
+  if (typeof dado === 'number') return dado;
+  if (typeof dado === 'string') {
+    // Manejar notación de dados (D3, D6, etc)
+    const match = dado.toUpperCase().match(/D(\d+)/);
+    if (match) {
+      const caras = parseInt(match[1]);
+      return (caras + 1) / 2; // Valor medio del dado
+    }
+  }
+  return 0;
 };
 
 export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvaguardia, _save_override }) => {
@@ -20,7 +36,34 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
     const desglosePerfiles = [];
 
     for (const perfil of perfilesAtaque) {
-      const ataques = parseInt(perfil.attacks || perfil.ataques || 0);
+      // Obtener habilidades críticas
+      const habilidadesCriticas = (perfil.abilities || [])
+        .map(abilityId => weapon_abilities[abilityId])
+        .filter(ability => ability?.effect?.type === 'critical');
+
+      // Calcular ataques considerando dados
+      const ataquesPorModelo = calcularValorDado(perfil.attacks || perfil.ataques || 0);
+      const totalAtaques = numMiniaturas * ataquesPorModelo;
+
+      // Calcular probabilidades de impacto
+      const probHit = calcularProbabilidad(perfil.hit);
+      const probCrit = 1/6; // Probabilidad de crítico (6+)
+      const probNormalHit = probHit - probCrit;
+
+      // Calcular hits totales considerando críticos
+      let hitsNormales = totalAtaques * probNormalHit;
+      let hitsCriticos = totalAtaques * probCrit;
+
+      // Aplicar efectos de críticos
+      habilidadesCriticas.forEach(habilidad => {
+        if (habilidad.effect.damage_type === 'hits') {
+          // Para habilidades que dan hits extra en críticos
+          hitsCriticos *= habilidad.effect.value;
+        }
+      });
+
+      const totalHits = hitsNormales + hitsCriticos;
+
       const hit = parseInt(perfil.hit || 0);
       const wound = parseInt(perfil.wound || 0);
       const damage = parseInt(perfil.damage || 0);
@@ -30,27 +73,23 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
       // Usar la salvación modificada si existe
       const guardiaEfectiva = perfil._save_override || valorGuardia;
 
-      // Cálculo total de ataques para este perfil
-      const totalAtaques = numMiniaturas * ataques;
-
       // Probabilidad de hit crítico y normal
-      const hitsCriticos = totalAtaques * (1 / 6);
-      const probHitNormal = Math.max(0, (7 - hit) - 1) / 6;
-      const hitsNormales = totalAtaques * probHitNormal;
+      const hitsCriticosProb = hitsCriticos / totalHits;
+      const hitsNormalesProb = hitsNormales / totalHits;
 
       // Inicializar variables para daño
       let damageMortal = 0;
       let damageNormal = 0;
 
       if (tipoCritico === 'mortal') {
-        damageMortal = hitsCriticos * damage;
+        damageMortal = hitsCriticosProb * damage;
         let probFallarSalva = 1;
         if (valorSalvaguardia > 0) {
           probFallarSalva = 1 - calcularProbabilidad(valorSalvaguardia);
           damageMortal = damageMortal * probFallarSalva;
         }
 
-        const woundsNormales = hitsNormales * calcularProbabilidad(wound);
+        const woundsNormales = hitsNormalesProb * calcularProbabilidad(wound);
         let woundsTrasGuardia = 0;
         if (guardiaEfectiva > 0) {
           const guardiaModificada = guardiaEfectiva + perforacion;
@@ -69,18 +108,11 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
           damageNormal = damageNormal * probFallarSalva;
         }
       } else {
-        let hitsTotales = 0;
-        if (tipoCritico === 'two_hits' || tipoCritico === 'dos_hits') {
-          hitsTotales = hitsNormales + (hitsCriticos * 2);
-        } else {
-          hitsTotales = hitsNormales + hitsCriticos;
-        }
-
         let woundsEsperados = 0;
         if (tipoCritico === 'auto_wound') {
-          woundsEsperados = (hitsNormales * calcularProbabilidad(wound)) + hitsCriticos;
+          woundsEsperados = (hitsNormalesProb * calcularProbabilidad(wound)) + hitsCriticosProb;
         } else {
-          woundsEsperados = hitsTotales * calcularProbabilidad(wound);
+          woundsEsperados = totalHits * calcularProbabilidad(wound);
         }
 
         let woundsTrasGuardia = 0;
@@ -112,7 +144,7 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
         total_attacks: totalAtaques,
         normal_hits: round2(hitsNormales),
         critical_hits: round2(hitsCriticos),
-        total_hits: round2(hitsNormales + hitsCriticos),
+        total_hits: round2(totalHits),
         damage_final: round2(dañoPerfil),
         mortal_damage: round2(damageMortal),
         normal_damage: round2(damageNormal)
