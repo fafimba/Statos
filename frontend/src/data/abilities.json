@@ -1,0 +1,61 @@
+{
+  "mortal_critical": {
+    "name": "Critical: Mortal",
+    "description": "Critical hits deal 1 mortal wound",
+    "type": "fixed",
+    "effect": {
+      "type": "critical",
+      "action": "mortal_wound",
+      "value": 1
+    }
+  },
+  "auto_wound_critical": {
+    "name": "Critical: Auto-wound",
+    "description": "Critical hits automatically wound",
+    "type": "fixed",
+    "effect": {
+      "type": "critical",
+      "action": "auto_wound"
+    }
+  },
+  "double_hit_critical": {
+    "name": "Critical: Double Hit",
+    "description": "Critical hits score 2 hits",
+    "type": "fixed",
+    "effect": {
+      "type": "critical",
+      "action": "extra_hit",
+      "value": 1
+    }
+  },
+  "charge_damage": {
+    "name": "Charge",
+    "description": "+1 Damage on charge",
+    "type": "toggleable",
+    "effect": {
+      "type": "modifier",
+      "target": "damage",
+      "value": 1
+    }
+  },
+  "companion": {
+    "name": "Companion",
+    "description": "Always attacks with main weapon",
+    "type": "fixed",
+    "effect": {
+      "type": "companion"
+    }
+  },
+  "brute_force": {
+    "name": "Brute Force",
+    "description": "+1 damage against units with 10+ models",
+    "type": "fixed",
+    "effect": {
+      "type": "special",
+      "action": "modifier",
+      "target": "damage",
+      "value": 1,
+      "condition": "enemy_models >= 10"
+    }
+  }
+} 

@@ -14,20 +14,24 @@
       "attack_profiles": [
         {
           "name": "Cursed Blade",
+          "type": "range",
           "attacks": 2,
           "hit": 3,
           "wound": 3,
           "damage": 2,
           "rend": 2,
-          "crit_type": "none"
+          "abilities": []
         }
       ],
-      "abilities": [
-        {
-          "name": "Eternal Warriors",
-          "description": "Can be reanimated by necromancy spells"
+      "ability": {
+        "name": "Deathless Minions",
+        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 5+, that wound is negated",
+        "type": "fixed",
+        "effect": {
+          "type": "ward",
+          "value": 5
         }
-      ]
+      }
     },
     "Blood Knights": {
       "name": "Blood Knights",
@@ -41,29 +45,40 @@
       "attack_profiles": [
         {
           "name": "Blood Lance",
+          "type": "melee",
           "attacks": 3,
           "hit": 3,
           "wound": 3,
           "damage": 2,
           "rend": 2,
-          "crit_type": "mortal"
+          "abilities": ["mortal_critical", "charge_damage"]
         },
         {
           "name": "Hooves and Fangs",
+          "type": "melee",
           "attacks": 3,
           "hit": 4,
           "wound": 4,
           "damage": 1,
           "rend": 0,
-          "crit_type": "auto_wound"
+          "abilities": ["auto_wound_critical", "companion"]
         }
       ],
-      "abilities": [
-        {
-          "name": "Blood Charge",
-          "description": "Add 1 to damage in the turn they charge"
+      "ability": {
+        "name": "Martial Pride",
+        "description": "Add 1 to Hit rolls when targeting Heroes or Monsters",
+        "type": "fixed",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": -1,
+          "condition": {
+            "type": "enemy_unit",
+            "property": "tags",
+            "value": ["hero", "monster"]
+          }
         }
-      ]
+      }
     }
   }
 } 

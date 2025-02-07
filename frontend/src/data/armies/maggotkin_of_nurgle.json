@@ -14,15 +14,30 @@
       "attack_profiles": [
         {
           "name": "Plaguesword",
+          "type": "melee",
           "attacks": 1,
           "hit": 4,
           "wound": 3,
           "damage": 1,
           "rend": 0,
-          "crit_type": "mortal"
+          "abilities": ["mortal_critical"]
         }
       ],
-      "abilities": [],
+      "ability": {
+        "name": "Cloud of Flies",
+        "description": "Enemy Range weapons suffer -1 to Hit rolls against this unit",
+        "type": "fixed",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": 1,
+          "condition": {
+            "type": "enemy_weapon",
+            "property": "type",
+            "value": "range"
+          }
+        }
+      },
       "keywords": ["infantry", "ward (5+)"]
     },
     "Pusgoyle Blightlord": {
@@ -37,24 +52,37 @@
       "attack_profiles": [
         {
           "name": "Blighted Scythe",
+          "type": "melee",
           "attacks": 3,
           "hit": 3,
           "wound": 3,
           "damage": 1,
           "rend": 2,
-          "crit_type": "none"
+          "abilities": []
         },
         {
           "name": "Rot Fly's Mouthparts and Sting",
+          "type": "melee",
           "attacks": 6,
           "hit": 4,
           "wound": 2,
           "damage": 1,
           "rend": 0,
-          "crit_type": "companion"
+          "abilities": ["companion"]
         }
       ],
-      "abilities": [],
+      "ability": {
+        "name": "Virulent Discharge",
+        "description": "After this unit is attacked in melee, the attacker suffers D3 mortal wounds",
+        "type": "fixed",
+        "effect": {
+          "type": "counter_attack",
+          "damage": {
+            "type": "mortal",
+            "value": "D3"
+          }
+        }
+      },
       "keywords": ["cavalry", "fly", "ward (5+)"]
     },
     "Putrid Blightkings": {
@@ -69,20 +97,26 @@
       "attack_profiles": [
         {
           "name": "Rotting Weapons",
+          "type": "melee",
           "attacks": 3,
           "hit": 3,
           "wound": 3,
           "damage": 2,
           "rend": 1,
-          "crit_type": "two_hits"
+          "abilities": ["double_hit_critical"]
         }
       ],
-      "abilities": [
-        {
-          "name": "Nurgle's Blessing",
-          "description": "Heal 1 wound at the start of each round"
+      "ability": {
+        "name": "Nurgle's Blessing",
+        "description": "Heal 1 wound at the start of each round",
+        "type": "fixed",
+        "effect": {
+          "type": "heal",
+          "value": 1,
+          "trigger": "start_of_round"
         }
-      ]
+      },
+      "keywords": ["infantry", "ward (5+)"]
     }
   }
 } 
