@@ -10,8 +10,8 @@ import {
   Box
 } from '@mui/material';
 import { armies } from '../../data/armies';
-import { weapon_abilities } from '../../data/weapon_abilities';
-import UnidadCard from './UnidadCard';
+import { default as UnidadCard } from './UnidadCard';
+
 
 function ComparacionEjercitos() {
   // Estado para los ejércitos seleccionados

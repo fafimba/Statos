@@ -7,11 +7,12 @@ import {
   Tooltip,
   Switch,
 } from '@mui/material';
-import { usePerfilesAtaque } from '../../hooks_v2/usePerfilesAtaque';
+import { usePerfilesAtaque } from '../../hooks/usePerfilesAtaque';
 import { calculateAttacks } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
 import PerfilAtaque from './PerfilAtaque';
-import DanoBar from './DanoBar';
+import { default as DanoBar } from './DanoBar';
+
 
 const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante }) => {
   // Usar el hook de perfiles de ataque
@@ -20,11 +21,39 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
     setPerfilesActivos,
     habilidadesPerfiles,
     modificarPerfil,
-    habilidadesUnidad
+    habilidadesUnidad,
+    setHabilidadesUnidad
   } = usePerfilesAtaque(unidad);
 
   // Estado para habilidades toggleables de unidad
   const [habilidadUnidadActiva, setHabilidadUnidadActiva] = useState(false);
+
+  // Manejadores para habilidades ofensivas y defensivas
+  const handleToggleHabilidadOfensiva = useCallback((unidadId, habilidadId) => {
+    setHabilidadesUnidad(prev => ({
+      ...prev,
+      ofensivas: {
+        ...prev.ofensivas,
+        [unidadId]: {
+          ...prev.ofensivas[unidadId],
+          [habilidadId]: !prev.ofensivas[unidadId]?.[habilidadId]
+        }
+      }
+    }));
+  }, [setHabilidadesUnidad]);
+
+  const handleToggleHabilidadDefensiva = useCallback((unidadId, habilidadId) => {
+    setHabilidadesUnidad(prev => ({
+      ...prev,
+      defensivas: {
+        ...prev.defensivas,
+        [unidadId]: {
+          ...prev.defensivas[unidadId],
+          [habilidadId]: !prev.defensivas[unidadId]?.[habilidadId]
+        }
+      }
+    }));
+  }, [setHabilidadesUnidad]);
 
   // Calcular daños contra unidades
   const danosContraUnidades = useMemo(() => {
@@ -196,87 +225,130 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
   if (!unidad) return null;
 
   return (
-    <Card>
+    <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {nombreUnidad}
-        </Typography>
-
-        {/* Habilidad de la unidad */}
-        {unidad.ability && (
-          <Box 
-            sx={{ 
-              mb: 2,
-              p: 1,
-              borderRadius: 1,
-              backgroundColor: 'rgba(255, 215, 0, 0.1)',
-              border: '1px solid rgba(255, 215, 0, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
-            <Tooltip 
-              title={unidad.ability.description}
-              arrow
-            >
+        {/* Cabecera de unidad con atributos */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          mb: 2 
+        }}>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {nombreUnidad}
+            </Typography>
+            {/* Stats de la unidad en chips */}
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                backgroundColor: 'rgba(144, 202, 249, 0.1)',
+                borderRadius: 1,
+                px: 1,
+                py: 0.5
+              }}>
+                <Typography variant="caption" sx={{ color: '#90caf9', mr: 0.5 }}>
+                  Size:
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#fff' }}>
+                  {unidad.models}
+                </Typography>
+              </Box>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                borderRadius: 1,
+                px: 1,
+                py: 0.5
+              }}>
+                <Typography variant="caption" sx={{ color: '#ff6b6b', mr: 0.5 }}>
+                  Wounds:
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#fff' }}>
+                  {unidad.wounds}
+                </Typography>
+              </Box>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                borderRadius: 1,
+                px: 1,
+                py: 0.5
+              }}>
+                <Typography variant="caption" sx={{ color: '#ffd700', mr: 0.5 }}>
+                  Save:
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#fff' }}>
+                  {unidad.save}+
+                </Typography>
+              </Box>
+              {unidad.ward && (
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  backgroundColor: 'rgba(147, 112, 219, 0.1)',
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5
+                }}>
+                  <Typography variant="caption" sx={{ color: '#9370db', mr: 0.5 }}>
+                    Ward:
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#fff' }}>
+                    {unidad.ward}+
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+          {/* Tags de la unidad */}
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {unidad.tags?.map(tag => (
               <Typography 
-                variant="subtitle2" 
+                key={tag}
+                variant="caption" 
                 sx={{ 
-                  color: '#ffd700',
-                  cursor: 'help',
-                  flex: 1
+                  color: 'text.secondary',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 1,
+                  fontSize: '0.7rem',
+                  textTransform: 'uppercase'
                 }}
               >
-                {unidad.ability.name}
+                {tag}
               </Typography>
-            </Tooltip>
-            {unidad.ability.type === 'toggleable' && (
-              <Switch
-                size="small"
-                checked={habilidadUnidadActiva}
-                onChange={() => setHabilidadUnidadActiva(prev => !prev)}
-                sx={{
-                  '& .MuiSwitch-track': {
-                    backgroundColor: 'rgba(255, 215, 0, 0.3)'
-                  },
-                  '& .MuiSwitch-thumb': {
-                    backgroundColor: habilidadUnidadActiva ? '#ffd700' : '#666'
-                  }
-                }}
-              />
-            )}
+            ))}
           </Box>
-        )}
+        </Box>
 
-        {/* Perfiles de ataque */}
-        {unidad.attack_profiles?.map(perfil => (
-          <PerfilAtaque
-            key={perfil.name}
-            perfil={perfil}
-            activo={perfilesActivos[perfil.name]}
-            onToggle={(nombre) => setPerfilesActivos(prev => ({
-              ...prev,
-              [nombre]: !prev[nombre]
-            }))}
-            habilidadesPerfil={habilidadesPerfiles[perfil.name]}
-            habilidadUnidad={unidad.ability}
-            habilidadUnidadActiva={habilidadUnidadActiva}
-            onToggleHabilidad={modificarPerfil}
-          />
-        ))}
+        {/* Perfiles de ataque en un contenedor colapsable */}
+        <Box sx={{ mb: 2 }}>
+          {unidad.attack_profiles?.map(perfil => (
+            <PerfilAtaque
+              key={perfil.name}
+              perfil={perfil}
+              activo={perfilesActivos[perfil.name]}
+              onToggle={(nombre) => setPerfilesActivos(prev => ({
+                ...prev,
+                [nombre]: !prev[nombre]
+              }))}
+              habilidadesPerfil={habilidadesPerfiles[perfil.name]}
+              onToggleHabilidad={modificarPerfil}
+            />
+          ))}
+        </Box>
 
-        {/* Daños contra unidades */}
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Daño esperado contra:
-          </Typography>
+        {/* Daños contra unidades con más énfasis */}
+        <Box>
           {danosContraUnidades.map((datos) => (
             <DanoBar
               key={datos.nombreUnidad}
               {...datos}
-              damage_final={datos.damage_final}
-              desglose_perfiles={datos.desglose_perfiles}
             />
           ))}
         </Box>

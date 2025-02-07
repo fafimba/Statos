@@ -22,21 +22,7 @@
           "rend": 1,
           "abilities": []
         }
-      ],
-      "ability": {
-        "name": "Vampiric Might",
-        "description": "This unit heals 1 wound for each enemy model it slays in melee",
-        "type": "fixed",
-        "effect": {
-          "type": "heal_on_kill",
-          "value": 1,
-          "trigger": "melee_kill",
-          "display": {
-            "in_profile": false,
-            "in_damage_calc": false
-          }
-        }
-      }
+      ]
     },
     "Deathrattle Skeletons": {
       "name": "Deathrattle Skeletons",
@@ -58,20 +44,7 @@
           "rend": 0,
           "abilities": []
         }
-      ],
-      "ability": {
-        "name": "Deathless Minions",
-        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 6+, that wound is negated",
-        "type": "fixed",
-        "effect": {
-          "type": "ward",
-          "value": 6,
-          "display": {
-            "in_profile": false,
-            "in_damage_calc": true
-          }
-        }
-      }
+      ]
     },
     "Vargheists": {
       "name": "Vargheists",
@@ -94,20 +67,22 @@
           "abilities": ["double_hit_critical"]
         }
       ],
-      "ability": {
-        "name": "The Scent of Gore",
-        "description": "Add 1 to wound rolls for attacks made by this unit that target a damaged unit",
-        "type": "toggleable",
-        "effect": {
-          "type": "modifier",
-          "target": "wound",
-          "value": 1,
-          "display": {
-            "in_profile": true,
-            "in_damage_calc": true
+      "abilities": [
+        {
+          "name": "The Scent of Gore",
+          "description": "Add 1 to wound rolls for attacks made by this unit that target a damaged unit",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "wound",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee"
+            }
           }
         }
-      }
+      ]
     },
     "Blood Knights": {
       "name": "Blood Knights",
@@ -139,20 +114,7 @@
           "rend": 0,
           "abilities": ["companion"]
         }
-      ],
-      "ability": {
-        "name": "Deathless Minions",
-        "description": "Roll a dice when this unit suffers a wound or mortal wound. On a 6+, that wound is negated",
-        "type": "fixed",
-        "effect": {
-          "type": "ward",
-          "value": 6,
-          "display": {
-            "in_profile": false,
-            "in_damage_calc": true
-          }
-        }
-      }
+      ]
     }
   }
 } 

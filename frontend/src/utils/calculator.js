@@ -56,9 +56,9 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
 
       // Aplicar efectos de críticos
       habilidadesCriticas.forEach(habilidad => {
-        if (habilidad.effect.damage_type === 'hits') {
-          // Para habilidades que dan hits extra en críticos
-          hitsCriticos *= habilidad.effect.value;
+        if (habilidad.effect.action === 'extra_hit') {
+          // Para double_hit_critical, duplicamos los hits críticos
+          hitsCriticos += hitsCriticos * habilidad.effect.value;
         }
       });
 

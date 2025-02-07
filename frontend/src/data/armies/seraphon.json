@@ -9,6 +9,7 @@
       "movement": 5,
       "control_points": 1,
       "save": 4,
+      "ward": null,
       "tags": ["infantry"],
       "attack_profiles": [
         {
@@ -22,25 +23,32 @@
           "abilities": []
         }
       ],
-      "ability": {
-        "name": "Ordered Cohorts",
-        "description": "Add 1 to save rolls for this unit while it is contesting an objective you control",
-        "type": "toggleable",
-        "effect": {
-          "type": "modifier",
-          "target": "save",
-          "value": -1,
-          "condition": {
-            "type": "objective_control",
-            "property": "controlling",
-            "value": true
-          },
-          "display": {
-            "in_profile": true,
-            "in_damage_calc": true
+      "abilities": [
+        {
+          "name": "Ordered Cohorts",
+          "description": "Add 1 to save rolls for this unit while it is contesting an objective you control",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "save",
+            "value": 1,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
           }
         }
-      }
+      ]
     },
     "Saurus Oldblood on Carnosaur": {
       "name": "Saurus Oldblood on Carnosaur",
@@ -49,6 +57,7 @@
       "movement": 10,
       "control_points": 5,
       "save": 4,
+      "ward": null,
       "tags": ["monster", "hero"],
       "attack_profiles": [
         {
@@ -83,21 +92,62 @@
           "abilities": []
         }
       ],
-      "ability": {
-        "name": "Battle Damaged",
-        "description": "While this unit has 10 or more damage points, the Attacks characteristic of its Carnosaur's Massive Jaws is 1",
-        "type": "toggleable",
-        "effect": {
-          "type": "modifier",
-          "target": "attacks",
-          "value": -2,
-          "affects_profile": "Carnosaur's Massive Jaws",
-          "display": {
-            "in_profile": true,
-            "in_damage_calc": true
+      "abilities": [
+        {
+          "name": "Battle Damaged",
+          "description": "While this unit has 10 or more damage points, the Attacks characteristic of its Carnosaur's Massive Jaws is 1",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": -2,
+            "conditions": {
+              "profile_name": "Carnosaur's Massive Jaws"
+            }
+          }
+        },
+        {
+          "name": "Blade of Realities",
+          "description": "Add 1 to the Rend characteristic of your general's Relic Celestite Weapon",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "rend",
+            "value": 1,
+            "conditions": {
+              "profile_name": "Relic Celestite Weapon"
+            }
+          }
+        },
+        {
+          "name": "The Wrath of Chotec",
+          "description": "The Attacks characteristic of your general's Sunbolt Gauntlet is 6 instead of D6",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "dice_override",
+            "target": "attacks",
+            "value": "6",
+            "conditions": {
+              "profile_name": "Sunbolt Gauntlet"
+            }
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
           }
         }
-      }
+      ]
     },
     "Kroxigor": {
       "name": "Kroxigor",
@@ -106,6 +156,7 @@
       "movement": 5,
       "control_points": 2,
       "save": 4,
+      "ward": null,
       "tags": ["infantry"],
       "attack_profiles": [
         {
@@ -119,26 +170,34 @@
           "abilities": []
         }
       ],
-      "ability": {
-        "name": "Brutal Blows",
-        "description": "This unit's melee weapons have Crit (2 Hits) if the target unit has 5 or more models",
-        "type": "toggleable",
-        "effect": {
-          "type": "conditional_ability",
-          "ability": "two_hits",
-          "condition": {
-            "type": "enemy_unit",
-            "property": "models",
-            "operator": ">=",
-            "value": 5
-          },
-          "affects": "all_profiles",
-          "display": {
-            "in_profile": true,
-            "in_damage_calc": true
+      "abilities": [
+        {
+          "name": "Brutal Blows",
+          "description": "This unit's melee weapons have Critical: Double Hit if the target unit has 5 or more models",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "abilities",
+            "value": "double_hit_critical",
+            "conditions": {
+              "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
           }
         }
-      }
+      ]
     }
   }
 } 
