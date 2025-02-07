@@ -49,5 +49,11 @@
     "effect": {
       "type": "companion"
     }
+  },
+  "shoot_in_combat": {
+    "name": "Shoot in Combat",
+    "description": "Can shoot while engaged in combat",
+    "type": "fixed",
+    "effect": null
   }
 } 

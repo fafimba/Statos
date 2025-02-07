@@ -7,7 +7,8 @@ import {
   Select,
   MenuItem,
   Typography,
-  Box
+  Box,
+  Switch
 } from '@mui/material';
 import { armies } from '../../data/armies';
 import { default as UnidadCard } from './UnidadCard';
@@ -45,12 +46,43 @@ function ComparacionEjercitos() {
     localStorage.setItem('selectedDefender', selectedEjercitoDefensor);
   }, [selectedEjercitoDefensor]);
 
+  // Nuevo estado para el modo de vista
+  const [vistaUnaColumna, setVistaUnaColumna] = useState(false);
+
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
-        {/* Columna del Ejército Atacante */}
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth sx={{ mb: 3 }}>
+    <Box sx={{ 
+      p: { xs: 2, md: 4 }, // Padding responsivo
+      width: '100%',
+      minHeight: '100vh',
+      backgroundColor: '#1a1e2c'
+    }}>
+      {/* Control de vista */}
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
+        alignItems: 'center', 
+        gap: 2 
+      }}>
+        <Typography variant="body2" color="text.secondary">
+          {vistaUnaColumna ? 'Vista atacante' : 'Vista comparativa'}
+        </Typography>
+        <Switch
+          checked={vistaUnaColumna}
+          onChange={(e) => setVistaUnaColumna(e.target.checked)}
+          size="small"
+          sx={{
+            '& .MuiSwitch-thumb': {
+              backgroundColor: vistaUnaColumna ? '#90caf9' : '#666'
+            }
+          }}
+        />
+      </Box>
+
+      {/* Selectores de ejércitos */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={vistaUnaColumna ? 6 : 6}>
+          <FormControl fullWidth size="small">
             <InputLabel>Attacking Army</InputLabel>
             <Select
               value={selectedEjercitoAtacante}
@@ -64,21 +96,9 @@ function ComparacionEjercitos() {
               ))}
             </Select>
           </FormControl>
-
-          {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
-            <UnidadCard
-              key={nombre}
-              nombreUnidad={nombre}
-              unidad={unidad}
-              ejercitoOponente={armies[selectedEjercitoDefensor]}
-              esAtacante={true}
-            />
-          ))}
         </Grid>
-
-        {/* Columna del Ejército Defensor */}
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth sx={{ mb: 3 }}>
+        <Grid item xs={12} md={vistaUnaColumna ? 6 : 6}>
+          <FormControl fullWidth size="small">
             <InputLabel>Defending Army</InputLabel>
             <Select
               value={selectedEjercitoDefensor}
@@ -92,19 +112,68 @@ function ComparacionEjercitos() {
               ))}
             </Select>
           </FormControl>
+        </Grid>
+      </Grid>
 
-          {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
+      {/* Contenido de unidades */}
+      <Grid 
+        container 
+        spacing={2}
+        sx={{
+          '& .MuiCard-root': {
+            height: '100%'
+          }
+        }}
+      >
+        {/* Columna del Ejército Atacante */}
+        <Grid 
+          item 
+          xs={12} 
+          md={vistaUnaColumna ? 12 : 6}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}
+        >
+          {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
             <UnidadCard
               key={nombre}
               nombreUnidad={nombre}
               unidad={unidad}
-              ejercitoOponente={armies[selectedEjercitoAtacante]}
-              esAtacante={false}
+              ejercitoOponente={armies[selectedEjercitoDefensor]}
+              esAtacante={true}
+              vistaUnaColumna={vistaUnaColumna}
             />
           ))}
         </Grid>
+
+        {/* Columna del Ejército Defensor */}
+        {!vistaUnaColumna && (
+          <Grid 
+            item 
+            xs={12} 
+            md={6}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2
+            }}
+          >
+            {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
+              <UnidadCard
+                key={nombre}
+                nombreUnidad={nombre}
+                unidad={unidad}
+                ejercitoOponente={armies[selectedEjercitoAtacante]}
+                esAtacante={false}
+                vistaUnaColumna={vistaUnaColumna}
+              />
+            ))}
+          </Grid>
+        )}
       </Grid>
-    </Container>
+    </Box>
   );
 }
 

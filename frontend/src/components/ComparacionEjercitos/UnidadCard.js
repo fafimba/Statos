@@ -225,109 +225,150 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
   if (!unidad) return null;
 
   return (
-    <Card sx={{ mb: 2 }}>
-      <CardContent>
+    <Card sx={{
+      backgroundColor: '#2a3040',
+      border: '1px solid #3a4156',
+      borderRadius: '0.5rem',
+      mb: 2,
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <CardContent sx={{ 
+        '&:last-child': { 
+          pb: '8px !important'
+        },
+        p: 2,
+        pb: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1.5,
+        flex: '0 0 auto'
+      }}>
         {/* Cabecera de unidad con atributos */}
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
+          flexDirection: 'column',
+          gap: 1,
           mb: 2 
         }}>
-          <Box>
-            <Typography variant="h6" sx={{ mb: 1 }}>
+          {/* Primera fila: Nombre y Tags */}
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            flexWrap: 'wrap',
+            gap: 1
+          }}>
+            <Typography variant="h6" sx={{ mb: 0 }}>
               {nombreUnidad}
             </Typography>
-            {/* Stats de la unidad en chips */}
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                backgroundColor: 'rgba(144, 202, 249, 0.1)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#90caf9', mr: 0.5 }}>
-                  Size:
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 0.5, 
+              flexWrap: 'wrap', 
+              justifyContent: 'flex-end'
+            }}>
+              {unidad.tags?.map(tag => (
+                <Typography 
+                  key={tag}
+                  variant="caption" 
+                  sx={{ 
+                    color: 'text.secondary',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {tag}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#fff' }}>
-                  {unidad.models}
-                </Typography>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#ff6b6b', mr: 0.5 }}>
-                  Wounds:
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#fff' }}>
-                  {unidad.wounds}
-                </Typography>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#ffd700', mr: 0.5 }}>
-                  Save:
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#fff' }}>
-                  {unidad.save}+
-                </Typography>
-              </Box>
-              {unidad.ward && (
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  backgroundColor: 'rgba(147, 112, 219, 0.1)',
-                  borderRadius: 1,
-                  px: 1,
-                  py: 0.5
-                }}>
-                  <Typography variant="caption" sx={{ color: '#9370db', mr: 0.5 }}>
-                    Ward:
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#fff' }}>
-                    {unidad.ward}+
-                  </Typography>
-                </Box>
-              )}
+              ))}
             </Box>
           </Box>
-          {/* Tags de la unidad */}
-          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {unidad.tags?.map(tag => (
-              <Typography 
-                key={tag}
-                variant="caption" 
-                sx={{ 
-                  color: 'text.secondary',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: 1,
-                  fontSize: '0.7rem',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {tag}
+
+          {/* Segunda fila: Stats de la unidad */}
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            flexWrap: 'wrap',
+            mt: 0
+          }}>
+            {/* Stats chips */}
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: 'rgba(144, 202, 249, 0.1)',
+              borderRadius: 1,
+              px: 1,
+              py: 0.5
+            }}>
+              <Typography variant="caption" sx={{ color: '#90caf9', mr: 0.5 }}>Size:</Typography>
+              <Typography variant="caption" sx={{ color: '#fff' }}>{unidad.models}</Typography>
+            </Box>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+              borderRadius: 1,
+              px: 1,
+              py: 0.5
+            }}>
+              <Typography variant="caption" sx={{ color: '#ff6b6b', mr: 0.5 }}>
+                Wounds:
               </Typography>
-            ))}
+              <Typography variant="caption" sx={{ color: '#fff' }}>
+                {unidad.wounds}
+              </Typography>
+            </Box>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: 'rgba(255, 215, 0, 0.1)',
+              borderRadius: 1,
+              px: 1,
+              py: 0.5
+            }}>
+              <Typography variant="caption" sx={{ color: '#ffd700', mr: 0.5 }}>
+                Save:
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#fff' }}>
+                {unidad.save}+
+              </Typography>
+            </Box>
+            {unidad.ward && (
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                backgroundColor: 'rgba(147, 112, 219, 0.1)',
+                borderRadius: 1,
+                px: 1,
+                py: 0.5
+              }}>
+                <Typography variant="caption" sx={{ color: '#9370db', mr: 0.5 }}>
+                  Ward:
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#fff' }}>
+                  {unidad.ward}+
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
 
-        {/* Perfiles de ataque en un contenedor colapsable */}
-        <Box sx={{ mb: 2 }}>
+        {/* Perfiles de ataque */}
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          mb: 2,
+          '& > *': { // Asegura que cada perfil tenga espacio suficiente
+            minWidth: 0, // Permite que los elementos se ajusten al contenedor
+            width: '100%'
+          }
+        }}>
           {unidad.attack_profiles?.map(perfil => (
             <PerfilAtaque
               key={perfil.name}
@@ -343,9 +384,18 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           ))}
         </Box>
 
-        {/* Daños contra unidades con más énfasis */}
-        <Box>
-          {danosContraUnidades.map((datos) => (
+        {/* Daños contra unidades */}
+        <Box sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+          gap: 1,
+          overflowX: 'auto',
+          pb: 0,
+          '& > *': {
+            flex: '0 0 140px',
+          }
+        }}>
+          {danosContraUnidades.map((datos, index) => (
             <DanoBar
               key={datos.nombreUnidad}
               {...datos}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -21,6 +21,12 @@ const DanoBar = React.memo(({
   damage_final,
   desglose_perfiles
 }) => {
+  const danoTotal = Number.isFinite(damage_final) ? damage_final : 0;
+
+  // Estado para controlar la visibilidad de cada tooltip individualmente
+  const [activeTooltip, setActiveTooltip] = useState(null);
+  const tooltipTimeoutRef = useRef(null);
+
   // Preparar arrays de habilidades, filtrando por categoría
   const habilidadesAtacante = [].concat(unidadAtacante.abilities || unidadAtacante.ability)
     .filter(Boolean)
@@ -32,23 +38,49 @@ const DanoBar = React.memo(({
 
   // Separar habilidades por categoría
   const habilidades = {
-    ofensivas: habilidadesAtacante.map(hab => ({
-      id: `${unidadAtacante.name}_${hab.name}`,
-      ...hab
-    })),
-    defensivas: habilidadesOponente.map(hab => ({
-      id: `${unidadOponente.name}_${hab.name}`,
-      ...hab
-    }))
+    ofensivas: habilidadesAtacante
+      .filter(hab => {
+        const condicionesCumplidas = !hab.effect?.conditions || 
+          Object.entries(hab.effect.conditions).every(([key, value]) => {
+            switch(key) {
+              case 'attack_type':
+                return perfilesModificados.some(perfil => perfil.type === value);
+              default:
+                return true;
+            }
+          });
+        return condicionesCumplidas;
+      })
+      .map(hab => ({
+        id: `${unidadAtacante.name}_${hab.name}`,
+        ...hab
+      })),
+    defensivas: habilidadesOponente
+      .filter(hab => {
+        const condicionesCumplidas = !hab.effect?.conditions || 
+          Object.entries(hab.effect.conditions).every(([key, value]) => {
+            switch(key) {
+              case 'attack_type':
+                return perfilesModificados.some(perfil => perfil.type === value);
+              default:
+                return true;
+            }
+          });
+        return condicionesCumplidas;
+      })
+      .map(hab => ({
+        id: `${unidadOponente.name}_${hab.name}`,
+        ...hab
+      }))
   };
 
   const { habilidadesActivas, toggleHabilidadOfensiva, toggleHabilidadDefensiva } = useHabilidades(unidadAtacante, unidadOponente);
 
   // Recalcular el daño cuando cambien las habilidades
   const danoCalculado = useMemo(() => {
-    // Primero calculamos las modificaciones a la salvación base del oponente
     let saveModificado = unidadOponente.save;
     let wardModificado = unidadOponente.ward;
+    let modificadoresAtaqueEnemigo = {};
     
     // Manejar array de habilidades defensivas
     if (unidadOponente.abilities || unidadOponente.ability) {
@@ -56,19 +88,40 @@ const DanoBar = React.memo(({
       
       habilidades.forEach(habilidad => {
         const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
-        const activa = habilidadesActivas.defensivas[habilidadId];
         
-        if (activa) {
-          const { type, target, value } = habilidad.effect;
+        // Comprobar si las condiciones se cumplen (si hay)
+        const condicionesCumplidas = !habilidad.effect?.conditions || 
+          Object.entries(habilidad.effect.conditions).every(([key, value]) => {
+            switch(key) {
+              case 'attack_type':
+                return perfilesModificados.some(perfil => perfil.type === value);
+              default:
+                return true;
+            }
+          });
+
+        // Solo aplicar si cumple las condiciones y es fixed o está activa
+        const debeAplicarse = condicionesCumplidas && 
+          (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
+        
+        if (debeAplicarse && habilidad.effect) {
+          const { type, target, value, affects } = habilidad.effect;
           
           if (type === 'modifier') {
             if (target === 'save') {
               saveModificado = saveModificado - parseInt(value);
             } else if (target === 'ward') {
-              // Si no hay ward previo o el nuevo ward es mejor (número más bajo), usamos el nuevo
               if (!wardModificado || parseInt(value) < wardModificado) {
                 wardModificado = parseInt(value);
               }
+            } else if (affects === 'enemy_attacks') {
+              // Verificar las condiciones del ataque antes de aplicar el modificador
+              Object.entries(modificadoresAtaqueEnemigo).forEach(([stat, mod]) => {
+                if ((!habilidad.effect?.conditions || !habilidad.effect.conditions.attack_type || 
+                    perfilesModificados.some(perfil => perfil.type === habilidad.effect.conditions.attack_type))) {
+                  modificadoresAtaqueEnemigo[target] = (modificadoresAtaqueEnemigo[target] || 0) + parseInt(value);
+                }
+              });
             }
           }
         }
@@ -78,6 +131,13 @@ const DanoBar = React.memo(({
     const perfilesConHabilidades = perfilesModificados.map(perfil => {
       let perfilModificado = { ...perfil };
       
+      // Aplicar modificadores de ataques enemigos
+      if (Object.keys(modificadoresAtaqueEnemigo).length > 0) {
+        Object.entries(modificadoresAtaqueEnemigo).forEach(([stat, mod]) => {
+          perfilModificado[stat] = parseInt(perfilModificado[stat]) + mod;
+        });
+      }
+
       // Manejar array de habilidades ofensivas
       if (unidadAtacante.abilities || unidadAtacante.ability) {
         const habilidades = [].concat(unidadAtacante.abilities || unidadAtacante.ability).filter(Boolean);
@@ -144,6 +204,34 @@ const DanoBar = React.memo(({
     toggleHabilidadDefensiva(habilidadId);
   };
 
+  const handleMouseEnter = (habilidadId) => {
+    // Limpiar cualquier timeout pendiente
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+    }
+    // Establecer un timeout para mostrar el tooltip específico
+    tooltipTimeoutRef.current = setTimeout(() => {
+      setActiveTooltip(habilidadId);
+    }, 500);
+  };
+
+  const handleMouseLeave = () => {
+    // Limpiar el timeout si existe
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+    }
+    // Ocultar el tooltip
+    setActiveTooltip(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Usar el daño calculado en lugar del damage_final proporcionado
   const danoFinal = danoCalculado.damage_final;
   const vidaTotal = unidadOponente.wounds * unidadOponente.models;
@@ -159,68 +247,145 @@ const DanoBar = React.memo(({
   });
 
   return (
-    <Card variant="outlined" sx={{ 
-      mt: 1, 
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      transition: 'none'
+    <Box sx={{ 
+      width: '180px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 1
     }}>
-      <CardContent sx={{ 
-        p: 1, 
-        '&:last-child': { pb: 1 },
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1
+      {/* Nombre de la unidad con manejo de nombres largos */}
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          color: '#fff',
+          textAlign: 'center',
+          minHeight: '2.4em', // Altura para dos líneas
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          lineHeight: '1.2em'
+        }}
+      >
+        {nombreUnidad}
+      </Typography>
+
+      {/* Caja de daño con altura fija */}
+      <Box sx={{ 
+        height: '80px', // Altura fija solo para la parte del daño
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: 1,
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        {/* Primera fila: daño y nombre */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="h5" sx={{ color: '#90caf9', minWidth: '60px', fontWeight: 'bold' }}>
+        {/* Fondo con relleno según porcentaje */}
+        <Box sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: `${porcentajeVidaTotal}%`,
+          background: `linear-gradient(180deg, 
+            rgba(144, 202, 249, 0.15) 0%, 
+            rgba(144, 202, 249, 0.3) 100%
+          )`,
+          transition: 'height 0.3s ease-in-out'
+        }} />
+
+        {/* Contenido del daño */}
+        <Box sx={{ 
+          height: '100%',
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Typography variant="h3" sx={{ 
+            color: '#90caf9',
+            fontWeight: 'bold',
+            lineHeight: 1
+          }}>
             {danoFinal.toFixed(1)}
           </Typography>
-          <Box>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
-              damage potential vs
-            </Typography>
-            <Typography variant="body1" sx={{ color: '#fff' }}>
-              {nombreUnidad}
-            </Typography>
-          </Box>
-        </Box>
 
-        {/* Segunda fila: habilidades ofensivas y defensivas */}
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: '#90caf9',
+              opacity: 0.8
+            }}
+          >
+            {`${porcentajeVidaTotal.toFixed(0)}%`}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Lista de habilidades */}
+      {(habilidades.ofensivas.length > 0 || habilidades.defensivas.length > 0) && (
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5
+        }}>
           {/* Habilidades ofensivas */}
           {habilidades.ofensivas.map((habilidad) => (
             <Tooltip 
-              key={habilidad.id}
-              title={habilidad.description}
+              key={habilidad.id} 
+              title={habilidad.description} 
               arrow
+              open={activeTooltip === habilidad.id}
+              onClose={() => setActiveTooltip(null)}
+              disableHoverListener
+              placement="top"
             >
-              <Box sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1,
-                backgroundColor: 'rgba(144, 238, 144, 0.1)',
-                border: '1px solid rgba(144, 238, 144, 0.3)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#90ee90' }}>
+              <Box 
+                onMouseEnter={() => handleMouseEnter(habilidad.id)}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => habilidad.type === 'toggleable' && handleToggleOfensiva(habilidad.id)}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
+                    ? 'rgba(144, 238, 144, 0.2)' 
+                    : 'rgba(144, 238, 144, 0.05)',
+                  borderRadius: '4px',
+                  px: 1,
+                  py: 0.5,
+                  cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
+                  transition: 'all 0.2s ease',
+                  border: '1px solid',
+                  borderColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
+                    ? 'rgba(144, 238, 144, 0.5)' 
+                    : 'rgba(144, 238, 144, 0.1)',
+                  '&:hover': habilidad.type === 'toggleable' ? {
+                    backgroundColor: 'rgba(144, 238, 144, 0.3)',
+                    borderColor: 'rgba(144, 238, 144, 0.6)'
+                  } : {}
+                }}
+              >
+                <Typography variant="caption" sx={{ 
+                  color: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
+                    ? '#90ee90' 
+                    : '#aaa',
+                  fontSize: '0.75rem'
+                }}>
                   {habilidad.name}
                 </Typography>
-                <Switch
-                  size="small"
-                  checked={habilidadesActivas.ofensivas[habilidad.id] || false}
-                  onChange={() => handleToggleOfensiva(habilidad.id)}
-                  sx={{
-                    '& .MuiSwitch-track': {
-                      backgroundColor: 'rgba(144, 238, 144, 0.3)'
-                    },
-                    '& .MuiSwitch-thumb': {
-                      backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? '#90ee90' : '#666'
-                    }
-                  }}
-                />
+                {habilidad.type === 'toggleable' && (
+                  <Switch
+                    size="small"
+                    checked={habilidadesActivas.ofensivas[habilidad.id] || false}
+                    onChange={() => handleToggleOfensiva(habilidad.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{
+                      transform: 'scale(0.6)',
+                      ml: 0.5
+                    }}
+                  />
+                )}
               </Box>
             </Tooltip>
           ))}
@@ -228,68 +393,66 @@ const DanoBar = React.memo(({
           {/* Habilidades defensivas */}
           {habilidades.defensivas.map((habilidad) => (
             <Tooltip 
-              key={habilidad.id}
-              title={habilidad.description}
+              key={habilidad.id} 
+              title={habilidad.description} 
               arrow
+              open={activeTooltip === habilidad.id}
+              onClose={() => setActiveTooltip(null)}
+              disableHoverListener
+              placement="top"
             >
-              <Box sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1,
-                backgroundColor: 'rgba(255, 99, 71, 0.1)',
-                border: '1px solid rgba(255, 99, 71, 0.3)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#ff6347' }}>
+              <Box 
+                onMouseEnter={() => handleMouseEnter(habilidad.id)}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => habilidad.type === 'toggleable' && handleToggleDefensiva(habilidad.id)}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
+                    ? 'rgba(255, 99, 71, 0.2)' 
+                    : 'rgba(255, 99, 71, 0.05)',
+                  borderRadius: '4px',
+                  px: 1,
+                  py: 0.5,
+                  cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
+                  transition: 'all 0.2s ease',
+                  border: '1px solid',
+                  borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
+                    ? 'rgba(255, 99, 71, 0.5)' 
+                    : 'rgba(255, 99, 71, 0.1)',
+                  '&:hover': habilidad.type === 'toggleable' ? {
+                    backgroundColor: 'rgba(255, 99, 71, 0.3)',
+                    borderColor: 'rgba(255, 99, 71, 0.6)'
+                  } : {}
+                }}
+              >
+                <Typography variant="caption" sx={{ 
+                  color: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
+                    ? '#ff6347' 
+                    : '#aaa',
+                  fontSize: '0.75rem'
+                }}>
                   {habilidad.name}
                 </Typography>
-                <Switch
-                  size="small"
-                  checked={habilidadesActivas.defensivas[habilidad.id] || false}
-                  onChange={() => handleToggleDefensiva(habilidad.id)}
-                  sx={{
-                    '& .MuiSwitch-track': {
-                      backgroundColor: 'rgba(255, 99, 71, 0.3)'
-                    },
-                    '& .MuiSwitch-thumb': {
-                      backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? '#ff6347' : '#666'
-                    }
-                  }}
-                />
+                {habilidad.type === 'toggleable' && (
+                  <Switch
+                    size="small"
+                    checked={habilidadesActivas.defensivas[habilidad.id] || false}
+                    onChange={() => handleToggleDefensiva(habilidad.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{
+                      transform: 'scale(0.6)',
+                      ml: 0.5
+                    }}
+                  />
+                )}
               </Box>
             </Tooltip>
           ))}
         </Box>
-
-        {/* Tercera fila: barra de progreso */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <Typography variant="caption" sx={{ 
-            color: 'text.secondary',
-            fontSize: '0.7rem',
-            mb: 0.5,
-            textAlign: 'right'
-          }}>
-            kills {Math.min((danoFinal / (unidadOponente.wounds * unidadOponente.models)) * 100, 100).toFixed(0)}% 
-            of unit ({unidadOponente.models}×{unidadOponente.wounds} wounds)
-          </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={Math.min((danoFinal / (unidadOponente.wounds * unidadOponente.models)) * 100, 100)}
-            sx={{
-              width: '100%',
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: 'rgba(255, 215, 0, 0.1)',
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: '#ffd700'
-              }
-            }}
-          />
-        </Box>
-      </CardContent>
-    </Card>
+      )}
+    </Box>
   );
 });
 
