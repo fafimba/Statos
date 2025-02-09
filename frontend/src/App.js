@@ -8,10 +8,23 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#121212',
-      paper: '#1a1e2c'
+      default: '#1a1e2c',
+      paper: '#2a3040'
+    },
+    primary: {
+      main: '#90caf9'
     }
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: '#1a1e2c',
+          color: '#fff'
+        }
+      }
+    }
+  }
 });
 
 function App() {
@@ -20,12 +33,8 @@ function App() {
       <CssBaseline />
       <Box sx={{ 
         minHeight: '100vh',
-        backgroundColor: '#121212',
-        backgroundImage: `url(${process.env.PUBLIC_URL}/background.jpg)`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-        p: { xs: 1, sm: 2, md: 3 } // Padding responsivo
+        backgroundColor: '#1a1e2c',
+        p: { xs: 1, sm: 2, md: 3 }
       }}>
         <ComparacionEjercitos />
       </Box>

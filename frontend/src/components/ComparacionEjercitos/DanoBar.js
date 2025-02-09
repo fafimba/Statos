@@ -289,77 +289,108 @@ const DanoBar = React.memo(({
 
   return (
     <Box sx={{ 
-      width: '180px',
+      flex: 1,
+      minWidth: '140px',
       display: 'flex',
       flexDirection: 'column',
       gap: 1
     }}>
-      {/* Nombre de la unidad con manejo de nombres largos */}
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#fff',
-          textAlign: 'center',
-          minHeight: '2.4em', // Altura para dos líneas
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          lineHeight: '1.2em'
-        }}
-      >
-        {nombreUnidad}
-      </Typography>
-
-      {/* Caja de daño con altura fija */}
-      <Box sx={{ 
-        height: '80px', // Altura fija solo para la parte del daño
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: 1,
-        position: 'relative',
-        overflow: 'hidden'
+      {/* Nombre y stats del objetivo */}
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0.5
       }}>
-        {/* Fondo con relleno según porcentaje */}
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#fff',
+            fontWeight: 500
+          }}
+        >
+          {nombreUnidad}
+        </Typography>
         <Box sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: `${porcentajeVidaTotal}%`,
-          background: `linear-gradient(180deg, 
-            rgba(144, 202, 249, 0.15) 0%, 
-            rgba(144, 202, 249, 0.3) 100%
-          )`,
-          transition: 'height 0.3s ease-in-out'
-        }} />
-
-        {/* Contenido del daño */}
-        <Box sx={{ 
-          height: '100%',
-          position: 'relative',
-          zIndex: 1,
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          gap: 1,
+          alignItems: 'center'
         }}>
-          <Typography variant="h3" sx={{ 
-            color: '#90caf9',
-            fontWeight: 'bold',
-            lineHeight: 1
-          }}>
-            {danoFinal.toFixed(1)}
-          </Typography>
-
           <Typography 
-            variant="caption" 
+            variant="h5" 
             sx={{ 
               color: '#90caf9',
-              opacity: 0.8
+              fontWeight: 'bold',
+              lineHeight: 1
             }}
           >
-            {`${porcentajeVidaTotal.toFixed(0)}%`}
+            {danoFinal.toFixed(1)}
           </Typography>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 0.5
+          }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'rgba(144, 202, 249, 0.7)',
+                fontWeight: 500
+              }}
+            >
+              {`${porcentajeVidaTotal.toFixed(0)}%`}
+            </Typography>
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '0.7rem'
+              }}
+            >
+              {`(${Math.ceil(danoFinal)}/${vidaTotal}W)`}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Contenedor de números y barra */}
+      <Box sx={{ 
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0.5
+      }}>
+        {/* Barra de progreso */}
+        <Box sx={{ 
+          height: '12px', // Reducida la altura de la barra
+          position: 'relative',
+          borderRadius: '2px',
+          overflow: 'hidden',
+          maskImage: `repeating-linear-gradient(
+            to right,
+            #000 0%,
+            #000 calc(${100 / unidadOponente.models}% - 2px),
+            transparent calc(${100 / unidadOponente.models}% - 2px),
+            transparent ${100 / unidadOponente.models}%
+          )`,
+          WebkitMaskImage: `repeating-linear-gradient(
+            to right,
+            #000 0%,
+            #000 calc(${100 / unidadOponente.models}% - 2px),
+            transparent calc(${100 / unidadOponente.models}% - 2px),
+            transparent ${100 / unidadOponente.models}%
+          )`,
+          backgroundColor: 'rgba(144, 202, 249, 0.1)'
+        }}>
+          {/* Barra de progreso única */}
+          <Box
+            sx={{
+              position: 'absolute',
+              height: '100%',
+              width: `${porcentajeVidaTotal}%`,
+              backgroundColor: '#90caf9',
+              transition: 'width 0.3s ease'
+            }}
+          />
         </Box>
       </Box>
 

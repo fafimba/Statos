@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Container,
   Grid,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Typography,
   Box,
+  Typography,
   Switch
 } from '@mui/material';
 import { armies } from '../../data/armies';
 import { default as UnidadCard } from './UnidadCard';
 
-
 function ComparacionEjercitos() {
-  // Estado para los ejércitos seleccionados
   const [selectedEjercitoAtacante, setSelectedEjercitoAtacante] = useState(() => 
     localStorage.getItem('selectedAttacker') || Object.keys(armies)[0]
   );
@@ -24,7 +21,8 @@ function ComparacionEjercitos() {
     localStorage.getItem('selectedDefender') || Object.keys(armies)[1]
   );
 
-  // Ordenar unidades por nombre
+  const [vistaUnaColumna, setVistaUnaColumna] = useState(false);
+
   const unidadesAtacantesOrdenadas = useMemo(() => {
     const ejercito = armies[selectedEjercitoAtacante];
     return Object.entries(ejercito?.units || {})
@@ -37,24 +35,17 @@ function ComparacionEjercitos() {
       .sort(([nombreA], [nombreB]) => nombreA.localeCompare(nombreB));
   }, [selectedEjercitoDefensor]);
 
-  // Guardar selecciones en localStorage
   useEffect(() => {
     localStorage.setItem('selectedAttacker', selectedEjercitoAtacante);
-  }, [selectedEjercitoAtacante]);
-
-  useEffect(() => {
     localStorage.setItem('selectedDefender', selectedEjercitoDefensor);
-  }, [selectedEjercitoDefensor]);
-
-  // Nuevo estado para el modo de vista
-  const [vistaUnaColumna, setVistaUnaColumna] = useState(false);
+  }, [selectedEjercitoAtacante, selectedEjercitoDefensor]);
 
   return (
     <Box sx={{ 
-      p: { xs: 2, md: 4 }, // Padding responsivo
       width: '100%',
-      minHeight: '100vh',
-      backgroundColor: '#1a1e2c'
+      maxWidth: vistaUnaColumna ? '1400px' : '1800px',
+      margin: '0 auto',
+      p: { xs: 2, md: 4 },
     }}>
       {/* Control de vista */}
       <Box sx={{ 
@@ -64,7 +55,7 @@ function ComparacionEjercitos() {
         alignItems: 'center', 
         gap: 2 
       }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#90caf9' }}>
           {vistaUnaColumna ? 'Vista atacante' : 'Vista comparativa'}
         </Typography>
         <Switch
@@ -81,9 +72,14 @@ function ComparacionEjercitos() {
 
       {/* Selectores de ejércitos */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={vistaUnaColumna ? 6 : 6}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Attacking Army</InputLabel>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth size="small" sx={{
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderColor: '#3a4156'
+            }
+          }}>
+            <InputLabel sx={{ color: '#90caf9' }}>Attacking Army</InputLabel>
             <Select
               value={selectedEjercitoAtacante}
               onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
@@ -97,9 +93,14 @@ function ComparacionEjercitos() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={vistaUnaColumna ? 6 : 6}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Defending Army</InputLabel>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth size="small" sx={{
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderColor: '#3a4156'
+            }
+          }}>
+            <InputLabel sx={{ color: '#90caf9' }}>Defending Army</InputLabel>
             <Select
               value={selectedEjercitoDefensor}
               onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
@@ -115,27 +116,12 @@ function ComparacionEjercitos() {
         </Grid>
       </Grid>
 
-      {/* Contenido de unidades */}
-      <Grid 
-        container 
-        spacing={2}
-        sx={{
-          '& .MuiCard-root': {
-            height: '100%'
-          }
-        }}
-      >
-        {/* Columna del Ejército Atacante */}
-        <Grid 
-          item 
-          xs={12} 
-          md={vistaUnaColumna ? 12 : 6}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2
-          }}
-        >
+      {/* Lista de unidades */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={vistaUnaColumna ? 12 : 6}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#90caf9' }}>
+            Attacking Units
+          </Typography>
           {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
             <UnidadCard
               key={nombre}
@@ -143,23 +129,14 @@ function ComparacionEjercitos() {
               unidad={unidad}
               ejercitoOponente={armies[selectedEjercitoDefensor]}
               esAtacante={true}
-              vistaUnaColumna={vistaUnaColumna}
             />
           ))}
         </Grid>
-
-        {/* Columna del Ejército Defensor */}
         {!vistaUnaColumna && (
-          <Grid 
-            item 
-            xs={12} 
-            md={6}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2
-            }}
-          >
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" sx={{ mb: 2, color: '#ff6b6b' }}>
+              Defending Units
+            </Typography>
             {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
               <UnidadCard
                 key={nombre}
@@ -167,7 +144,6 @@ function ComparacionEjercitos() {
                 unidad={unidad}
                 ejercitoOponente={armies[selectedEjercitoAtacante]}
                 esAtacante={false}
-                vistaUnaColumna={vistaUnaColumna}
               />
             ))}
           </Grid>

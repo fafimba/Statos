@@ -37,21 +37,22 @@ export const usePerfilesAtaque = (unidad) => {
   });
 
   // Función para modificar una habilidad de perfil
-  const modificarPerfil = useCallback((nombrePerfil, nombreHabilidad) => {
-    console.log('Modificando habilidad:', {
-      perfil: nombrePerfil,
-      habilidad: nombreHabilidad,
-      estadoActual: habilidadesPerfiles[nombrePerfil]?.[nombreHabilidad]
-    });
-
-    setHabilidadesPerfiles(prev => ({
-      ...prev,
-      [nombrePerfil]: {
-        ...prev[nombrePerfil],
-        [nombreHabilidad]: !prev[nombrePerfil]?.[nombreHabilidad]
-      }
-    }));
-  }, [habilidadesPerfiles]);
+  const modificarPerfil = useCallback((nombrePerfil, tipo, valor) => {
+    if (tipo === 'active') {
+      setPerfilesActivos(prev => ({
+        ...prev,
+        [nombrePerfil]: valor
+      }));
+    } else {
+      setHabilidadesPerfiles(prev => ({
+        ...prev,
+        [nombrePerfil]: {
+          ...prev[nombrePerfil],
+          [tipo]: valor
+        }
+      }));
+    }
+  }, []);
 
   // Obtener habilidades de unidad
   const habilidadesUnidad = useMemo(() => {

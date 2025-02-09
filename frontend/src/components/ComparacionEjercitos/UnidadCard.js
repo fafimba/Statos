@@ -6,15 +6,17 @@ import {
   Box,
   Tooltip,
   Switch,
+  Collapse
 } from '@mui/material';
 import { usePerfilesAtaque } from '../../hooks/usePerfilesAtaque';
 import { calculateAttacks } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
 import PerfilAtaque from './PerfilAtaque';
 import { default as DanoBar } from './DanoBar';
+import { DragHandle } from '@mui/icons-material';
 
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante, provided }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
@@ -27,6 +29,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
 
   // Estado para habilidades toggleables de unidad
   const [habilidadUnidadActiva, setHabilidadUnidadActiva] = useState(false);
+  const [expandido, setExpandido] = useState(true);
 
   // Manejadores para habilidades ofensivas y defensivas
   const handleToggleHabilidadOfensiva = useCallback((unidadId, habilidadId) => {
@@ -222,6 +225,13 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
     }));
   }, [unidad, ejercitoOponente, perfilesActivos, habilidadesPerfiles, habilidadUnidadActiva]);
 
+  // Calcular el daño medio
+  const danoMedio = useMemo(() => {
+    if (!danosContraUnidades?.length) return 0;
+    const total = danosContraUnidades.reduce((sum, dato) => sum + dato.damage_final, 0);
+    return (total / danosContraUnidades.length).toFixed(1);
+  }, [danosContraUnidades]);
+
   if (!unidad) return null;
 
   return (
@@ -231,177 +241,151 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
       borderRadius: '0.5rem',
       mb: 2,
       width: '100%',
-      display: 'flex',
-      flexDirection: 'column'
+      overflow: 'hidden'
     }}>
       <CardContent sx={{ 
-        '&:last-child': { 
-          pb: '8px !important'
-        },
-        p: 2,
-        pb: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1.5,
-        flex: '0 0 auto'
+        p: '0 !important',
       }}>
-        {/* Cabecera de unidad con atributos */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          gap: 1,
-          mb: 2 
-        }}>
-          {/* Primera fila: Nombre y Tags */}
-          <Box sx={{
+        {/* Cabecera clickeable */}
+        <Box 
+          onClick={() => setExpandido(!expandido)}
+          sx={{
+            cursor: 'pointer',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            flexWrap: 'wrap',
-            gap: 1
+            alignItems: 'center',
+            p: 2,
+            transition: 'background-color 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(144, 202, 249, 0.05)',
+            }
+          }}
+        >
+          <Typography variant="h5" sx={{ 
+            color: '#fff',
+            fontWeight: 500,
+            fontSize: '1.3rem'
           }}>
-            <Typography variant="h6" sx={{ mb: 0 }}>
-              {nombreUnidad}
-            </Typography>
+            {nombreUnidad}
+          </Typography>
+
+          <Box sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2
+          }}>
+            {!expandido && (
+              <Typography sx={{ 
+                color: '#ff6b6b',
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                opacity: 0.9,
+                minWidth: '60px',
+                textAlign: 'right'
+              }}>
+                {danoMedio}
+              </Typography>
+            )}
             <Box sx={{ 
-              display: 'flex', 
-              gap: 0.5, 
-              flexWrap: 'wrap', 
-              justifyContent: 'flex-end'
+              color: '#90caf9',
+              opacity: 0.7,
+              transition: 'transform 0.3s ease',
+              transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
             }}>
-              {unidad.tags?.map(tag => (
-                <Typography 
-                  key={tag}
-                  variant="caption" 
-                  sx={{ 
-                    color: 'text.secondary',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                    fontSize: '0.7rem',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  {tag}
-                </Typography>
+              ▼
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Contenido expandible con animación */}
+        <Collapse in={expandido}>
+          <Box sx={{ p: 2, pt: 1 }}>
+            {/* Stats y tags en una línea */}
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+              px: 0.5
+            }}>
+              {/* Stats defensivos */}
+              <Box sx={{
+                display: 'flex',
+                gap: 2
+              }}>
+                <StatBox 
+                  label="Size" 
+                  value={unidad.models} 
+                  color="#90caf9"
+                />
+                <StatBox 
+                  label="Wounds" 
+                  value={unidad.wounds} 
+                  color="#ff6b6b"
+                />
+                <StatBox 
+                  label="Save" 
+                  value={`${unidad.save}+`} 
+                  color="#ffd700"
+                />
+                <StatBox 
+                  label="Ward" 
+                  value={unidad.ward ? `${unidad.ward}+` : '-'} 
+                  color="#9370db"
+                />
+              </Box>
+
+              {/* Tags */}
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  backgroundColor: 'rgba(144, 202, 249, 0.1)',
+                  color: '#90caf9',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: '12px',
+                  fontWeight: 500,
+                  letterSpacing: '0.5px'
+                }}
+              >
+                {unidad.tags?.[0] || 'INFANTRY'}
+              </Typography>
+            </Box>
+
+            {/* Perfiles de ataque */}
+            <Box sx={{ mb: 2 }}>
+              {unidad.attack_profiles?.map(perfil => (
+                <PerfilAtaque
+                  key={perfil.name}
+                  perfil={perfil}
+                  activo={perfilesActivos[perfil.name]}
+                  habilidadesPerfil={habilidadesPerfiles[perfil.name]}
+                  onToggleHabilidad={modificarPerfil}
+                />
+              ))}
+            </Box>
+
+            {/* Daños contra unidades */}
+            <Box sx={{
+              display: 'flex',
+              gap: 2,
+              width: '100%',
+              overflowX: 'auto',
+              pb: 1,
+              '& > *': {
+                flex: 1,
+                minWidth: '140px',
+              }
+            }}>
+              {danosContraUnidades.map((datos, index) => (
+                <DanoBar
+                  key={datos.nombreUnidad}
+                  {...datos}
+                />
               ))}
             </Box>
           </Box>
-
-          {/* Segunda fila: Stats de la unidad */}
-          <Box sx={{ 
-            display: 'flex', 
-            gap: 1, 
-            flexWrap: 'wrap',
-            mt: 0
-          }}>
-            {/* Stats chips */}
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              backgroundColor: 'rgba(144, 202, 249, 0.1)',
-              borderRadius: 1,
-              px: 1,
-              py: 0.5
-            }}>
-              <Typography variant="caption" sx={{ color: '#90caf9', mr: 0.5 }}>Size:</Typography>
-              <Typography variant="caption" sx={{ color: '#fff' }}>{unidad.models}</Typography>
-            </Box>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              backgroundColor: 'rgba(255, 107, 107, 0.1)',
-              borderRadius: 1,
-              px: 1,
-              py: 0.5
-            }}>
-              <Typography variant="caption" sx={{ color: '#ff6b6b', mr: 0.5 }}>
-                Wounds:
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#fff' }}>
-                {unidad.wounds}
-              </Typography>
-            </Box>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              backgroundColor: 'rgba(255, 215, 0, 0.1)',
-              borderRadius: 1,
-              px: 1,
-              py: 0.5
-            }}>
-              <Typography variant="caption" sx={{ color: '#ffd700', mr: 0.5 }}>
-                Save:
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#fff' }}>
-                {unidad.save}+
-              </Typography>
-            </Box>
-            {unidad.ward && (
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                backgroundColor: 'rgba(147, 112, 219, 0.1)',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: '#9370db', mr: 0.5 }}>
-                  Ward:
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#fff' }}>
-                  {unidad.ward}+
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </Box>
-
-        {/* Perfiles de ataque */}
-        <Box sx={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1,
-          mb: 2,
-          '& > *': { // Asegura que cada perfil tenga espacio suficiente
-            minWidth: 0, // Permite que los elementos se ajusten al contenedor
-            width: '100%'
-          }
-        }}>
-          {unidad.attack_profiles?.map(perfil => (
-            <PerfilAtaque
-              key={perfil.name}
-              perfil={perfil}
-              activo={perfilesActivos[perfil.name]}
-              onToggle={(nombre) => setPerfilesActivos(prev => ({
-                ...prev,
-                [nombre]: !prev[nombre]
-              }))}
-              habilidadesPerfil={habilidadesPerfiles[perfil.name]}
-              onToggleHabilidad={modificarPerfil}
-            />
-          ))}
-        </Box>
-
-        {/* Daños contra unidades */}
-        <Box sx={{
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: 1,
-          overflowX: 'auto',
-          pb: 0,
-          '& > *': {
-            flex: '0 0 140px',
-          }
-        }}>
-          {danosContraUnidades.map((datos, index) => (
-            <DanoBar
-              key={datos.nombreUnidad}
-              {...datos}
-            />
-          ))}
-        </Box>
+        </Collapse>
       </CardContent>
     </Card>
   );
@@ -419,5 +403,30 @@ const calcularValorDado = (dado) => {
   }
   return 0;
 };
+
+// Componente auxiliar para los stats
+const StatBox = ({ label, value, color }) => (
+  <Box sx={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1
+  }}>
+    <Typography variant="caption" sx={{ 
+      color: color,
+      opacity: 0.7,
+      fontWeight: 500,
+      fontSize: '0.75rem'
+    }}>
+      {label}
+    </Typography>
+    <Typography sx={{ 
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: '0.9rem'
+    }}>
+      {value}
+    </Typography>
+  </Box>
+);
 
 export default UnidadCard; 
