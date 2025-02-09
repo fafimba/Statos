@@ -117,11 +117,8 @@ function ComparacionEjercitos() {
       </Grid>
 
       {/* Lista de unidades */}
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={vistaUnaColumna ? 12 : 6}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#90caf9' }}>
-            Attacking Units
-          </Typography>
           {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
             <UnidadCard
               key={nombre}
@@ -134,9 +131,6 @@ function ComparacionEjercitos() {
         </Grid>
         {!vistaUnaColumna && (
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#ff6b6b' }}>
-              Defending Units
-            </Typography>
             {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
               <UnidadCard
                 key={nombre}

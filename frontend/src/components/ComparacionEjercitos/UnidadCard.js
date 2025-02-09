@@ -29,7 +29,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
 
   // Estado para habilidades toggleables de unidad
   const [habilidadUnidadActiva, setHabilidadUnidadActiva] = useState(false);
-  const [expandido, setExpandido] = useState(true);
+  const [expandido, setExpandido] = useState(false);
 
   // Manejadores para habilidades ofensivas y defensivas
   const handleToggleHabilidadOfensiva = useCallback((unidadId, habilidadId) => {
