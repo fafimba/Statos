@@ -36,25 +36,42 @@ const DanoBar = React.memo(({
     .filter(Boolean)
     .filter(hab => hab.category === 'defensive');
 
-  // Separar habilidades por categoría
+  // Modificar la preparación de habilidades para incluir las habilidades de armas
   const habilidades = {
-    ofensivas: habilidadesAtacante
-      .filter(hab => {
-        const condicionesCumplidas = !hab.effect?.conditions || 
-          Object.entries(hab.effect.conditions).every(([key, value]) => {
-            switch(key) {
-              case 'attack_type':
-                return perfilesModificados.some(perfil => perfil.type === value);
-              default:
-                return true;
-            }
-          });
-        return condicionesCumplidas;
-      })
-      .map(hab => ({
-        id: `${unidadAtacante.name}_${hab.name}`,
-        ...hab
-      })),
+    ofensivas: [
+      // Habilidades de unidad ofensivas
+      ...habilidadesAtacante
+        .filter(hab => {
+          const condicionesCumplidas = !hab.effect?.conditions || 
+            Object.entries(hab.effect.conditions).every(([key, value]) => {
+              switch(key) {
+                case 'attack_type':
+                  return perfilesModificados.some(perfil => perfil.type === value);
+                default:
+                  return true;
+              }
+            });
+          return condicionesCumplidas;
+        })
+        .map(hab => ({
+          id: `${unidadAtacante.name}_${hab.name}`,
+          ...hab
+        })),
+      // Habilidades de armas
+      ...perfilesModificados.flatMap(perfil => 
+        (perfil.abilities || []).map(habilidadId => {
+          const habilidadInfo = weapon_abilities[habilidadId];
+          return {
+            id: `${perfil.name}_${habilidadId}`,
+            name: habilidadInfo?.name || habilidadId,
+            description: habilidadInfo?.description || '',
+            type: habilidadInfo?.type || 'fixed',
+            effect: habilidadInfo?.effect,
+            profileName: perfil.name
+          };
+        })
+      )
+    ],
     defensivas: habilidadesOponente
       .filter(hab => {
         const condicionesCumplidas = !hab.effect?.conditions || 
@@ -137,6 +154,30 @@ const DanoBar = React.memo(({
           perfilModificado[stat] = parseInt(perfilModificado[stat]) + mod;
         });
       }
+
+      // Aplicar habilidades de armas
+      perfil.abilities?.forEach(habilidadId => {
+        const habilidadInfo = weapon_abilities[habilidadId];
+        const habilidadCompuestaId = `${perfil.name}_${habilidadId}`;
+        
+        if (habilidadInfo?.type === 'fixed' || habilidadesActivas.ofensivas[habilidadCompuestaId]) {
+          // Aplicar los efectos de la habilidad
+          if (habilidadInfo?.effect) {
+            const { type, target, value } = habilidadInfo.effect;
+            if (type === 'modifier') {
+              if (target === 'abilities') {
+                perfilModificado.abilities = perfilModificado.abilities || [];
+                if (!perfilModificado.abilities.includes(value)) {
+                  perfilModificado.abilities = [...perfilModificado.abilities, value];
+                }
+              } else {
+                perfilModificado[target] = parseInt(perfilModificado[target]) + 
+                  ((['hit', 'wound'].includes(target)) ? -parseInt(value) : parseInt(value));
+              }
+            }
+          }
+        }
+      });
 
       // Manejar array de habilidades ofensivas
       if (unidadAtacante.abilities || unidadAtacante.ability) {

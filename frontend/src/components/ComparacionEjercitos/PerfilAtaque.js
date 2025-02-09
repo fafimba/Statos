@@ -117,7 +117,7 @@ const PerfilAtaque = React.memo(({
           </Box>
         </Box>
 
-        {/* Habilidades */}
+        {/* Habilidades modificadas para ser solo informativas */}
         {habilidadesMostradas.length > 0 && (
           <Box sx={{ 
             display: 'flex',
@@ -129,62 +129,35 @@ const PerfilAtaque = React.memo(({
           }}>
             {habilidadesMostradas.map(habilidad => {
               const habilidadInfo = weapon_abilities[habilidad.id];
-              const esToggleable = habilidadInfo?.type === 'toggleable';
 
               return (
                 <Tooltip key={habilidad.id} title={habilidad.descripcion}>
                   <Box 
-                    onClick={() => esToggleable && habilidad.onToggle()}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 0.5,
-                      padding: '2px 6px',
+                      padding: '2px 8px',
                       backgroundColor: 'rgba(255,255,255,0.05)',
                       borderRadius: '4px',
                       height: '24px',
-                      cursor: esToggleable ? 'pointer' : 'default',
-                      transition: 'all 0.2s ease',
-                      '&:hover': esToggleable ? {
-                        backgroundColor: 'rgba(255,255,255,0.1)',
-                        transform: 'translateY(-1px)'
-                      } : {},
-                      border: habilidad.activa && esToggleable ? 
-                        '1px solid rgba(144, 202, 249, 0.5)' : 
-                        '1px solid transparent'
+                      border: '1px solid transparent'
                     }}
                   >
                     <Typography 
                       variant="caption" 
                       noWrap
-                      sx={{
-                        color: habilidad.activa && esToggleable ? '#90caf9' : 'inherit'
-                      }}
+                      sx={{ color: 'inherit' }}
                     >
                       {habilidad.nombre}
                     </Typography>
-                    {esToggleable ? (
-                      <Switch
-                        size="small"
-                        checked={habilidad.activa}
-                        onChange={habilidad.onToggle}
-                        onClick={(e) => e.stopPropagation()} // Evitar doble toggle
-                        sx={{
-                          transform: 'scale(0.7)',
-                          '& .MuiSwitch-thumb': {
-                            backgroundColor: habilidad.activa ? '#90caf9' : '#666'
-                          }
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        backgroundColor: '#90caf9',
-                        ml: 0.5
-                      }} />
-                    )}
+                    <Box sx={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      backgroundColor: '#90caf9',
+                      ml: 0.5
+                    }} />
                   </Box>
                 </Tooltip>
               );
