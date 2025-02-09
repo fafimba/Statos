@@ -276,7 +276,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           }}>
             {!expandido && (
               <Typography sx={{ 
-                color: '#ff6b6b',
+                color: '#90caf9',
                 fontSize: '1.5rem',
                 fontWeight: 600,
                 opacity: 0.9,
