@@ -48,150 +48,102 @@ function ComparacionEjercitos() {
   return (
     <Box sx={{ 
       width: '100%',
-      maxWidth: vistaUnaColumna ? '1400px' : '1800px',
+      maxWidth: '1800px',
       margin: '0 auto',
       p: { xs: 2, md: 4 },
       backgroundColor: 'background.default',
     }}>
-      {/* Control de vista */}
+      {/* Selectores de ejército */}
       <Box sx={{ 
         display: 'flex', 
         gap: 2,
         mb: 4,
-        flexDirection: { xs: 'column', sm: 'row' },
-        alignItems: 'center'
+        flexDirection: { xs: 'column', sm: 'row' }
       }}>
-        {/* Selectores de ejército */}
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 2,
-          flex: 1,
-          width: '100%',
-          flexDirection: { xs: 'column', sm: 'row' }
-        }}>
-          <FormControl sx={{ minWidth: 200, flex: 1 }}>
-            <InputLabel 
-              id="attacking-army-label"
-              sx={{ 
-                color: 'text.secondary',
-                '&.Mui-focused': {
-                  color: 'primary.main'
-                }
-              }}
-            >
-              Attacking Army
-            </InputLabel>
-            <Select
-              labelId="attacking-army-label"
-              value={selectedEjercitoAtacante}
-              onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
-              label="Attacking Army"
-            >
-              {Object.keys(armies).map((armyName) => (
-                <MenuItem 
-                  key={armyName} 
-                  value={armyName}
-                  sx={{
+        <FormControl sx={{ minWidth: 200, flex: 1 }}>
+          <InputLabel 
+            id="attacking-army-label"
+            sx={{ 
+              color: 'text.secondary',
+              '&.Mui-focused': {
+                color: 'primary.main'
+              }
+            }}
+          >
+            Attacking Army
+          </InputLabel>
+          <Select
+            labelId="attacking-army-label"
+            value={selectedEjercitoAtacante}
+            onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
+            label="Attacking Army"
+          >
+            {Object.keys(armies).map((armyName) => (
+              <MenuItem 
+                key={armyName} 
+                value={armyName}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: '#2a2a2a'
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: '#333333',
                     '&:hover': {
-                      backgroundColor: '#2a2a2a'
-                    },
-                    '&.Mui-selected': {
-                      backgroundColor: '#333333',
-                      '&:hover': {
-                        backgroundColor: '#383838'
-                      }
+                      backgroundColor: '#383838'
                     }
-                  }}
-                >
-                  {armyName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                  }
+                }}
+              >
+                {armyName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-          <FormControl sx={{ minWidth: 200, flex: 1 }}>
-            <InputLabel 
-              id="defending-army-label"
-              sx={{ 
-                color: 'text.secondary',
-                '&.Mui-focused': {
-                  color: 'primary.main'
-                }
-              }}
-            >
-              Defending Army
-            </InputLabel>
-            <Select
-              labelId="defending-army-label"
-              value={selectedEjercitoDefensor}
-              onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
-              label="Defending Army"
-            >
-              {Object.keys(armies).map((armyName) => (
-                <MenuItem 
-                  key={armyName} 
-                  value={armyName}
-                  sx={{
+        <FormControl sx={{ minWidth: 200, flex: 1 }}>
+          <InputLabel 
+            id="defending-army-label"
+            sx={{ 
+              color: 'text.secondary',
+              '&.Mui-focused': {
+                color: 'primary.main'
+              }
+            }}
+          >
+            Defending Army
+          </InputLabel>
+          <Select
+            labelId="defending-army-label"
+            value={selectedEjercitoDefensor}
+            onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
+            label="Defending Army"
+          >
+            {Object.keys(armies).map((armyName) => (
+              <MenuItem 
+                key={armyName} 
+                value={armyName}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: '#2a2a2a'
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: '#333333',
                     '&:hover': {
-                      backgroundColor: '#2a2a2a'
-                    },
-                    '&.Mui-selected': {
-                      backgroundColor: '#333333',
-                      '&:hover': {
-                        backgroundColor: '#383838'
-                      }
+                      backgroundColor: '#383838'
                     }
-                  }}
-                >
-                  {armyName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-
-        {/* Selector de vista simplificado */}
-        <FormControlLabel
-          control={
-            <Switch
-              checked={!vistaUnaColumna}
-              onChange={(e) => setVistaUnaColumna(!e.target.checked)}
-              sx={{
-                '& .MuiSwitch-thumb': {
-                  backgroundColor: !vistaUnaColumna ? 'primary.main' : '#808080',
-                },
-                '& .MuiSwitch-track': {
-                  backgroundColor: !vistaUnaColumna ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-                }
-              }}
-            />
-          }
-          label={
-            <Typography
-              sx={{
-                color: 'primary.main',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-              }}
-            >
-              Comparative View
-            </Typography>
-          }
-          sx={{
-            margin: 0,
-            backgroundColor: '#242424',
-            border: '1px solid #333333',
-            borderRadius: '4px',
-            padding: '4px 12px',
-            height: '56px',
-            alignItems: 'center',
-          }}
-        />
+                  }
+                }}
+              >
+                {armyName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
-      {/* Lista de unidades */}
+      {/* Lista de unidades en dos columnas */}
       <Grid container spacing={2}>
-        <Grid item xs={12} md={vistaUnaColumna ? 12 : 6}>
+        <Grid item xs={12} md={6}>
           {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
             <UnidadCard
               key={nombre}
@@ -202,19 +154,17 @@ function ComparacionEjercitos() {
             />
           ))}
         </Grid>
-        {!vistaUnaColumna && (
-          <Grid item xs={12} md={6}>
-            {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
-              <UnidadCard
-                key={nombre}
-                nombreUnidad={nombre}
-                unidad={unidad}
-                ejercitoOponente={armies[selectedEjercitoAtacante]}
-                esAtacante={false}
-              />
-            ))}
-          </Grid>
-        )}
+        <Grid item xs={12} md={6}>
+          {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
+            <UnidadCard
+              key={nombre}
+              nombreUnidad={nombre}
+              unidad={unidad}
+              ejercitoOponente={armies[selectedEjercitoAtacante]}
+              esAtacante={false}
+            />
+          ))}
+        </Grid>
       </Grid>
     </Box>
   );
@@ -228,8 +178,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
     setPerfilesActivos,
     habilidadesPerfiles,
     modificarPerfil,
-    habilidadesUnidad,
-    setHabilidadesUnidad
+    habilidadesUnidad
   } = usePerfilesAtaque(unidad);
 
   // Estado para habilidades toggleables de unidad
@@ -1058,7 +1007,7 @@ const DanoBar = React.memo(({
     // Establecer un timeout para mostrar el tooltip específico
     tooltipTimeoutRef.current = setTimeout(() => {
       setActiveTooltip(habilidadId);
-    }, 500);
+    }, 1000);
   };
 
   const handleMouseLeave = () => {
@@ -1253,7 +1202,14 @@ const DanoBar = React.memo(({
                     onClick={(e) => e.stopPropagation()}
                     sx={{
                       transform: 'scale(0.6)',
-                      ml: 0.5
+                      ml: 0.5,
+                      '& .MuiSwitch-thumb': {
+                        backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'primary.main' : '#404040',
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'rgba(0, 207, 200, 0.3)' : '#242424',
+                        opacity: 1
+                      }
                     }}
                   />
                 )}
@@ -1293,11 +1249,11 @@ const DanoBar = React.memo(({
                   transition: 'all 0.2s ease',
                   border: '1px solid',
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'secondary.main'
+                    ? '#ff9999'
                     : 'divider',
                   '&:hover': habilidad.type === 'toggleable' ? {
                     backgroundColor: 'rgba(255, 77, 130, 0.25)',
-                    borderColor: 'secondary.light'
+                    borderColor: '#ff9999'
                   } : {}
                 }}
               >
@@ -1320,7 +1276,14 @@ const DanoBar = React.memo(({
                     onClick={(e) => e.stopPropagation()}
                     sx={{
                       transform: 'scale(0.6)',
-                      ml: 0.5
+                      ml: 0.5,
+                      '& .MuiSwitch-thumb': {
+                        backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? '#ff9999' : '#404040',
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? 'rgba(255, 77, 130, 0.3)' : '#242424',
+                        opacity: 1
+                      }
                     }}
                   />
                 )}

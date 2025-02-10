@@ -28,6 +28,21 @@ export const theme = createTheme({
       blue: '#00e5ff'
 
     },
+    ability: {
+      offensive: {
+        background: '#ff75a3',
+        backgroundActive: '#ff75a3',
+        border: '#ff75a3',
+        borderActive: '#ff75a3',
+
+      },
+      defensive: {
+        background: '#4dd0e1',
+        backgroundActive: '#4dd0e1',
+        border: '#4dd0e1',
+        borderActive: '#4dd0e1',
+      },
+    },
     divider: 'rgba(255, 255, 255, 0.1)',
     custom: {
       statBadge: {
