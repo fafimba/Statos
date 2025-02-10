@@ -429,16 +429,25 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
             ml: 'auto' // Empuja el contenido a la derecha
           }}>
             {!expandido && (
-              <Typography sx={{ 
-                color: 'text.damage',
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                opacity: 0.9,
-                minWidth: '60px',
-                textAlign: 'right'
-              }}>
-                {danoMedio}
-              </Typography>
+              <Tooltip
+                title="Average damage dealt by this unit against all units in the opposing army"
+                arrow
+                placement="left"
+                enterDelay={1000}
+                leaveDelay={0}
+              >
+                <Typography sx={{ 
+                  color: 'secondary.main',
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                  opacity: 0.9,
+                  minWidth: '60px',
+                  textAlign: 'right',
+                  cursor: 'help'
+                }}>
+                  {danoMedio}
+                </Typography>
+              </Tooltip>
             )}
             <Box sx={{ 
               color: 'text.primary',
@@ -457,15 +466,19 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
             {/* Stats y tags en una línea */}
             <Box sx={{
               display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 1, sm: 0 },
               justifyContent: 'space-between',
-              alignItems: 'center',
+              alignItems: { xs: 'flex-start', sm: 'center' },
               mb: 2,
               px: 0.5
             }}>
               {/* Stats defensivos */}
               <Box sx={{
                 display: 'flex',
-                gap: 2
+                gap: 2,
+                flexWrap: 'wrap',
+                width: { xs: '100%', sm: 'auto' }
               }}>
                 <StatBox 
                   label="Size" 
@@ -492,7 +505,9 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
               {/* Tags */}
               <Box sx={{ 
                 display: 'flex', 
-                gap: 1
+                gap: 1,
+                flexWrap: 'wrap',
+                width: { xs: '100%', sm: 'auto' }
               }}>
                 {unidad.tags?.map((tag) => (
                   <UnitTag key={tag} label={tag} />
@@ -583,9 +598,9 @@ const PerfilAtaque = React.memo(({
         border: '1px solid rgba(255,255,255,0.05)',
         p: 0.5,
         display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 1, sm: 1 },
         justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 1,
         opacity: activo ? 1 : 0.5,
         transition: 'all 0.2s ease',
         cursor: 'pointer',
@@ -595,18 +610,18 @@ const PerfilAtaque = React.memo(({
         }
       }}
     >
-      {/* Nombre y Toggle a la izquierda */}
+      {/* Nombre y Toggle */}
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center',
         gap: 1,
-        minWidth: '40px',
+        minWidth: { xs: '100%', sm: '40px' },
         flex: '0 0 auto',
       }}>
         <Switch
           checked={activo}
           onChange={handleToggle}
-          onClick={(e) => e.stopPropagation()} // Evitar doble toggle
+          onClick={(e) => e.stopPropagation()}
           size="small"
           sx={{
             '& .MuiSwitch-thumb': {
@@ -619,18 +634,21 @@ const PerfilAtaque = React.memo(({
           noWrap 
           sx={{ 
             color: 'text.primary',
-            maxWidth: '150px',
+            maxWidth: { xs: '100%', sm: '150px' },
           }}
         >
           {perfil.name}
         </Typography>
       </Box>
 
-      {/* Stats alineados a la derecha */}
+      {/* Stats alineados */}
       <Box sx={{ 
         display: 'flex',
         gap: 0.5,
-        ml: 'auto',
+        ml: { xs: 0, sm: 'auto' },
+        justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+        flexWrap: 'wrap',
+        paddingLeft: { xs: '40px', sm: 0 },
       }}>
         {[...['attacks', 'hit', 'wound', 'rend', 'damage'], 'abilities'].map(stat => (
           <Tooltip 
@@ -1070,27 +1088,43 @@ const DanoBar = React.memo(({
           gap: 1,
           width: '100%', // Asegura que el contenedor ocupe todo el ancho
         }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              color: 'secondary.main',
-              fontWeight: 'bold',
-              lineHeight: 1
-            }}
+          <Tooltip
+            title={`Average damage dealt to ${nombreUnidad}`}
+            arrow
+            placement="top"
+            enterDelay={1000}
           >
-            {danoFinal.toFixed(1)}
-          </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'secondary.main',
-              fontWeight: 500,
-              marginLeft: 'auto', // Empuja el elemento al extremo derecho
-              whiteSpace: 'nowrap' // Evita que el porcentaje se rompa en dos líneas
-            }}
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                color: 'secondary.main',
+                fontWeight: 'bold',
+                lineHeight: 1,
+                cursor: 'help'
+              }}
+            >
+              {danoFinal.toFixed(1)}
+            </Typography>
+          </Tooltip>
+          <Tooltip
+            title={`Percentage of total wounds dealt (${unidadOponente.models} models × ${unidadOponente.wounds} wounds = ${vidaTotal} total wounds)`}
+            arrow
+            placement="top"
+            enterDelay={1000}
           >
-            {`${porcentajeVidaTotal.toFixed(0)}%`}
-          </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'secondary.main',
+                fontWeight: 500,
+                marginLeft: 'auto',
+                whiteSpace: 'nowrap',
+                cursor: 'help'
+              }}
+            >
+              {`${porcentajeVidaTotal.toFixed(0)}%`}
+            </Typography>
+          </Tooltip>
         </Box>
       </Box>
 
