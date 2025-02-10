@@ -31,14 +31,12 @@ function ComparacionEjercitos() {
 
   const unidadesAtacantesOrdenadas = useMemo(() => {
     const ejercito = armies[selectedEjercitoAtacante];
-    return Object.entries(ejercito?.units || {})
-      .sort(([nombreA], [nombreB]) => nombreA.localeCompare(nombreB));
+    return Object.entries(ejercito?.units || {});
   }, [selectedEjercitoAtacante]);
 
   const unidadesDefensorasOrdenadas = useMemo(() => {
     const ejercito = armies[selectedEjercitoDefensor];
-    return Object.entries(ejercito?.units || {})
-      .sort(([nombreA], [nombreB]) => nombreA.localeCompare(nombreB));
+    return Object.entries(ejercito?.units || {});
   }, [selectedEjercitoDefensor]);
 
   useEffect(() => {
@@ -155,7 +153,7 @@ function ComparacionEjercitos() {
 }
 
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante, provided }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante, provided = {} }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
@@ -374,24 +372,29 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
   if (!unidad) return null;
 
   return (
-    <Card sx={{
-      backgroundColor: 'background.paper',
-      border: '1px solid',
-      borderColor: 'divider',
-      borderRadius: 2,
-      mb: 2,
-      width: '100%',
-      overflow: 'hidden',
-      '&:hover': {
-        boxShadow: (theme) => theme.shadows[4],
-        transform: 'translateY(-2px)',
-        transition: 'all 0.3s ease',
-        backgroundColor: 'custom.cardHoverBg'
-      }
-    }}>
-      <CardContent sx={{ 
-        p: '0 !important',
-      }}>
+    <Card 
+      ref={provided?.innerRef}
+      {...(provided?.draggableProps || {})}
+      {...(provided?.dragHandleProps || {})}
+      sx={{ 
+        backgroundColor: 'background.darker',
+        backgroundImage: 'linear-gradient(180deg, rgba(56, 189, 248, 0.03) 0%, rgba(14, 165, 233, 0.01) 100%)',
+        borderRadius: '4px',
+        border: '1px solid',
+        borderColor: 'divider',
+        mb: 2,
+        '&:hover': {
+          borderColor: 'primary.dark',
+          backgroundImage: 'linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, rgba(14, 165, 233, 0.02) 100%)',
+        },
+        '& .MuiCardContent-root': {
+          pb: '0 !important',
+          p: 0
+        },
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <CardContent sx={{ p: 0 }}>
         {/* Cabecera clickeable */}
         <Box 
           onClick={() => setExpandido(!expandido)}
@@ -400,11 +403,14 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            width: '100%',
+            minHeight: '60px', // Altura mínima fija
             p: 2,
-            transition: 'background-color 0.2s ease',
+            transition: 'all 0.2s ease',
             '&:hover': {
-              backgroundColor: 'rgba(144, 202, 249, 0.05)',
-            }
+              backgroundColor: 'rgba(56, 189, 248, 0.03)',
+            },
+            boxSizing: 'border-box'
           }}
         >
           <Typography variant="h5" sx={{ 
@@ -418,7 +424,8 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           <Box sx={{ 
             display: 'flex',
             alignItems: 'center',
-            gap: 2
+            gap: 2,
+            ml: 'auto' // Empuja el contenido a la derecha
           }}>
             {!expandido && (
               <Typography sx={{ 
@@ -452,8 +459,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
               justifyContent: 'space-between',
               alignItems: 'center',
               mb: 2,
-              px: 0.5,
-              backgroundColor: 'custom.statBackground'
+              px: 0.5
             }}>
               {/* Stats defensivos */}
               <Box sx={{
@@ -483,20 +489,14 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
               </Box>
 
               {/* Tags */}
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  backgroundColor: 'rgba(144, 202, 249, 0.1)',
-                  color: 'text.primary',
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: '12px',
-                  fontWeight: 500,
-                  letterSpacing: '0.5px'
-                }}
-              >
-                {unidad.tags?.[0] || 'INFANTRY'}
-              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 1
+              }}>
+                {unidad.tags?.map((tag) => (
+                  <UnitTag key={tag} label={tag} />
+                ))}
+              </Box>
             </Box>
 
             {/* Perfiles de ataque */}
@@ -1362,7 +1362,7 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
     toggleHabilidadDefensiva,
     getHabilidadActiva
   };
-}; 
+};
 
 // Función auxiliar para calcular el valor medio de un dado
 const calcularValorDado = (dado) => {
@@ -1398,6 +1398,35 @@ const StatBox = ({ label, value, color }) => (
       fontSize: '0.9rem'
     }}>
       {value}
+    </Typography>
+  </Box>
+);
+
+// Componente para las tags
+const UnitTag = ({ label }) => (
+  <Box
+    sx={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      px: 1.5,
+      py: 0.5,
+      borderRadius: '2px',
+      backgroundColor: 'background.darker',
+      border: '1px solid',
+      borderColor: 'primary.dark',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      '& .MuiTypography-root': {
+        color: 'primary.light',
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        textTransform: 'lowercase',
+        letterSpacing: '0.5px',
+        pb: 0
+      }
+    }}
+  >
+    <Typography>
+      {label}
     </Typography>
   </Box>
 );

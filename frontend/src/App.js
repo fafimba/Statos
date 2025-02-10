@@ -138,7 +138,8 @@ function App() {
       <Box sx={{ 
         minHeight: '100vh',
         backgroundColor: 'background.default',
-        p: { xs: 1, sm: 2, md: 3 }
+        p: { xs: 1, sm: 2, md: 3 },
+        display: 'flex',
       }}>
         <ComparacionEjercitos />
       </Box>
