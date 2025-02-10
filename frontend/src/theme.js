@@ -12,15 +12,21 @@ export const theme = createTheme({
       main: '#ffd700',
       dark: '#b39700',
       light: '#ffe14d',
+      blue: '#00e5ff',
     },
     secondary: {
-      main: '#737373',
+      main: '#00e5ff',
+      dark: '#005c69',
+      light: '#00e5ff',
+      
     },
     text: {
       primary: '#ffffff',
       secondary: '#a0a0a0',
       stats: '#8a8a8a',
       damage: '#ffd700',
+      blue: '#00e5ff'
+
     },
     divider: 'rgba(255, 255, 255, 0.1)',
     custom: {
@@ -30,7 +36,7 @@ export const theme = createTheme({
       },
       damageBar: {
         background: 'rgba(255, 215, 0, 0.15)',
-        fill: '#ffd700',
+        fill: '#00e5ff',
       }
     }
   },

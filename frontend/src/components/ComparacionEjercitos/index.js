@@ -11,7 +11,8 @@ import {
   Collapse,
   Card,
   CardContent,
-  Tooltip
+  Tooltip,
+  FormControlLabel
 } from '@mui/material';
 import { armies } from '../../data/armies';
 import { calculateAttacks } from '../../utils/calculator';
@@ -54,72 +55,139 @@ function ComparacionEjercitos() {
     }}>
       {/* Control de vista */}
       <Box sx={{ 
-        mb: 4, 
         display: 'flex', 
-        justifyContent: 'flex-end', 
-        alignItems: 'center', 
-        gap: 2 
+        gap: 2,
+        mb: 4,
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: 'center'
       }}>
-        <Typography variant="body2" color="primary">
-          {vistaUnaColumna ? 'Vista atacante' : 'Vista comparativa'}
-        </Typography>
-        <Switch
-          checked={vistaUnaColumna}
-          onChange={(e) => setVistaUnaColumna(e.target.checked)}
-          size="small"
-          sx={{
-            '& .MuiSwitch-thumb': {
-              backgroundColor: vistaUnaColumna ? 'primary.main' : 'grey.600'
-            }
-          }}
-        />
-      </Box>
-
-      {/* Selectores de ejércitos */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth size="small" sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: 'custom.inputBackground',
-              borderColor: 'divider'
-            }
-          }}>
-            <InputLabel sx={{ color: 'primary.main' }}>Attacking Army</InputLabel>
+        {/* Selectores de ejército */}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2,
+          flex: 1,
+          width: '100%',
+          flexDirection: { xs: 'column', sm: 'row' }
+        }}>
+          <FormControl sx={{ minWidth: 200, flex: 1 }}>
+            <InputLabel 
+              id="attacking-army-label"
+              sx={{ 
+                color: 'text.secondary',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              }}
+            >
+              Attacking Army
+            </InputLabel>
             <Select
+              labelId="attacking-army-label"
               value={selectedEjercitoAtacante}
               onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
               label="Attacking Army"
             >
-              {Object.keys(armies).map((nombre) => (
-                <MenuItem key={nombre} value={nombre}>
-                  {nombre}
+              {Object.keys(armies).map((armyName) => (
+                <MenuItem 
+                  key={armyName} 
+                  value={armyName}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#2a2a2a'
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#333333',
+                      '&:hover': {
+                        backgroundColor: '#383838'
+                      }
+                    }
+                  }}
+                >
+                  {armyName}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth size="small" sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: 'custom.inputBackground',
-              borderColor: 'divider'
-            }
-          }}>
-            <InputLabel sx={{ color: 'primary.main' }}>Defending Army</InputLabel>
+
+          <FormControl sx={{ minWidth: 200, flex: 1 }}>
+            <InputLabel 
+              id="defending-army-label"
+              sx={{ 
+                color: 'text.secondary',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              }}
+            >
+              Defending Army
+            </InputLabel>
             <Select
+              labelId="defending-army-label"
               value={selectedEjercitoDefensor}
               onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
               label="Defending Army"
             >
-              {Object.keys(armies).map((nombre) => (
-                <MenuItem key={nombre} value={nombre}>
-                  {nombre}
+              {Object.keys(armies).map((armyName) => (
+                <MenuItem 
+                  key={armyName} 
+                  value={armyName}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#2a2a2a'
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#333333',
+                      '&:hover': {
+                        backgroundColor: '#383838'
+                      }
+                    }
+                  }}
+                >
+                  {armyName}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Grid>
-      </Grid>
+        </Box>
+
+        {/* Selector de vista simplificado */}
+        <FormControlLabel
+          control={
+            <Switch
+              checked={!vistaUnaColumna}
+              onChange={(e) => setVistaUnaColumna(!e.target.checked)}
+              sx={{
+                '& .MuiSwitch-thumb': {
+                  backgroundColor: !vistaUnaColumna ? 'primary.main' : '#808080',
+                },
+                '& .MuiSwitch-track': {
+                  backgroundColor: !vistaUnaColumna ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                }
+              }}
+            />
+          }
+          label={
+            <Typography
+              sx={{
+                color: 'primary.main',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+              }}
+            >
+              Comparative View
+            </Typography>
+          }
+          sx={{
+            margin: 0,
+            backgroundColor: '#242424',
+            border: '1px solid #333333',
+            borderRadius: '4px',
+            padding: '4px 12px',
+            height: '56px',
+            alignItems: 'center',
+          }}
+        />
+      </Box>
 
       {/* Lista de unidades */}
       <Grid container spacing={2}>
@@ -168,32 +236,6 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
   const [habilidadUnidadActiva, setHabilidadUnidadActiva] = useState(false);
   const [expandido, setExpandido] = useState(false);
 
-  // Manejadores para habilidades ofensivas y defensivas
-  const handleToggleHabilidadOfensiva = useCallback((unidadId, habilidadId) => {
-    setHabilidadesUnidad(prev => ({
-      ...prev,
-      ofensivas: {
-        ...prev.ofensivas,
-        [unidadId]: {
-          ...prev.ofensivas[unidadId],
-          [habilidadId]: !prev.ofensivas[unidadId]?.[habilidadId]
-        }
-      }
-    }));
-  }, [setHabilidadesUnidad]);
-
-  const handleToggleHabilidadDefensiva = useCallback((unidadId, habilidadId) => {
-    setHabilidadesUnidad(prev => ({
-      ...prev,
-      defensivas: {
-        ...prev.defensivas,
-        [unidadId]: {
-          ...prev.defensivas[unidadId],
-          [habilidadId]: !prev.defensivas[unidadId]?.[habilidadId]
-        }
-      }
-    }));
-  }, [setHabilidadesUnidad]);
 
   // Calcular daños contra unidades
   const danosContraUnidades = useMemo(() => {
@@ -211,7 +253,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
 
       // Evaluar condiciones de habilidad de unidad primero
       let condicionHabilidadCumplida = false;
-      if (unidad.ability?.effect?.type === 'conditional_ability' &&
+      if (unidad.ability?.effect?.type === 'enemy_unit' &&
           (unidad.ability.type === 'fixed' || 
            (unidad.ability.type === 'toggleable' && habilidadUnidadActiva))) {
         const efecto = unidad.ability.effect;
@@ -439,7 +481,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           }}>
             {!expandido && (
               <Typography sx={{ 
-                color: 'text.primary',
+                color: 'text.damage',
                 fontSize: '1.5rem',
                 fontWeight: 600,
                 opacity: 0.9,
@@ -479,22 +521,22 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
                 <StatBox 
                   label="Size" 
                   value={unidad.models} 
-                  color="primary.main"
+                  color="text.primary"
                 />
                 <StatBox 
                   label="Wounds" 
                   value={unidad.wounds} 
-                  color="#ff6b6b"
+                  color="text.primary"  
                 />
                 <StatBox 
                   label="Save" 
                   value={`${unidad.save}+`} 
-                  color="#ffd700"
+                  color="text.primary"
                 />
                 <StatBox 
                   label="Ward" 
                   value={unidad.ward ? `${unidad.ward}+` : '-'} 
-                  color="#9370db"
+                  color="text.primary"
                 />
               </Box>
 
@@ -782,9 +824,7 @@ const DanoBar = React.memo(({
   unidadAtacante,
   unidadOponente,
   perfilesModificados,
-  maxDanoEjercito,
-  damage_final,
-  desglose_perfiles
+  damage_final
 }) => {
   const danoTotal = Number.isFinite(damage_final) ? damage_final : 0;
 
@@ -1077,43 +1117,31 @@ const DanoBar = React.memo(({
         </Typography>
         <Box sx={{
           display: 'flex',
+          alignItems: 'baseline',
           gap: 1,
-          alignItems: 'center'
+          width: '100%', // Asegura que el contenedor ocupe todo el ancho
         }}>
           <Typography 
             variant="h5" 
             sx={{ 
-              color: 'primary.main',
+              color: 'secondary.main',
               fontWeight: 'bold',
               lineHeight: 1
             }}
           >
             {danoFinal.toFixed(1)}
           </Typography>
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: 0.5
-          }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: 'rgba(144, 202, 249, 0.7)',
-                fontWeight: 500
-              }}
-            >
-              {`${porcentajeVidaTotal.toFixed(0)}%`}
-            </Typography>
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: '0.7rem'
-              }}
-            >
-              {`(${Math.ceil(danoFinal)}/${vidaTotal}W)`}
-            </Typography>
-          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: 'secondary.main',
+              fontWeight: 500,
+              marginLeft: 'auto', // Empuja el elemento al extremo derecho
+              whiteSpace: 'nowrap' // Evita que el porcentaje se rompa en dos líneas
+            }}
+          >
+            {`${porcentajeVidaTotal.toFixed(0)}%`}
+          </Typography>
         </Box>
       </Box>
 
@@ -1130,7 +1158,7 @@ const DanoBar = React.memo(({
           position: 'relative',
           borderRadius: '2px',
           overflow: 'hidden',
-          backgroundColor: 'custom.progressBarBg',
+          backgroundColor: 'secondary.dark',
           maskImage: `repeating-linear-gradient(
             to right,
             #000 0%,
@@ -1152,7 +1180,7 @@ const DanoBar = React.memo(({
               position: 'absolute',
               height: '100%',
               width: `${porcentajeVidaTotal}%`,
-              backgroundColor: 'primary.main',
+              backgroundColor: 'secondary.main',
               transition: 'width 0.3s ease'
             }}
           />
@@ -1380,18 +1408,6 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
   };
 };
 
-// Función auxiliar para calcular el valor medio de un dado
-const calcularValorDado = (dado) => {
-  if (typeof dado === 'number') return dado;
-  if (typeof dado === 'string') {
-    const match = dado.toUpperCase().match(/D(\d+)/);
-    if (match) {
-      const caras = parseInt(match[1]);
-      return (caras + 1) / 2;
-    }
-  }
-  return 0;
-};
 
 // Componente auxiliar para los stats
 const StatBox = ({ label, value, color }) => (
@@ -1409,7 +1425,7 @@ const StatBox = ({ label, value, color }) => (
       {label}
     </Typography>
     <Typography sx={{ 
-      color: 'custom.statValue',
+      color: 'primary.blue',
       fontWeight: 'bold',
       fontSize: '0.9rem'
     }}>
