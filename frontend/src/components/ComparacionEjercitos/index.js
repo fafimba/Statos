@@ -377,47 +377,57 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       sx={{ 
-        backgroundColor: 'background.darker',
-        backgroundImage: 'linear-gradient(180deg, rgba(56, 189, 248, 0.03) 0%, rgba(14, 165, 233, 0.01) 100%)',
-        borderRadius: '4px',
+        background: 'linear-gradient(160deg, rgba(0, 207, 200, 0.05) 0%, rgba(0, 207, 200, 0.02) 100%)',
         border: '1px solid',
-        borderColor: 'divider',
+        borderColor: 'rgba(0, 207, 200, 0.15)',
+        backdropFilter: 'blur(8px)',
+        overflow: 'hidden',
         mb: 2,
         '&:hover': {
-          borderColor: 'primary.dark',
-          backgroundImage: 'linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, rgba(14, 165, 233, 0.02) 100%)',
+          borderColor: 'primary.main',
+          '&:after': {
+            opacity: 0.3,
+          }
+        },
+        '&:after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '3px',
+          background: 'linear-gradient(90deg, #00cfc8 0%, #ff4d82 100%)',
+          opacity: 0,
+          transition: 'opacity 0.3s ease',
         },
         '& .MuiCardContent-root': {
           pb: '0 !important',
           p: 0
-        },
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+        }
       }}
     >
-      <CardContent sx={{ p: 0 }}>
-        {/* Cabecera clickeable */}
+      <CardContent>
         <Box 
           onClick={() => setExpandido(!expandido)}
           sx={{
+            background: 'linear-gradient(90deg, rgba(0, 207, 200, 0.1) 0%, transparent 100%)',
+            py: 2,
+            px: 3,
             cursor: 'pointer',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            width: '100%',
-            minHeight: '60px', // Altura mínima fija
-            p: 2,
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              backgroundColor: 'rgba(56, 189, 248, 0.03)',
-            },
-            boxSizing: 'border-box'
+            position: 'relative'
           }}
         >
-          <Typography variant="h5" sx={{ 
-            color: 'text.primary',
-            fontWeight: 500,
-            fontSize: '1.3rem'
-          }}>
+          <Typography 
+            variant="h6" 
+            sx={{
+              textShadow: '0 2px 8px rgba(0, 207, 200, 0.3)',
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
             {nombreUnidad}
           </Typography>
 
@@ -1179,8 +1189,8 @@ const DanoBar = React.memo(({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'success.light'
-                    : 'action.hover',
+                    ? 'rgba(0, 207, 200, 0.15)'
+                    : 'rgba(255, 255, 255, 0.03)',
                   borderRadius: '4px',
                   px: 1,
                   py: 0.5,
@@ -1188,19 +1198,22 @@ const DanoBar = React.memo(({
                   transition: 'all 0.2s ease',
                   border: '1px solid',
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'success.main'
+                    ? 'primary.main'
                     : 'divider',
                   '&:hover': habilidad.type === 'toggleable' ? {
-                    backgroundColor: 'rgba(144, 238, 144, 0.3)',
-                    borderColor: 'rgba(144, 238, 144, 0.6)'
+                    backgroundColor: 'rgba(0, 207, 200, 0.25)',
+                    borderColor: 'primary.light'
                   } : {}
                 }}
               >
                 <Typography variant="caption" sx={{ 
                   color: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
-                    ? 'success.main' 
+                    ? '#e6f7ff'
                     : 'text.secondary',
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
+                  fontWeight: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
+                    ? 500 
+                    : 400
                 }}>
                   {habilidad.name}
                 </Typography>
@@ -1243,8 +1256,8 @@ const DanoBar = React.memo(({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'error.light'
-                    : 'action.hover',
+                    ? 'rgba(255, 77, 130, 0.15)'
+                    : 'rgba(255, 255, 255, 0.03)',
                   borderRadius: '4px',
                   px: 1,
                   py: 0.5,
@@ -1252,19 +1265,22 @@ const DanoBar = React.memo(({
                   transition: 'all 0.2s ease',
                   border: '1px solid',
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'error.main'
+                    ? 'secondary.main'
                     : 'divider',
                   '&:hover': habilidad.type === 'toggleable' ? {
-                    backgroundColor: 'rgba(255, 99, 71, 0.3)',
-                    borderColor: 'rgba(255, 99, 71, 0.6)'
+                    backgroundColor: 'rgba(255, 77, 130, 0.25)',
+                    borderColor: 'secondary.light'
                   } : {}
                 }}
               >
                 <Typography variant="caption" sx={{ 
                   color: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
-                    ? 'error.main' 
+                    ? '#e6f7ff'
                     : 'text.secondary',
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
+                  fontWeight: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
+                    ? 500 
+                    : 400
                 }}>
                   {habilidad.name}
                 </Typography>
