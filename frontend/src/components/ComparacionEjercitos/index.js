@@ -368,7 +368,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       sx={{ 
-        background: 'linear-gradient(160deg, rgba(0, 207, 200, 0.05) 0%, rgba(0, 207, 200, 0.02) 100%)',
+        // background: 'linear-gradient(-160deg, rgba(0, 207, 200, 0.02) 0%, rgba(16, 32, 31, 0.05) 100%)',
         border: '1px solid',
         borderColor: 'rgba(0, 207, 200, 0.15)',
         backdropFilter: 'blur(8px)',
@@ -379,17 +379,6 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           '&:after': {
             opacity: 0.3,
           }
-        },
-        '&:after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '3px',
-          background: 'linear-gradient(90deg, #00cfc8 0%, #ff4d82 100%)',
-          opacity: 0,
-          transition: 'opacity 0.3s ease',
         },
         '& .MuiCardContent-root': {
           pb: '0 !important',
