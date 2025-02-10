@@ -16,8 +16,6 @@ import {
 import { armies } from '../../data/armies';
 import { calculateAttacks } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
-import { useHabilidades } from '../../hooks/useHabilidades';
-import { usePerfilesAtaque } from '../../hooks/usePerfilesAtaque';
 
 
 function ComparacionEjercitos() {
@@ -54,6 +52,7 @@ function ComparacionEjercitos() {
       maxWidth: vistaUnaColumna ? '1400px' : '1800px',
       margin: '0 auto',
       p: { xs: 2, md: 4 },
+      backgroundColor: 'background.default',
     }}>
       {/* Control de vista */}
       <Box sx={{ 
@@ -63,7 +62,7 @@ function ComparacionEjercitos() {
         alignItems: 'center', 
         gap: 2 
       }}>
-        <Typography variant="body2" sx={{ color: '#90caf9' }}>
+        <Typography variant="body2" color="primary">
           {vistaUnaColumna ? 'Vista atacante' : 'Vista comparativa'}
         </Typography>
         <Switch
@@ -72,7 +71,7 @@ function ComparacionEjercitos() {
           size="small"
           sx={{
             '& .MuiSwitch-thumb': {
-              backgroundColor: vistaUnaColumna ? '#90caf9' : '#666'
+              backgroundColor: vistaUnaColumna ? 'primary.main' : 'grey.600'
             }
           }}
         />
@@ -83,11 +82,11 @@ function ComparacionEjercitos() {
         <Grid item xs={12} md={6}>
           <FormControl fullWidth size="small" sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              borderColor: '#3a4156'
+              backgroundColor: 'custom.inputBackground',
+              borderColor: 'divider'
             }
           }}>
-            <InputLabel sx={{ color: '#90caf9' }}>Attacking Army</InputLabel>
+            <InputLabel sx={{ color: 'primary.main' }}>Attacking Army</InputLabel>
             <Select
               value={selectedEjercitoAtacante}
               onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
@@ -104,11 +103,11 @@ function ComparacionEjercitos() {
         <Grid item xs={12} md={6}>
           <FormControl fullWidth size="small" sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              borderColor: '#3a4156'
+              backgroundColor: 'custom.inputBackground',
+              borderColor: 'divider'
             }
           }}>
-            <InputLabel sx={{ color: '#90caf9' }}>Defending Army</InputLabel>
+            <InputLabel sx={{ color: 'primary.main' }}>Defending Army</InputLabel>
             <Select
               value={selectedEjercitoDefensor}
               onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
@@ -376,12 +375,19 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
 
   return (
     <Card sx={{
-      backgroundColor: '#2a3040',
-      border: '1px solid #3a4156',
-      borderRadius: '0.5rem',
+      backgroundColor: 'background.paper',
+      border: '1px solid',
+      borderColor: 'divider',
+      borderRadius: 2,
       mb: 2,
       width: '100%',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      '&:hover': {
+        boxShadow: (theme) => theme.shadows[4],
+        transform: 'translateY(-2px)',
+        transition: 'all 0.3s ease',
+        backgroundColor: 'custom.cardHoverBg'
+      }
     }}>
       <CardContent sx={{ 
         p: '0 !important',
@@ -402,7 +408,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           }}
         >
           <Typography variant="h5" sx={{ 
-            color: '#fff',
+            color: 'text.primary',
             fontWeight: 500,
             fontSize: '1.3rem'
           }}>
@@ -416,7 +422,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
           }}>
             {!expandido && (
               <Typography sx={{ 
-                color: '#90caf9',
+                color: 'text.primary',
                 fontSize: '1.5rem',
                 fontWeight: 600,
                 opacity: 0.9,
@@ -427,7 +433,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
               </Typography>
             )}
             <Box sx={{ 
-              color: '#90caf9',
+              color: 'text.primary',
               opacity: 0.7,
               transition: 'transform 0.3s ease',
               transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
@@ -446,7 +452,8 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
               justifyContent: 'space-between',
               alignItems: 'center',
               mb: 2,
-              px: 0.5
+              px: 0.5,
+              backgroundColor: 'custom.statBackground'
             }}>
               {/* Stats defensivos */}
               <Box sx={{
@@ -456,7 +463,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
                 <StatBox 
                   label="Size" 
                   value={unidad.models} 
-                  color="#90caf9"
+                  color="primary.main"
                 />
                 <StatBox 
                   label="Wounds" 
@@ -480,7 +487,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
                 variant="caption" 
                 sx={{ 
                   backgroundColor: 'rgba(144, 202, 249, 0.1)',
-                  color: '#90caf9',
+                  color: 'text.primary',
                   px: 1.5,
                   py: 0.5,
                   borderRadius: '12px',
@@ -602,7 +609,7 @@ const PerfilAtaque = React.memo(({
           size="small"
           sx={{
             '& .MuiSwitch-thumb': {
-              backgroundColor: activo ? '#90caf9' : '#666'
+              backgroundColor: activo ? 'primary.main' : 'grey.600'
             }
           }}
         />
@@ -610,7 +617,7 @@ const PerfilAtaque = React.memo(({
           variant="body2" 
           noWrap 
           sx={{ 
-            color: '#fff',
+            color: 'text.primary',
             maxWidth: '150px',
           }}
         >
@@ -656,19 +663,19 @@ const PerfilAtaque = React.memo(({
                     <Box sx={{
                       width: 6,
                       height: 6,
-                      backgroundColor: '#90caf9',
+                      backgroundColor: 'primary.main',
                       borderRadius: '2px',
                       transform: 'rotate(45deg)'
                     }} />
                   ) : (
-                    <Typography sx={{ color: '#666' }}>-</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>-</Typography>
                   )}
                 </Box>
               ) : (
                 <Typography 
                   variant="body2" 
                   sx={{ 
-                    color: statsModificados[stat] !== statsBase[stat] ? '#ffd700' : '#90caf9',
+                    color: statsModificados[stat] !== statsBase[stat] ? 'primary.main' : 'text.primary',
                     fontWeight: 'medium',
                     fontSize: '0.85rem'
                   }}
@@ -686,6 +693,79 @@ const PerfilAtaque = React.memo(({
     </Box>
   );
 });
+
+export const usePerfilesAtaque = (unidad) => {
+  // Estado para perfiles activos
+  const [perfilesActivos, setPerfilesActivos] = useState(() => {
+    if (!unidad?.attack_profiles) return {};
+    return unidad.attack_profiles.reduce((acc, perfil) => ({
+      ...acc,
+      [perfil.name]: true
+    }), {});
+  });
+
+  // Estado para habilidades de perfiles
+  const [habilidadesPerfiles, setHabilidadesPerfiles] = useState(() => {
+    if (!unidad?.attack_profiles) return {};
+    
+    return unidad.attack_profiles.reduce((acc, perfil) => {
+      const habilidades = perfil.abilities || [];
+      const habilidadesToggleables = habilidades.reduce((habAcc, hab) => {
+        const habilidadConfig = weapon_abilities[hab];
+        if (habilidadConfig?.type === 'toggleable') {
+          return {
+            ...habAcc,
+            [hab]: false // Inicialmente desactivadas
+          };
+        }
+        return habAcc;
+      }, {});
+
+      return {
+        ...acc,
+        [perfil.name]: habilidadesToggleables
+      };
+    }, {});
+  });
+
+  // Función para modificar una habilidad de perfil
+  const modificarPerfil = useCallback((nombrePerfil, tipo, valor) => {
+    if (tipo === 'active') {
+      setPerfilesActivos(prev => ({
+        ...prev,
+        [nombrePerfil]: valor
+      }));
+    } else {
+      setHabilidadesPerfiles(prev => ({
+        ...prev,
+        [nombrePerfil]: {
+          ...prev[nombrePerfil],
+          [tipo]: valor
+        }
+      }));
+    }
+  }, []);
+
+  // Obtener habilidades de unidad
+  const habilidadesUnidad = useMemo(() => {
+    if (!unidad?.ability) return [];
+    return [unidad.ability].filter(Boolean);
+  }, [unidad]);
+
+  console.log('Estado actual de perfiles:', {
+    perfilesActivos,
+    habilidadesPerfiles,
+    habilidadesUnidad
+  });
+
+  return {
+    perfilesActivos,
+    setPerfilesActivos,
+    habilidadesPerfiles,
+    modificarPerfil,
+    habilidadesUnidad
+  };
+};
 
 const DanoBar = React.memo(({ 
   nombreUnidad,
@@ -979,7 +1059,7 @@ const DanoBar = React.memo(({
         <Typography 
           variant="body2" 
           sx={{ 
-            color: '#fff',
+            color: 'text.primary',
             fontWeight: 500
           }}
         >
@@ -993,7 +1073,7 @@ const DanoBar = React.memo(({
           <Typography 
             variant="h5" 
             sx={{ 
-              color: '#90caf9',
+              color: 'primary.main',
               fontWeight: 'bold',
               lineHeight: 1
             }}
@@ -1040,6 +1120,7 @@ const DanoBar = React.memo(({
           position: 'relative',
           borderRadius: '2px',
           overflow: 'hidden',
+          backgroundColor: 'custom.progressBarBg',
           maskImage: `repeating-linear-gradient(
             to right,
             #000 0%,
@@ -1054,7 +1135,6 @@ const DanoBar = React.memo(({
             transparent calc(${100 / unidadOponente.models}% - 2px),
             transparent ${100 / unidadOponente.models}%
           )`,
-          backgroundColor: 'rgba(144, 202, 249, 0.1)'
         }}>
           {/* Barra de progreso única */}
           <Box
@@ -1062,7 +1142,7 @@ const DanoBar = React.memo(({
               position: 'absolute',
               height: '100%',
               width: `${porcentajeVidaTotal}%`,
-              backgroundColor: '#90caf9',
+              backgroundColor: 'primary.main',
               transition: 'width 0.3s ease'
             }}
           />
@@ -1086,6 +1166,9 @@ const DanoBar = React.memo(({
               onClose={() => setActiveTooltip(null)}
               disableHoverListener
               placement="top"
+              sx={{
+                backgroundColor: 'custom.tooltipBackground',
+              }}
             >
               <Box 
                 onMouseEnter={() => handleMouseEnter(habilidad.id)}
@@ -1096,8 +1179,8 @@ const DanoBar = React.memo(({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'rgba(144, 238, 144, 0.2)' 
-                    : 'rgba(144, 238, 144, 0.05)',
+                    ? 'success.light'
+                    : 'action.hover',
                   borderRadius: '4px',
                   px: 1,
                   py: 0.5,
@@ -1105,8 +1188,8 @@ const DanoBar = React.memo(({
                   transition: 'all 0.2s ease',
                   border: '1px solid',
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'rgba(144, 238, 144, 0.5)' 
-                    : 'rgba(144, 238, 144, 0.1)',
+                    ? 'success.main'
+                    : 'divider',
                   '&:hover': habilidad.type === 'toggleable' ? {
                     backgroundColor: 'rgba(144, 238, 144, 0.3)',
                     borderColor: 'rgba(144, 238, 144, 0.6)'
@@ -1115,8 +1198,8 @@ const DanoBar = React.memo(({
               >
                 <Typography variant="caption" sx={{ 
                   color: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
-                    ? '#90ee90' 
-                    : '#aaa',
+                    ? 'success.main' 
+                    : 'text.secondary',
                   fontSize: '0.75rem'
                 }}>
                   {habilidad.name}
@@ -1147,6 +1230,9 @@ const DanoBar = React.memo(({
               onClose={() => setActiveTooltip(null)}
               disableHoverListener
               placement="top"
+              sx={{
+                backgroundColor: 'custom.tooltipBackground',
+              }}
             >
               <Box 
                 onMouseEnter={() => handleMouseEnter(habilidad.id)}
@@ -1157,8 +1243,8 @@ const DanoBar = React.memo(({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'rgba(255, 99, 71, 0.2)' 
-                    : 'rgba(255, 99, 71, 0.05)',
+                    ? 'error.light'
+                    : 'action.hover',
                   borderRadius: '4px',
                   px: 1,
                   py: 0.5,
@@ -1166,8 +1252,8 @@ const DanoBar = React.memo(({
                   transition: 'all 0.2s ease',
                   border: '1px solid',
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'rgba(255, 99, 71, 0.5)' 
-                    : 'rgba(255, 99, 71, 0.1)',
+                    ? 'error.main'
+                    : 'divider',
                   '&:hover': habilidad.type === 'toggleable' ? {
                     backgroundColor: 'rgba(255, 99, 71, 0.3)',
                     borderColor: 'rgba(255, 99, 71, 0.6)'
@@ -1176,8 +1262,8 @@ const DanoBar = React.memo(({
               >
                 <Typography variant="caption" sx={{ 
                   color: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
-                    ? '#ff6347' 
-                    : '#aaa',
+                    ? 'error.main' 
+                    : 'text.secondary',
                   fontSize: '0.75rem'
                 }}>
                   {habilidad.name}
@@ -1203,6 +1289,81 @@ const DanoBar = React.memo(({
   );
 });
 
+export const useHabilidades = (unidadAtacante, unidadDefensora) => {
+  // Estado para las habilidades activas
+  const [habilidadesActivas, setHabilidadesActivas] = useState({
+    ofensivas: {},
+    defensivas: {}
+  });
+  
+  // Determinar qué habilidades están disponibles
+  const habilidades = useMemo(() => {
+    const ofensivas = [];
+    const defensivas = [];
+    
+    // Procesar habilidad de unidad atacante
+    if (unidadAtacante?.ability && unidadAtacante.ability.category === 'offensive') {
+      ofensivas.push({
+        id: `${unidadAtacante.name}_${unidadAtacante.ability.name}`,
+        name: unidadAtacante.ability.name,
+        description: unidadAtacante.ability.description,
+        type: unidadAtacante.ability.type,
+        effect: unidadAtacante.ability.effect,
+        source: 'unit'
+      });
+    }
+    
+    // Procesar habilidad de unidad defensora
+    if (unidadDefensora?.ability && unidadDefensora.ability.category === 'defensive') {
+      defensivas.push({
+        id: `${unidadDefensora.name}_${unidadDefensora.ability.name}`,
+        name: unidadDefensora.ability.name,
+        description: unidadDefensora.ability.description,
+        type: unidadDefensora.ability.type,
+        effect: unidadDefensora.ability.effect,
+        source: 'unit'
+      });
+    }
+    
+    return { ofensivas, defensivas };
+  }, [unidadAtacante, unidadDefensora]);
+
+  // Toggle para habilidad ofensiva
+  const toggleHabilidadOfensiva = useCallback((habilidadId) => {
+    setHabilidadesActivas(prev => ({
+      ...prev,
+      ofensivas: {
+        ...prev.ofensivas,
+        [habilidadId]: !prev.ofensivas[habilidadId]
+      }
+    }));
+  }, []);
+
+  // Toggle para habilidad defensiva
+  const toggleHabilidadDefensiva = useCallback((habilidadId) => {
+    setHabilidadesActivas(prev => ({
+      ...prev,
+      defensivas: {
+        ...prev.defensivas,
+        [habilidadId]: !prev.defensivas[habilidadId]
+      }
+    }));
+  }, []);
+
+  // Obtener estado de una habilidad
+  const getHabilidadActiva = useCallback((tipo, habilidadId) => {
+    return habilidadesActivas[tipo][habilidadId] || false;
+  }, [habilidadesActivas]);
+
+  return {
+    habilidades,
+    habilidadesActivas,
+    toggleHabilidadOfensiva,
+    toggleHabilidadDefensiva,
+    getHabilidadActiva
+  };
+}; 
+
 // Función auxiliar para calcular el valor medio de un dado
 const calcularValorDado = (dado) => {
   if (typeof dado === 'number') return dado;
@@ -1224,7 +1385,7 @@ const StatBox = ({ label, value, color }) => (
     gap: 1
   }}>
     <Typography variant="caption" sx={{ 
-      color: color,
+      color: color || 'text.primary',
       opacity: 0.7,
       fontWeight: 500,
       fontSize: '0.75rem'
@@ -1232,7 +1393,7 @@ const StatBox = ({ label, value, color }) => (
       {label}
     </Typography>
     <Typography sx={{ 
-      color: '#fff',
+      color: 'custom.statValue',
       fontWeight: 'bold',
       fontSize: '0.9rem'
     }}>
