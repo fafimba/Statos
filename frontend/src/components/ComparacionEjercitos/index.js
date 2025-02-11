@@ -12,11 +12,16 @@ import {
   Card,
   CardContent,
   Tooltip,
-  FormControlLabel
+  FormControlLabel,
+  Stack
 } from '@mui/material';
 import { armies } from '../../data/armies';
 import { calculateAttacks, calcularMortalesConDados } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
+import PersonIcon from '@mui/icons-material/Person';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShieldIcon from '@mui/icons-material/Shield';
+import SecurityIcon from '@mui/icons-material/Security';
 
 
 function ComparacionEjercitos() {
@@ -45,132 +50,197 @@ function ComparacionEjercitos() {
     localStorage.setItem('selectedDefender', selectedEjercitoDefensor);
   }, [selectedEjercitoAtacante, selectedEjercitoDefensor]);
 
-  return (
-    <Box sx={{ 
-      width: '100%',
-      maxWidth: '1800px',
-      margin: '0 auto',
-      p: { xs: 2, md: 4 },
-      backgroundColor: 'background.default',
-    }}>
-      {/* Selectores de ejército */}
-      <Box sx={{ 
-        display: 'flex', 
-        gap: 2,
-        mb: 4,
-        flexDirection: { xs: 'column', sm: 'row' }
-      }}>
-        <FormControl sx={{ minWidth: 200, flex: 1 }}>
-          <InputLabel 
-            id="attacking-army-label"
-            sx={{ 
-              color: 'text.secondary',
-              '&.Mui-focused': {
-                color: 'primary.main'
-              }
-            }}
-          >
-            Attacking Army
-          </InputLabel>
-          <Select
-            labelId="attacking-army-label"
-            value={selectedEjercitoAtacante}
-            onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
-            label="Attacking Army"
-          >
-            {Object.keys(armies).map((armyName) => (
-              <MenuItem 
-                key={armyName} 
-                value={armyName}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#2a2a2a'
-                  },
-                  '&.Mui-selected': {
-                    backgroundColor: '#333333',
-                    '&:hover': {
-                      backgroundColor: '#383838'
-                    }
-                  }
-                }}
-              >
-                {armyName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+  // Configuración personalizada para la animación del menú
+  const MENU_PROPS = {
+    PaperProps: {
+      sx: {
+        backgroundColor: 'background.paper',
+        backgroundImage: 'none',
+        boxShadow: '0 8px 16px rgba(0,0,0,0.4)',
+        mt: 1, // margin top
+        '& .MuiMenuItem-root': {
+          transition: 'none',
+        }
+      }
+    },
+    TransitionProps: {
+      timeout: window.innerWidth >= 800 ? 200 : 0, // Instantáneo en móvil, 200ms en desktop
+      easing: window.innerWidth >= 800 ? 'cubic-bezier(0.4, 0, 0.2, 1)' : 'linear' // Curva solo en desktop
+    }
+  };
 
-        <FormControl sx={{ minWidth: 200, flex: 1 }}>
-          <InputLabel 
-            id="defending-army-label"
-            sx={{ 
-              color: 'text.secondary',
-              '&.Mui-focused': {
-                color: 'primary.main'
-              }
-            }}
-          >
-            Defending Army
-          </InputLabel>
-          <Select
-            labelId="defending-army-label"
-            value={selectedEjercitoDefensor}
-            onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
-            label="Defending Army"
-          >
-            {Object.keys(armies).map((armyName) => (
-              <MenuItem 
-                key={armyName} 
-                value={armyName}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#2a2a2a'
-                  },
-                  '&.Mui-selected': {
-                    backgroundColor: '#333333',
-                    '&:hover': {
-                      backgroundColor: '#383838'
+  return (
+    <Box sx={{ width: '100%' }}>
+      {/* Header fijo con selectores */}
+      <Box sx={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1100,
+        backgroundColor: 'background.paper',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(8px)',
+        padding: { xs: 2, md: 3 },
+      }}>
+        <Box sx={{ 
+          maxWidth: '1800px',
+          width: '100%',
+          margin: '0 auto',
+          px: { xs: 1, md: 4 },
+          display: 'flex', 
+          gap: 2,
+          flexDirection: { xs: 'column', sm: 'row' }
+        }}>
+          <FormControl sx={{ flex: 1 }}>
+            <InputLabel 
+              id="attacking-army-label"
+              sx={{ 
+                color: 'text.secondary',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              }}
+            >
+              Attacking Army
+            </InputLabel>
+            <Select
+              labelId="attacking-army-label"
+              value={selectedEjercitoAtacante}
+              onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
+              label="Attacking Army"
+              MenuProps={MENU_PROPS}
+            >
+              {Object.keys(armies).map((armyName) => (
+                <MenuItem 
+                  key={armyName} 
+                  value={armyName}
+                  sx={{
+                    '@media (min-width: 800px)': {
+                      '&:hover': {
+                        backgroundColor: '#2a2a2a'
+                      }
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#333333',
+                      '@media (min-width: 800px)': {
+                        '&:hover': {
+                          backgroundColor: '#383838'
+                        }
+                      }
                     }
-                  }
-                }}
-              >
-                {armyName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+                  }}
+                >
+                  {armyName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ flex: 1 }}>
+            <InputLabel 
+              id="defending-army-label"
+              sx={{ 
+                color: 'text.secondary',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              }}
+            >
+              Defending Army
+            </InputLabel>
+            <Select
+              labelId="defending-army-label"
+              value={selectedEjercitoDefensor}
+              onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
+              label="Defending Army"
+              MenuProps={MENU_PROPS}
+
+            >
+              {Object.keys(armies).map((armyName) => (
+                <MenuItem 
+                  key={armyName} 
+                  value={armyName}
+                  sx={{
+                    '@media (min-width: 800px)': {
+                      '&:hover': {
+                        backgroundColor: '#2a2a2a'
+                      }
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#333333',
+                      '@media (min-width: 800px)': {
+                        '&:hover': {
+                          backgroundColor: '#383838'
+                        }
+                      }
+                    }
+                  }}
+                >
+                  {armyName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
-      {/* Lista de unidades en dos columnas */}
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          {unidadesAtacantesOrdenadas.map(([nombre, unidad]) => (
-            <UnidadCard
-              key={nombre}
-              nombreUnidad={nombre}
-              unidad={unidad}
-              ejercitoOponente={armies[selectedEjercitoDefensor]}
-              esAtacante={true}
-            />
-          ))}
-        </Grid>
-        <Grid item xs={12} md={6}>
-          {unidadesDefensorasOrdenadas.map(([nombre, unidad]) => (
-            <UnidadCard
-              key={nombre}
-              nombreUnidad={nombre}
-              unidad={unidad}
-              ejercitoOponente={armies[selectedEjercitoAtacante]}
-              esAtacante={false}
-            />
-          ))}
-        </Grid>
-      </Grid>
+      {/* Espaciador para compensar el header fijo */}
+      <Box sx={{ height: { xs: '170px', sm: '80px' } }} />
+
+      {/* Contenido principal */}
+      <Box sx={{ 
+        maxWidth: '1800px',
+        width: '100%',
+        margin: '0 auto',
+        px: { xs: 1, md: 4 },
+        py: { xs: 1, md: 4 }
+      }}>
+        <Stack 
+          direction={{ xs: 'column', md: 'row' }} 
+          spacing={{ xs: 1, md: 4 }}
+          alignItems="flex-start"
+          sx={{ width: '100%' }}
+        >
+          <Box sx={{ 
+            flex: 1,
+            width: '100%',
+            maxWidth: { md: 'calc(50% - 16px)' }
+          }}>
+            {unidadesAtacantesOrdenadas.map(([nombreUnidad, unidad]) => (
+              <Box key={nombreUnidad} sx={{ mb: { xs: 1, md: 2 } }}>
+                <UnidadCard
+                  nombreUnidad={nombreUnidad}
+                  unidad={unidad}
+                  ejercitoOponente={armies[selectedEjercitoDefensor]}
+                  ejercitoAtacante={armies[selectedEjercitoAtacante]}
+                />
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ 
+            flex: 1,
+            width: '100%',
+            maxWidth: { md: 'calc(50% - 16px)' }
+          }}>
+            {unidadesDefensorasOrdenadas.map(([nombreUnidad, unidad]) => (
+              <Box key={nombreUnidad} sx={{ mb: { xs: 1, md: 2 } }}>
+                <UnidadCard
+                  nombreUnidad={nombreUnidad}
+                  unidad={unidad}
+                  ejercitoOponente={armies[selectedEjercitoAtacante]}
+                  ejercitoAtacante={armies[selectedEjercitoDefensor]}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Stack>
+      </Box>
     </Box>
   );
 }
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercitoAtacante }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
@@ -226,10 +296,12 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
         backdropFilter: 'blur(8px)',
         overflow: 'hidden',
         mb: 2,
-        '&:hover': {
-          borderColor: 'primary.main',
-          '&:after': {
-            opacity: 0.3,
+        '@media (min-width: 800px)': {
+          '&:hover': {
+            borderColor: 'primary.main',
+            '&:after': {
+              opacity: 0.3,
+            }
           }
         },
         '& .MuiCardContent-root': {
@@ -242,7 +314,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
         <Box 
           onClick={() => setExpandido(!expandido)}
           sx={{
-            background: 'linear-gradient(90deg, rgba(0, 207, 200, 0.1) 0%, transparent 100%)',
+            background: `linear-gradient(90deg, ${ejercitoAtacante.color}2A 0%, transparent 100%)`,
             py: 2,
             px: 3,
             cursor: 'pointer',
@@ -274,7 +346,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
             display: 'flex',
             alignItems: 'center',
             gap: 2,
-            ml: 'auto' // Empuja el contenido a la derecha
+            ml: 'auto'
           }}>
             {!expandido && (
               <Tooltip
@@ -285,21 +357,22 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
                 leaveDelay={0}
               >
                 <Typography sx={{ 
-                  color: 'secondary.main',
+                  color: danoMedio >= 8 ? '#ff4d4d' : danoMedio >= 5 ? 'primary.main' : 'text.primary',
                   fontSize: '1.5rem',
                   fontWeight: 600,
-                  opacity: 0.9,
+                  opacity: 1,
                   minWidth: '60px',
                   textAlign: 'right',
-                  cursor: 'help'
+                  cursor: 'help',
+                  textShadow: '0 0 10px rgba(0, 207, 200, 0.4)'
                 }}>
                   {danoMedio}
                 </Typography>
               </Tooltip>
             )}
             <Box sx={{ 
-              color: 'text.primary',
-              opacity: 0.7,
+              color: 'text.secondary',
+              opacity: 1,
               transition: 'transform 0.3s ease',
               transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
             }}>
@@ -382,14 +455,15 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
 
             {/* Daños contra unidades */}
             <Box sx={{
-              display: 'flex',
-              gap: 2,
+              display: 'flex', 
+              flexWrap: 'wrap',
+              gap: 1,
               width: '100%',
-              overflowX: 'auto',
-              pb: 1,
+              pb: 0,
               '& > *': {
                 flex: 1,
-                minWidth: '140px',
+                maxWidth:  window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(50% - 4px)', // forzar máximo de 50%
+                minWidth: window.innerWidth < 800 ? 'calc(50% - 4px)' : 'calc(30% - 4px)' // Ajuste responsivo del ancho mínimo
               }
             }}>
               {danoBarData.map((datos, index) => (
@@ -459,9 +533,11 @@ const PerfilAtaque = React.memo(({
         opacity: activo ? 1 : 0.5,
         transition: 'all 0.2s ease',
         cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: activo ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
-          borderColor: 'rgba(255,255,255,0.1)'
+        '@media (min-width: 800px)': {
+          '&:hover': {
+            backgroundColor: activo ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+            borderColor: 'rgba(255,255,255,0.1)'
+          }
         }
       }}
     >
@@ -1092,16 +1168,15 @@ const DanoBar = React.memo(({
             default:
               dificultad = parseInt(habilidad.effect.difficulty);
           }
-          let salvaguardia = unidadOponente.ward;
+          let salvaguardia = wardModificado;
           console.log('Atributos mortales:', { cantidad, tipoDado, dificultad, salvaguardia });
           mortalesExtra += calcularMortalesConDados({ 
             cantidad, 
             tipoDado, 
             dificultad, 
-            multiplicador: habilidad.effect.models_slain ? 0 : salvaguardia, 
+            salvaguardia: habilidad.effect.models_slain ? 0 : salvaguardia, 
             multiplicador: habilidad.effect.models_slain ? habilidad.effect.models_slain * woundsModificado : 1 
           });
-          console.log("mortalesExtra", mortalesExtra);
         }else if (activa && habilidad.effect?.type === "double_fight") {
           console.log("double_fight", habilidad);
           console.log("perfilesConHabilidades antes", perfilesConHabilidades);
@@ -1194,10 +1269,29 @@ const DanoBar = React.memo(({
   return (
     <Box sx={{ 
       flex: 1,
-      minWidth: '140px',
       display: 'flex',
       flexDirection: 'column',
-      gap: 1
+      width: '100%',
+      gap: 1,
+      p: 1.5, // Añadir padding interno
+      backgroundColor: 'rgba(255,255,255,0.03)', // Fondo similar a tags/perfiles
+      borderRadius: '4px', // Bordes redondeados
+      border: '1px solid rgba(255, 255, 255, 0.05)', // Borde sutil
+      boxShadow: `
+        0 4px 6px -1px rgba(255, 255, 255, 0.03),
+        0 2px 4px -1px rgba(255, 255, 255, 0.02), 
+        inset 0 1px 1px rgba(255, 255, 255, 0.02)
+      `, // Sombra exterior e interior
+      position: 'relative',
+      '&:hover': {
+        boxShadow: `
+          0 6px 8px -1px rgba(255, 255, 255, 0.04),
+          0 3px 6px -1px rgba(255, 255, 255, 0.03),
+          inset 0 1px 1px rgba(255, 255, 255, 0.03)
+        `,
+        transform: 'translateY(-1px)', // Efecto de elevación sutil al hover
+        transition: 'all 0.2s ease'
+      }
     }}>
       {/* Nombre y stats del objetivo */}
       <Box sx={{
@@ -1221,6 +1315,43 @@ const DanoBar = React.memo(({
           >
             {nombreUnidad}
           </Typography>
+          <Box sx={{
+            display: 'flex',
+            gap: 1,
+            flexWrap: 'wrap'
+          }}>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {unidadOponente.models}
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {unidadOponente.wounds}
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {unidadOponente.save}+
+                </Typography>
+              </Box>
+
+              {unidadOponente.ward && (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    {unidadOponente.ward}+
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Box>
         <Box sx={{
           display: 'flex',
@@ -1237,10 +1368,11 @@ const DanoBar = React.memo(({
             <Typography 
               variant="h5" 
               sx={{ 
-                color: 'secondary.main',
+                color: danoFinal >= 10 ? '#ff4d4d' : danoFinal >= 8 ? 'primary.main' : 'text.blue',
                 fontWeight: 'bold',
                 lineHeight: 1,
-                cursor: 'help'
+                cursor: 'help',
+                textShadow: danoFinal >= 8 ? '0 0 10px rgba(0, 207, 200, 0.4)' : 'none'
               }}
             >
               {danoFinal.toFixed(1)}
@@ -1255,7 +1387,7 @@ const DanoBar = React.memo(({
             <Typography 
               variant="body2" 
               sx={{ 
-                color: 'secondary.main',
+                color: porcentajeVidaTotal >= 100 ? 'primary.main' : 'secondary.main',
                 fontWeight: 500,
                 marginLeft: 'auto',
                 whiteSpace: 'nowrap',
@@ -1277,9 +1409,8 @@ const DanoBar = React.memo(({
       }}>
         {/* Barra de progreso */}
         <Box sx={{ 
-          height: '12px', // Reducida la altura de la barra
+          height: '5px', // Reducida la altura de la barra
           position: 'relative',
-          borderRadius: '2px',
           overflow: 'hidden',
           backgroundColor: 'secondary.dark',
           maskImage: `repeating-linear-gradient(
@@ -1287,7 +1418,7 @@ const DanoBar = React.memo(({
             #000 0%,
             #000 calc(${100 / unidadOponente.models}% - 2px),
             transparent calc(${100 / unidadOponente.models}% - 2px),
-            transparent ${100 / unidadOponente.models}%
+            transparent ${100 / unidadOponente.models}%,
           )`,
           WebkitMaskImage: `repeating-linear-gradient(
             to right,
@@ -1303,8 +1434,9 @@ const DanoBar = React.memo(({
               position: 'absolute',
               height: '100%',
               width: `${porcentajeVidaTotal}%`,
-              backgroundColor: 'secondary.main',
+              backgroundColor: porcentajeVidaTotal >= 100 ? 'primary.main' : 'secondary.main',
               transition: 'width 0.3s ease'
+        
             }}
           />
         </Box>
@@ -1332,8 +1464,9 @@ const DanoBar = React.memo(({
               }}
             >
               <Box 
-                onMouseEnter={() => handleMouseEnter(habilidad.id)}
-                onMouseLeave={handleMouseLeave}
+              
+                onMouseEnter={(e) => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
+                onMouseLeave={(e) => window.innerWidth >= 800 && handleMouseLeave()}
                 onClick={() => habilidad.type === 'toggleable' && handleToggleOfensiva(habilidad.id)}
                 sx={{
                   display: 'flex',
@@ -1351,10 +1484,12 @@ const DanoBar = React.memo(({
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
                     ? 'primary.main'
                     : 'divider',
-                  '&:hover': habilidad.type === 'toggleable' ? {
-                    backgroundColor: 'rgba(0, 207, 200, 0.25)',
-                    borderColor: 'primary.light'
-                  } : {}
+                  '@media (min-width: 800px)': {
+                    '&:hover': habilidad.type === 'toggleable' ? {
+                      backgroundColor: 'rgba(0, 207, 200, 0.25)',
+                      borderColor: 'primary.light'
+                    } : {}
+                  }
                 }}
               >
                 <Typography variant="caption" sx={{ 
@@ -1376,7 +1511,7 @@ const DanoBar = React.memo(({
                     onClick={(e) => e.stopPropagation()}
                     sx={{
                       transform: 'scale(0.6)',
-                      ml: 0.5,
+                      ml: 0.1, // Margen izquierdo de 0.5 unidades para el Switch
                       '& .MuiSwitch-thumb': {
                         backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'primary.main' : '#404040',
                       },
@@ -1406,8 +1541,8 @@ const DanoBar = React.memo(({
               }}
             >
               <Box 
-                onMouseEnter={() => handleMouseEnter(habilidad.id)}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={(e) => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
+                onMouseLeave={(e) => window.innerWidth >= 800 && handleMouseLeave()}
                 onClick={() => habilidad.type === 'toggleable' && handleToggleDefensiva(habilidad.id)}
                 sx={{
                   display: 'flex',
@@ -1425,10 +1560,12 @@ const DanoBar = React.memo(({
                   borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
                     ? '#ff9999'
                     : 'divider',
-                  '&:hover': habilidad.type === 'toggleable' ? {
-                    backgroundColor: 'rgba(255, 77, 130, 0.25)',
-                    borderColor: '#ff9999'
-                  } : {}
+                  '@media (min-width: 800px)': {
+                    '&:hover': habilidad.type === 'toggleable' ? {
+                      backgroundColor: 'rgba(255, 77, 130, 0.25)',
+                      borderColor: '#ff9999'
+                    } : {}
+                  }
                 }}
               >
                 <Typography variant="caption" sx={{ 
