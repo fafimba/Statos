@@ -181,7 +181,7 @@
             "target": "abilities",
             "value": "double_hit_critical",
             "conditions": {
-              "attack_type": "melee"
+              "opponent_size": ">=5"
             }
           }
         },

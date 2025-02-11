@@ -84,7 +84,8 @@
           "wound": 3,
           "damage": 1,
           "rend": 0,
-          "abilities": ["mortal_critical"]
+         
+                  "abilities": ["mortal_critical"]
         }
       ],
       "abilities": [
@@ -105,13 +106,13 @@
         {
           "name": "Cloud of Flies",
           "description": "Subtract 1 from hit rolls for shooting attacks that target this unit",
-          "type": "fixed",
+          "type": "toggleable",
           "category": "defensive",
           "effect": {
             "type": "modifier",
             "target": "hit",
-            "value": -1,
-            "affects": "enemy_attacks",
+            "value": 1,
+            "affects": "enemy_atributes",
             "conditions": {
               "attack_type": "range"
             }
@@ -153,8 +154,7 @@
             "target": "attacks",
             "value": 1,
             "conditions": {
-              "attack_type": "melee",
-              "range": 7
+              "attack_type": "melee"
             }
           }
         }

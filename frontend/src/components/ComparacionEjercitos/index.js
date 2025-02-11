@@ -171,204 +171,57 @@ function ComparacionEjercitos() {
 }
 
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante, provided = {} }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
-    setPerfilesActivos,
     habilidadesPerfiles,
     modificarPerfil,
-    habilidadesUnidad
   } = usePerfilesAtaque(unidad);
 
   // Estado para habilidades toggleables de unidad
-  const [habilidadUnidadActiva, setHabilidadUnidadActiva] = useState(false);
   const [expandido, setExpandido] = useState(false);
 
-
-  // Calcular daños contra unidades
-  const danosContraUnidades = useMemo(() => {
+  const danoBarData = useMemo(() => {
     if (!ejercitoOponente?.units) return [];
 
-    const resultados = Object.entries(ejercitoOponente.units).map(([nombreUnidadObjetivo, unidadObjetivo]) => {
-      if (!unidad?.attack_profiles) return { nombreUnidad: nombreUnidadObjetivo, dano: 0 };
+    // Crear un array de objetos con unidadAtacante y unidadOponente
+    return Object.entries(ejercitoOponente.units).map(([nombreUnidad, unidadOponente]) => ({
+      unidadAtacante: unidad,  // La unidad que está atacando (viene de props o contexto)
+      unidadOponente: unidadOponente  // La unidad defensora actual del ejército oponente
+    }));
+    
+  }, [ejercitoOponente?.units, unidad]);
 
-      // Debug de la unidad objetivo
-      console.log('Unidad objetivo:', {
-        nombre: nombreUnidadObjetivo,
-        modelos: unidadObjetivo.models,
-        unidadCompleta: unidadObjetivo
-      });
+  // Estado para almacenar los daños calculados por cada DanoBar
+  const [danosPorUnidad, setDanosPorUnidad] = useState({});
 
-      // Evaluar condiciones de habilidad de unidad primero
-      let condicionHabilidadCumplida = false;
-      if (unidad.ability?.effect?.type === 'enemy_unit' &&
-          (unidad.ability.type === 'fixed' || 
-           (unidad.ability.type === 'toggleable' && habilidadUnidadActiva))) {
-        const efecto = unidad.ability.effect;
-        
-        if (efecto.condition.type === 'enemy_unit') {
-          const valorObjetivo = parseInt(unidadObjetivo[efecto.condition.property]);
-          const valorCondicion = parseInt(efecto.condition.value);
-          
-          console.log('Evaluación de condición:', {
-            unidadAtacante: nombreUnidad,
-            unidadObjetivo: nombreUnidadObjetivo,
-            propiedad: efecto.condition.property,
-            valorObjetivo,
-            valorCondicion,
-            operador: efecto.condition.operator
-          });
-
-          switch (efecto.condition.operator) {
-            case '>=':
-              condicionHabilidadCumplida = valorObjetivo >= valorCondicion;
-              break;
-            case '<=':
-              condicionHabilidadCumplida = valorObjetivo <= valorCondicion;
-              break;
-            case '>':
-              condicionHabilidadCumplida = valorObjetivo > valorCondicion;
-              break;
-            case '<':
-              condicionHabilidadCumplida = valorObjetivo < valorCondicion;
-              break;
-            case '===':
-            case '==':
-            case '=':
-              condicionHabilidadCumplida = valorObjetivo === valorCondicion;
-              break;
-            default:
-              console.warn(`Operador no soportado: ${efecto.condition.operator}`);
-          }
-          
-          console.log('Resultado de condición:', condicionHabilidadCumplida);
-        }
-      }
-
-      const perfilesModificados = unidad.attack_profiles
-        .filter(perfil => perfilesActivos[perfil.name])
-        .map(perfil => {
-          let perfilModificado = { ...perfil };
-          let habilidadesAdicionales = [...(perfil.abilities || [])];
-          
-          // Aplicar modificadores de la habilidad de unidad
-          if (unidad.ability?.effect?.type === 'modifier' && habilidadUnidadActiva) {
-            const { target, value } = unidad.ability.effect;
-            if (target === 'hit' || target === 'wound') {
-              // Restamos el valor para mejorar el roll necesario
-              perfilModificado[target] = parseInt(perfilModificado[target]) - parseInt(value);
-            } else {
-              // Para otros stats como damage o attacks, seguimos sumando
-              perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
-            }
-          }
-
-          // Aplicar habilidades toggleables de arma si están activas
-          if (habilidadesPerfiles[perfil.name]) {
-            Object.entries(habilidadesPerfiles[perfil.name]).forEach(([habilidad, activa]) => {
-              if (activa) {
-                const habilidadConfig = weapon_abilities[habilidad];
-                if (habilidadConfig?.type === 'toggleable') {
-                  console.log(`Aplicando habilidad ${habilidad} a ${perfil.name}:`, habilidadConfig);
-                  
-                  // Modificar el perfil según la habilidad
-                  if (habilidadConfig.effect.type === 'modifier') {
-                    const targetProperty = habilidadConfig.effect.target;
-                    const valorModificador = habilidadConfig.effect.value;
-                    
-                    console.log(`Modificando ${targetProperty} de ${perfilModificado[targetProperty]} a ${perfilModificado[targetProperty] + valorModificador}`);
-                    
-                    perfilModificado[targetProperty] = perfilModificado[targetProperty] + valorModificador;
-                    
-                    // También añadimos la habilidad al array para referencia
-                    habilidadesAdicionales.push(habilidad);
-                  }
-                }
-              }
-            });
-          }
-
-          // Añadir habilidad condicional solo si la condición se cumple
-          if (unidad.ability?.effect?.type === 'conditional_ability' &&
-              (unidad.ability.type === 'fixed' || 
-               (unidad.ability.type === 'toggleable' && habilidadUnidadActiva))) {
-            
-            const efecto = unidad.ability.effect;
-            const condicion = efecto.condition;
-            
-            // Verificar la condición específica para Brutal Blows
-            if (condicion.type === 'enemy_unit' && 
-                condicion.property === 'models' && 
-                unidadObjetivo.models >= condicion.value) {
-              
-              // Verificar si afecta a todos los perfiles o uno específico
-              if (efecto.affects === 'all_profiles' || efecto.affects === perfil.name) {
-                console.log(`Añadiendo habilidad ${efecto.ability} a ${perfil.name}`);
-                habilidadesAdicionales.push(efecto.ability);
-              }
-            }
-          }
-
-          perfilModificado.abilities = habilidadesAdicionales;
-          
-          console.log('Perfil después de modificaciones:', {
-            nombre: perfil.name,
-            damage: perfilModificado.damage,
-            habilidades: perfilModificado.abilities
-          });
-
-          return perfilModificado;
-        });
-
-      console.log('Perfiles modificados para cálculo:', perfilesModificados);
-
-      const resultado = calculateAttacks({
-        perfiles_ataque: perfilesModificados,
-        miniaturas: unidad.models,
-        guardia: unidadObjetivo.save,
-        salvaguardia: unidadObjetivo.ward,
-        _save_override: null
-      });
-
+  // Callback para actualizar el daño de una unidad específica
+  const actualizarDano = useCallback((nombreUnidad, dano) => {
+    setDanosPorUnidad(prev => {
+      // Solo actualizar si el valor es diferente
+      if (prev[nombreUnidad] === dano) return prev;
       return {
-        nombreUnidad: nombreUnidadObjetivo,
-        unidadAtacante: unidad,
-        unidadOponente: unidadObjetivo,
-        perfilesModificados,
-        habilidadUnidadActiva,
-        habilidadesPerfiles,
-        damage_final: resultado.damage_final,
-        desglose_perfiles: resultado.desglose_perfiles
+        ...prev,
+        [nombreUnidad]: dano
       };
     });
+  }, []); // Sin dependencias porque solo usa setState
 
-    // Calcular el daño máximo entre todas las unidades
-    const maxDano = Math.max(...resultados.map(r => r.damage_final));
 
-    // Añadir el maxDano a cada resultado
-    return resultados.map(r => ({
-      ...r,
-      maxDanoEjercito: maxDano
-    }));
-  }, [unidad, ejercitoOponente, perfilesActivos, habilidadesPerfiles, habilidadUnidadActiva]);
-
-  // Calcular el daño medio
+  // Calcular el daño medio cuando cambien los daños
   const danoMedio = useMemo(() => {
-    if (!danosContraUnidades?.length) return 0;
-    const total = danosContraUnidades.reduce((sum, dato) => sum + dato.damage_final, 0);
-    return (total / danosContraUnidades.length).toFixed(1);
-  }, [danosContraUnidades]);
+    const danos = Object.values(danosPorUnidad);
+    if (danos.length === 0) return 0;
+    return (danos.reduce((sum, dano) => sum + dano, 0) / danos.length).toFixed(1);
+  }, [danosPorUnidad]);
 
   if (!unidad) return null;
 
   return (
     <Card 
-      ref={provided?.innerRef}
-      {...(provided?.draggableProps || {})}
-      {...(provided?.dragHandleProps || {})}
       sx={{ 
-        // background: 'linear-gradient(-160deg, rgba(0, 207, 200, 0.02) 0%, rgba(16, 32, 31, 0.05) 100%)',
+        background: 'linear-gradient(-160deg, rgba(0, 207, 200, 0.02) 0%, rgba(16, 32, 31, 0.05) 100%)',
         border: '1px solid',
         borderColor: 'rgba(0, 207, 200, 0.15)',
         backdropFilter: 'blur(8px)',
@@ -400,16 +253,23 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
             position: 'relative'
           }}
         >
-          <Typography 
-            variant="h6" 
-            sx={{
-              textShadow: '0 2px 8px rgba(0, 207, 200, 0.3)',
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            {nombreUnidad}
-          </Typography>
+          <Box sx={{ 
+            width: '100%',
+            overflow: 'hidden'
+          }}>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                color: 'text.primary',
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {nombreUnidad}
+            </Typography>
+          </Box>
 
           <Box sx={{ 
             display: 'flex',
@@ -529,10 +389,12 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
                 minWidth: '140px',
               }
             }}>
-              {danosContraUnidades.map((datos, index) => (
+              {danoBarData.map((datos, index) => (
                 <DanoBar
-                  key={datos.nombreUnidad}
-                  {...datos}
+                  key={index}
+                  unidadAtacante={datos.unidadAtacante}
+                  unidadOponente={datos.unidadOponente}
+                  onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
                 />
               ))}
             </Box>
@@ -599,7 +461,7 @@ const PerfilAtaque = React.memo(({
         }
       }}
     >
-      {/* Nombre y Toggle */}
+      {/* Nombre, Tipo y Toggle */}
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center',
@@ -618,16 +480,35 @@ const PerfilAtaque = React.memo(({
             }
           }}
         />
-        <Typography 
-          variant="body2" 
-          noWrap 
-          sx={{ 
-            color: 'text.primary',
-            maxWidth: { xs: '100%', sm: '150px' },
-          }}
-        >
-          {perfil.name}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography 
+            variant="body2" 
+            noWrap 
+            sx={{ 
+              color: 'text.primary',
+              maxWidth: { xs: '100%', sm: '150px' },
+            }}
+          >
+            {perfil.name}
+          </Typography>
+          <Tooltip title={perfil.type === 'melee' ? 'Melee Attack' : 'Range Attack'}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: perfil.type === 'melee' ? '#ff9999' : '#99ccff',
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                px: 1,
+                py: 0.5,
+                borderRadius: '4px',
+                fontSize: '0.7rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              {perfil.type}
+            </Typography>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* Stats alineados */}
@@ -776,26 +657,31 @@ export const usePerfilesAtaque = (unidad) => {
 };
 
 const DanoBar = React.memo(({ 
-  nombreUnidad,
   unidadAtacante,
   unidadOponente,
-  perfilesModificados,
-  damage_final
+  onDanoCalculado
 }) => {
-  const danoTotal = Number.isFinite(damage_final) ? damage_final : 0;
 
   // Estado para controlar la visibilidad de cada tooltip individualmente
   const [activeTooltip, setActiveTooltip] = useState(null);
   const tooltipTimeoutRef = useRef(null);
 
+  const nombreUnidad = unidadOponente.name;
+
   // Preparar arrays de habilidades, filtrando por categoría
-  const habilidadesAtacante = [].concat(unidadAtacante.abilities || unidadAtacante.ability)
+  const habilidadesAtacante = [].concat(unidadAtacante.abilities)
     .filter(Boolean)
     .filter(hab => hab.category === 'offensive');
     
-  const habilidadesOponente = [].concat(unidadOponente.abilities || unidadOponente.ability)
+  console.log("habilidadesOponente", unidadOponente);
+  const habilidadesOponente = [].concat(unidadOponente.abilities)
     .filter(Boolean)
     .filter(hab => hab.category === 'defensive');
+
+  const perfilesModificados = unidadAtacante.attack_profiles.map(perfil => ({
+    ...perfil,
+    abilities: perfil.abilities
+  }));
 
   // Modificar la preparación de habilidades para incluir las habilidades de armas
   const habilidades = {
@@ -808,6 +694,26 @@ const DanoBar = React.memo(({
               switch(key) {
                 case 'attack_type':
                   return perfilesModificados.some(perfil => perfil.type === value);
+                case 'target_tag':
+                  return unidadOponente.tags?.includes(value);
+                case 'profile_name':
+                  return perfilesModificados.some(perfil => perfil.name === value);
+                case 'opponent_size':
+                  const [operador, numero] = value.match(/([<>]=?|=)(\d+)/).slice(1);
+                  switch(operador) {
+                    case '>=':
+                      return unidadOponente.models >= parseInt(numero);
+                    case '<=':
+                      return unidadOponente.models <= parseInt(numero); 
+                    case '>':
+                      return unidadOponente.models > parseInt(numero);
+                    case '<':
+                      return unidadOponente.models < parseInt(numero);
+                    case '=':
+                      return unidadOponente.models === parseInt(numero);
+                    default:
+                      return true;
+                  }
                 default:
                   return true;
               }
@@ -820,26 +726,53 @@ const DanoBar = React.memo(({
         })),
       // Habilidades de armas
       ...perfilesModificados.flatMap(perfil => 
-        (perfil.abilities || []).map(habilidadId => {
-          const habilidadInfo = weapon_abilities[habilidadId];
-          return {
-            id: `${perfil.name}_${habilidadId}`,
-            name: habilidadInfo?.name || habilidadId,
-            description: habilidadInfo?.description || '',
-            type: habilidadInfo?.type || 'fixed',
-            effect: habilidadInfo?.effect,
-            profileName: perfil.name
-          };
-        })
+        (perfil.abilities || [])
+          .filter(habilidadId => {
+
+            const habilidadInfo = weapon_abilities[habilidadId];
+            
+          // Si no hay efecto, no se muestra
+          if(habilidadInfo?.effect == null)
+          return false;
+
+            return Object.entries(habilidadInfo?.effect?.conditions || {}).every(([key, value]) => {
+            
+              switch(key) {
+                case 'attack_type':
+                  return perfilesModificados.some(perfil => perfil.type === value);
+                case 'target_tag':
+                  return unidadOponente.tags?.includes(value);
+                case undefined:
+                default:
+                  return true;
+              }
+            });
+
+          })
+          .map(habilidadId => {
+            const habilidadInfo = weapon_abilities[habilidadId];
+            return {
+              id: `${perfil.name}_${habilidadId}`,
+              weapon_id: habilidadId,
+              name: habilidadInfo?.name || habilidadId,
+              description: perfil.name + ": " + habilidadInfo?.description || '',
+              type: habilidadInfo?.type || 'fixed',
+              effect: habilidadInfo?.effect,
+              profile: perfil.name
+            };
+          })
       )
     ],
     defensivas: habilidadesOponente
       .filter(hab => {
         const condicionesCumplidas = !hab.effect?.conditions || 
           Object.entries(hab.effect.conditions).every(([key, value]) => {
+            
             switch(key) {
               case 'attack_type':
                 return perfilesModificados.some(perfil => perfil.type === value);
+              case 'target_tag':
+                return value ? unidadAtacante.tags?.includes(value) : true;
               default:
                 return true;
             }
@@ -858,85 +791,191 @@ const DanoBar = React.memo(({
   const danoCalculado = useMemo(() => {
     let saveModificado = unidadOponente.save;
     let wardModificado = unidadOponente.ward;
-    let modificadoresAtaqueEnemigo = {};
-    
-    // Manejar array de habilidades defensivas
-    if (unidadOponente.abilities || unidadOponente.ability) {
-      const habilidades = [].concat(unidadOponente.abilities || unidadOponente.ability).filter(Boolean);
-      
-      habilidades.forEach(habilidad => {
-        const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
-        
-        // Comprobar si las condiciones se cumplen (si hay)
-        const condicionesCumplidas = !habilidad.effect?.conditions || 
-          Object.entries(habilidad.effect.conditions).every(([key, value]) => {
-            switch(key) {
-              case 'attack_type':
-                return perfilesModificados.some(perfil => perfil.type === value);
-              default:
-                return true;
-            }
-          });
 
-        // Solo aplicar si cumple las condiciones y es fixed o está activa
-        const debeAplicarse = condicionesCumplidas && 
-          (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
-        
-        if (debeAplicarse && habilidad.effect) {
-          const { type, target, value, affects } = habilidad.effect;
+    if (unidadOponente.abilities || unidadOponente.ability) 
+      {
+        const habilidadesDefensivas = [].concat(unidadOponente.abilities || unidadOponente.ability).filter(Boolean);
+        habilidadesDefensivas.forEach(habilidad => {
+          const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
           
-          if (type === 'modifier') {
-            if (target === 'save') {
-              saveModificado = saveModificado - parseInt(value);
-            } else if (target === 'ward') {
-              if (!wardModificado || parseInt(value) < wardModificado) {
-                wardModificado = parseInt(value);
+          // Comprobar si las condiciones se cumplen (si hay)
+          const condicionesCumplidas = !habilidad.effect?.conditions || 
+            Object.entries(habilidad.effect.conditions).some(([key, value]) => {
+              switch(key) {
+                case 'attack_type':
+                  return perfilesModificados.some(perfil => perfil.type === value);
+                case 'target_tag':
+                  return unidadAtacante.tags?.includes(value);
+                default:
+                  return true;
               }
-            } else if (affects === 'enemy_attacks') {
-              // Verificar las condiciones del ataque antes de aplicar el modificador
-              Object.entries(modificadoresAtaqueEnemigo).forEach(([stat, mod]) => {
-                if ((!habilidad.effect?.conditions || !habilidad.effect.conditions.attack_type || 
-                    perfilesModificados.some(perfil => perfil.type === habilidad.effect.conditions.attack_type))) {
-                  modificadoresAtaqueEnemigo[target] = (modificadoresAtaqueEnemigo[target] || 0) + parseInt(value);
-                }
-              });
+            });
+
+          // Solo aplicar si cumple las condiciones y es fixed o está activa
+          const debeAplicarse = condicionesCumplidas && 
+            (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
+          
+          if (debeAplicarse && habilidad.effect) {
+            const { type, target, value, affects } = habilidad.effect;
+            
+            if (type === 'modifier') 
+              {
+              if (target === 'save') 
+                {
+                  console.log('Aplicando modificador defensivo a save:', {
+                    target,
+                    valorModificador: value,
+                    nuevoValor: saveModificado
+                  });
+                  saveModificado = saveModificado - parseInt(value);
+                } else if (target === 'ward') 
+                {
+                if (!wardModificado || parseInt(value) < wardModificado) 
+                  {
+                    wardModificado = parseInt(value);
+                  }
+              } 
             }
           }
-        }
-      });
-    }
-
-    const perfilesConHabilidades = perfilesModificados.map(perfil => {
-      let perfilModificado = { ...perfil };
-      
-      // Aplicar modificadores de ataques enemigos
-      if (Object.keys(modificadoresAtaqueEnemigo).length > 0) {
-        Object.entries(modificadoresAtaqueEnemigo).forEach(([stat, mod]) => {
-          perfilModificado[stat] = parseInt(perfilModificado[stat]) + mod;
         });
       }
-
-      // Aplicar habilidades de armas
-      perfil.abilities?.forEach(habilidadId => {
-        const habilidadInfo = weapon_abilities[habilidadId];
-        const habilidadCompuestaId = `${perfil.name}_${habilidadId}`;
+    // Primero definimos perfilesModificadosDefensa
+    let perfilesModificadosDefensa = perfilesModificados.map(perfil => {
+      let perfilModificado = { ...perfil };
+      
+      // Manejar array de habilidades defensivas
+      if (unidadOponente.abilities || unidadOponente.ability) 
+        {
+        const habilidadesDefensivas = [].concat(unidadOponente.abilities || unidadOponente.ability).filter(Boolean);
         
-        if (habilidadInfo?.type === 'fixed' || habilidadesActivas.ofensivas[habilidadCompuestaId]) {
-          // Aplicar los efectos de la habilidad
-          if (habilidadInfo?.effect) {
-            const { type, target, value } = habilidadInfo.effect;
-            if (type === 'modifier') {
-              if (target === 'abilities') {
-                perfilModificado.abilities = perfilModificado.abilities || [];
-                if (!perfilModificado.abilities.includes(value)) {
-                  perfilModificado.abilities = [...perfilModificado.abilities, value];
-                }
-              } else {
-                perfilModificado[target] = parseInt(perfilModificado[target]) + 
-                  ((['hit', 'wound'].includes(target)) ? -parseInt(value) : parseInt(value));
+        habilidadesDefensivas.forEach(habilidad => {
+          const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
+          
+          // Comprobar si las condiciones se cumplen (si hay)
+          const condicionesCumplidas = !habilidad.effect?.conditions || 
+            Object.entries(habilidad.effect.conditions).some(([key, value]) => {
+              switch(key) {
+                case 'attack_type':
+                  return perfilesModificados.some(perfil => perfil.type === value);
+                case 'target_tag':
+                  return unidadAtacante.tags?.includes(value);
+                default:
+                  return true;
               }
+            });
+
+          // Solo aplicar si cumple las condiciones y es fixed o está activa
+          const debeAplicarse = condicionesCumplidas && 
+            (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
+          
+          if (debeAplicarse && habilidad.effect) {
+            const { type, target, value, affects } = habilidad.effect;
+            
+            if (type === 'modifier') 
+              {
+           if (affects === 'enemy_atributes') 
+                {
+                    const condicionesCumplidas = Object.entries(habilidad.effect.conditions).every(([key, value]) => {
+                      console.log("Evaluando condición:", {
+                        key,
+                        valorEsperado: value,
+                        valorActual: key === 'attack_type' ? perfilModificado.type : 
+                                     key === 'target_tag' ? unidadAtacante.tags : 
+                                     perfilModificado[key]
+                      });
+                      
+                      switch(key) {
+                        case 'attack_type':
+                          return perfilModificado.type === value;
+                        case 'target_tag':
+                          return unidadAtacante.tags?.includes(value);
+                        default:
+                          return perfilModificado[key] === value;
+                      }
+                    });
+
+                    if(condicionesCumplidas) {
+                      perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
+                      console.log('Aplicando modificador de habilidad defensiva:', {
+                        perfil: perfilModificado.name,
+                        target,
+                        valorAnterior: perfil[target],
+                        nuevoValor: perfilModificado[target]
+                      });
+                    }
+
+                }
             }
           }
+        });
+      }
+      
+      return perfilModificado;
+    });
+
+    // Luego lo usamos para las habilidades ofensivas
+    const perfilesConHabilidades = perfilesModificadosDefensa.map(perfil => {
+      let perfilModificado = { ...perfil };
+      
+      // Aplicar habilidades de armas
+      perfilModificado.abilities?.forEach(habilidadId => {
+        console.log("habilidadId de armas",habilidadId);
+
+        const habilidadInfo = weapon_abilities[habilidadId];
+        
+        console.log('Procesando habilidad de arma:', {
+          habilidadId,
+          habilidadInfo,
+          estaActiva: habilidadesActivas.ofensivas[perfil.name + "_" + habilidadId]
+        });
+
+        // Solo aplicar si es fixed o está activa en habilidadesActivas
+        console.log("habilidadesActivas",habilidadesActivas);
+
+        if (habilidadInfo?.type === 'fixed' || 
+            (habilidadInfo?.type === 'toggleable' && habilidadesActivas.ofensivas[perfil.name + "_" + habilidadId])) {
+          
+          // Verificar si hay condiciones y si se cumplen
+          const condicionesCumplidas = !habilidadInfo?.effect?.conditions || 
+            Object.entries(habilidadInfo?.effect?.conditions || {}).every(([key, value]) => {
+              switch(key) {
+                case 'target_tag':
+                  return unidadOponente?.tags?.includes(value);
+                case 'attack_type':
+                  return perfilModificado?.type === value;
+                case 'profile_name':
+                  return perfilModificado?.name === value;
+               case  undefined:
+                default:
+                  return true;
+              }
+            });
+
+          if (condicionesCumplidas) {
+            console.log("habilidadId", habilidadId);
+            perfilModificado.abilities = perfilModificado.abilities || [];
+            console.log("perfilModificado.abilities", perfilModificado.abilities);
+            // Añadir la habilidad al array
+            if (!perfilModificado.abilities.includes(habilidadId)) {
+              perfilModificado.abilities = [...perfilModificado.abilities, habilidadId];
+              console.log("habilidadId añadida", habilidadId);
+            }
+
+            // Aplicar el efecto del modificador si es de tipo 'modifier'
+            if (habilidadInfo.effect?.type === 'modifier') {
+              const { target, value } = habilidadInfo.effect;
+              console.log(`Aplicando modificador ${value} a ${target}`, {
+                valorAnterior: perfilModificado[target],
+                modificador: value
+              });
+              
+              perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
+            }
+          }
+        } else {
+          // Si la habilidad no está activa, asegurarnos de que no esté en el array
+          perfilModificado.abilities = (perfilModificado.abilities || [])
+            .filter(id => id !== habilidadId);
         }
       });
 
@@ -945,39 +984,103 @@ const DanoBar = React.memo(({
         const habilidades = [].concat(unidadAtacante.abilities || unidadAtacante.ability).filter(Boolean);
         
         habilidades.forEach(habilidad => {
+
           const habilidadId = `${unidadAtacante.name}_${habilidad.name}`;
-          const activa = habilidadesActivas.ofensivas[habilidadId];
+          const weapon_id = habilidad.weapon_id;
+          const activa = habilidadesActivas.ofensivas[habilidadId] || habilidadesActivas.ofensivas[weapon_id];
           
           if (activa) {
             const { type, target, value, conditions } = habilidad.effect;
             
-            const aplicarHabilidad = !conditions || (
-              (!conditions.profile_name || conditions.profile_name === perfil.name) &&
-              (!conditions.attack_type || conditions.attack_type === perfil.type)
-            );
+            let aplicarHabilidad = true;
+
+            console.log("efecto de la habilidad en aplicarHabilidad", habilidad.effect);
+            console.log("conditions", conditions);
+            if (conditions) {
+              Object.entries(conditions).forEach(([key, value]) => {
+                switch(key) {
+                  case 'profile_name':
+                    console.log("is profile_name");
+                    console.log("value", value);
+                    if (value !== perfil.name) {
+                      console.log("no es el perfil", value, perfil.name);
+                      aplicarHabilidad = false;
+                    }
+                    break;
+                  case 'attack_type': 
+                    if (value !== perfil.type) {
+                      aplicarHabilidad = false;
+                    }
+                    break;
+                  case 'opponent_size':
+                    const [operador, numero] = value.match(/([<>]=?|=)(\d+)/).slice(1);
+                    switch(operador) {
+                      case '>=':
+                        if (!(unidadOponente.models >= parseInt(numero))) {
+                          aplicarHabilidad = false;
+                        }
+                        break;
+                      case '<=':
+                        if (!(unidadOponente.models <= parseInt(numero))) {
+                          aplicarHabilidad = false;
+                        }
+                        break;
+                      case '>':
+                        if (!(unidadOponente.models > parseInt(numero))) {
+                          aplicarHabilidad = false;
+                        }
+                        break;
+                      case '<':
+                        if (!(unidadOponente.models < parseInt(numero))) {
+                          aplicarHabilidad = false;
+                        }
+                        break;
+                      case '=':
+                        if (unidadOponente.models !== parseInt(numero)) {
+                          aplicarHabilidad = false;
+                        }
+                        break;
+                    }
+                      break;
+                }
+              });
+            }
 
             if (aplicarHabilidad) {
-              if (type === 'modifier') {
-                if (target === 'abilities') {
+              switch(type) {
+                case 'modifier':
+                  if (target === 'abilities') {
+                    perfilModificado.abilities = perfilModificado.abilities || [];
+                    if (!perfilModificado.abilities.includes(value)) {
+                      perfilModificado.abilities = [...perfilModificado.abilities, value];
+                    }
+                  } else {
+                    perfilModificado[target] = parseInt(perfilModificado[target]) + 
+                      ((['hit', 'wound'].includes(target)) ? -parseInt(value) : parseInt(value));
+                  }
+                  break;
+
+                case 'dice_override':
+                  // Para dice_override, asegurarnos de que el valor es numérico
+                  perfilModificado[target] = parseInt(value);
+                  
+                  // Debug para ver los valores
+                  console.log('Aplicando dice_override:', {
+                    perfil: perfil.name,
+                    target,
+                    originalValue: perfil[target],
+                    newValue: perfilModificado[target]
+                  });
+                  break;
+
+                case 'critical':
+                  console.log("es critical");
                   perfilModificado.abilities = perfilModificado.abilities || [];
                   if (!perfilModificado.abilities.includes(value)) {
-                    perfilModificado.abilities = [...perfilModificado.abilities, value];
+                    console.log("añadiendo critical:", habilidad.effect);
+                    perfilModificado.abilities = [...perfilModificado.abilities,  habilidad];
                   }
-                } else {
-                  perfilModificado[target] = parseInt(perfilModificado[target]) + 
-                    ((['hit', 'wound'].includes(target)) ? -parseInt(value) : parseInt(value));
-                }
-              } else if (type === 'dice_override') {
-                // Para dice_override, asegurarnos de que el valor es numérico
-                perfilModificado[target] = parseInt(value);
-                
-                // Debug para ver los valores
-                console.log('Aplicando dice_override:', {
-                  perfil: perfil.name,
-                  target,
-                  originalValue: perfil[target],
-                  newValue: perfilModificado[target]
-                });
+                  break;
               }
             }
           }
@@ -987,13 +1090,28 @@ const DanoBar = React.memo(({
       return perfilModificado;
     });
 
+    console.log("perfilesConHabilidades antes de calcular", perfilesConHabilidades);
     return calculateAttacks({
-      perfiles_ataque: perfilesConHabilidades,
+      perfiles_ataque: perfilesConHabilidades.map(perfil => ({
+        ...perfil,
+        _models_override: perfil.models || unidadAtacante.models
+      })),
       miniaturas: unidadAtacante.models,
       guardia: saveModificado,
       salvaguardia: wardModificado
     });
   }, [perfilesModificados, habilidadesActivas, unidadAtacante, unidadOponente]);
+
+  const prevDanoRef = useRef();
+
+  // Notificar al padre cuando se calcule el daño y evitar actualizaciones innecesarias
+  useEffect(() => {
+    if (danoCalculado?.damage_final !== prevDanoRef.current) {
+      prevDanoRef.current = danoCalculado?.damage_final;
+      onDanoCalculado?.(danoCalculado?.damage_final);
+    }
+  }, [danoCalculado?.damage_final, onDanoCalculado]);
+
 
   // Actualizar los manejadores de eventos
   const handleToggleOfensiva = (habilidadId) => {
@@ -1062,15 +1180,23 @@ const DanoBar = React.memo(({
         flexDirection: 'column',
         gap: 0.5
       }}>
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: 'text.primary',
-            fontWeight: 500
-          }}
-        >
-          {nombreUnidad}
-        </Typography>
+        <Box sx={{ 
+          width: '100%',
+          overflow: 'hidden'
+        }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: 'text.primary',
+              fontWeight: 500,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {nombreUnidad}
+          </Typography>
+        </Box>
         <Box sx={{
           display: 'flex',
           alignItems: 'baseline',
@@ -1339,6 +1465,7 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
         description: unidadAtacante.ability.description,
         type: unidadAtacante.ability.type,
         effect: unidadAtacante.ability.effect,
+        profile: unidadAtacante.ability.profile,
         source: 'unit'
       });
     }
@@ -1351,6 +1478,7 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
         description: unidadDefensora.ability.description,
         type: unidadDefensora.ability.type,
         effect: unidadDefensora.ability.effect,
+        profile: unidadDefensora.ability.profile,
         source: 'unit'
       });
     }
@@ -1393,7 +1521,6 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
     getHabilidadActiva
   };
 };
-
 
 // Componente auxiliar para los stats
 const StatBox = ({ label, value, color }) => (
