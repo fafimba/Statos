@@ -75,5 +75,18 @@
         "target_tag": "priest"
       }
     }
+  },
+  "anti_monster_rend_1": {
+    "name": "Anti-MONSTER: Rend +1",
+    "description": "Add 1 to the Rend characteristic when targeting MONSTER units",
+    "type": "toggleable",
+    "effect": {
+      "type": "modifier",
+      "target": "rend",
+      "value": 1,
+      "conditions": {
+        "target_tag": "monster"
+      }
+    }
   }
 } 

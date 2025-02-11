@@ -171,7 +171,7 @@ function ComparacionEjercitos() {
 }
 
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtacante }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
@@ -185,13 +185,14 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
   const danoBarData = useMemo(() => {
     if (!ejercitoOponente?.units) return [];
 
-    // Crear un array de objetos con unidadAtacante y unidadOponente
+    // Crear un array de objetos con unidadAtacante, unidadOponente y perfiles activos
     return Object.entries(ejercitoOponente.units).map(([nombreUnidad, unidadOponente]) => ({
-      unidadAtacante: unidad,  // La unidad que está atacando (viene de props o contexto)
-      unidadOponente: unidadOponente  // La unidad defensora actual del ejército oponente
+      unidadAtacante: unidad,
+      unidadOponente: unidadOponente,
+      perfilesActivos: perfilesActivos
     }));
     
-  }, [ejercitoOponente?.units, unidad]);
+  }, [ejercitoOponente?.units, unidad, perfilesActivos]);
 
   // Estado para almacenar los daños calculados por cada DanoBar
   const [danosPorUnidad, setDanosPorUnidad] = useState({});
@@ -394,6 +395,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, esAtaca
                   key={index}
                   unidadAtacante={datos.unidadAtacante}
                   unidadOponente={datos.unidadOponente}
+                  perfilesActivos={datos.perfilesActivos}
                   onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
                 />
               ))}
@@ -659,6 +661,7 @@ export const usePerfilesAtaque = (unidad) => {
 const DanoBar = React.memo(({ 
   unidadAtacante,
   unidadOponente,
+  perfilesActivos,  
   onDanoCalculado
 }) => {
 
@@ -678,10 +681,12 @@ const DanoBar = React.memo(({
     .filter(Boolean)
     .filter(hab => hab.category === 'defensive');
 
-  const perfilesModificados = unidadAtacante.attack_profiles.map(perfil => ({
-    ...perfil,
-    abilities: perfil.abilities
-  }));
+
+    const perfilesModificados = unidadAtacante.attack_profiles
+    .filter(perfil => perfilesActivos[perfil.name])
+    .map(perfil => ({
+      ...perfil
+    }));
 
   // Modificar la preparación de habilidades para incluir las habilidades de armas
   const habilidades = {

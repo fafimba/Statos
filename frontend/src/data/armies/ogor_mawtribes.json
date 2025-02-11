@@ -1,0 +1,46 @@
+{
+  "name": "Ogor Mawtribes",
+  "color": "#FF4500",
+  "units": {
+    "Tyrant": {
+      "models": 1,
+      "wounds": 8,
+      "move": 6,
+      "save": 4,
+      "control": 5,
+      "tags": ["hero", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Ogor Pistols",
+          "range": 10,
+          "type": "range",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": ["shoot_in_combat"]
+        },
+        {
+          "name": "Beastskewer Glaive",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["anti_monster_rend_1"]
+        },
+        {
+          "name": "Thundermace",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 2,
+          "rend": 2,
+          "damage": 3
+        }
+      ]
+    }
+  }
+} 
