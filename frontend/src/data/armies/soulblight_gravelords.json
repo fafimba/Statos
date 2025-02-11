@@ -11,6 +11,47 @@
       "save": 3,
       "ward": 6,
       "tags": ["hero", "wizard", "infantry", "vampire"],
+      "abilities": [
+        {
+          "name": "Vile Transference",
+          "description": "Roll a number of dice equal to the target's Health characteristic. For each 5+, inflict 1 mortal damage on the target and Heal (1) this unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "target_wounds",
+            "dice_type": "d6",
+            "difficulty": 5          }
+        },
+        {
+          "name": "Spirit Gale",
+          "description": "Inflict 1 mortal damage on each enemy unit on the battlefield.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 1,
+            "target": "all_enemies"
+          }
+        },
+        {
+          "name": "Aura of Night",
+          "description": "Ignore negative modifiers to save rolls for shooting attacks that target your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "affects": "enemy_atributes",
+            "target": "rend",
+            "value": "ignore",
+            "conditions": {
+              "attack_type": "range"
+            }
+          }
+        }
+      ],
       "attack_profiles": [
         {
           "name": "Dynastic War-relic",
@@ -93,6 +134,23 @@
       "save": 3,
       "ward": 6,
       "tags": ["cavalry", "vampire"],
+      "abilities": [
+        {
+          "name": "Ruinous Chargers",
+          "description": "Inflict D3 mortal damage on each enemy unit it passed across during that CHARGE ability.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d3",
+            "difficulty": 1,
+            "conditions": {
+              "charge": true
+            }
+          }
+        }
+      ],
       "attack_profiles": [
         {
           "name": "Templar Lance or Templar Blade",

@@ -63,6 +63,21 @@
           "target": "ward",
           "value": 5
         }
+      },{
+        "name": "Cleansing Fires",
+        "description": "Pick a visible enemy unit within 12\" of this unit to be the target. Roll a dice for each model in the target unit. For each 5+, inflict 1 mortal damage on the target unit.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "extra_mortal",
+          "dice_amount": "target_size",
+          "dice_type": "d6",
+          "difficulty": 5,
+          "conditions": {
+            "range": 12,
+            "visible": true
+          }
+        }
       }]
     },
     "Lord-Vigilant on Gryph-stalker": {
@@ -197,6 +212,15 @@
           "target": "ward",
           "value": 5
         }
+      },
+      {
+        "name": "Deliver Judgement",
+        "description": "Pick a friendly non-HERO unit wholly within 12\" of this unit to be the target. The target can use 2 FIGHT abilities this phase. After the first is used, however, the target has STRIKE-LAST for the rest of the phase.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "double_fight"
+        }
       }]
     },
     "Prosecutors": {
@@ -211,7 +235,7 @@
       "attack_profiles": [
         {
           "name": "Stormcall Javelin (Ranged)",
-          "type": "ranged",
+          "type": "range",
           "range": 10,
           "attacks": 1,
           "hit": 3,
@@ -251,6 +275,15 @@
           "type": "modifier",
           "target": "ward",
           "value": 5
+        }
+      },
+      {
+        "name": "Deliver Judgement",
+        "description": "Pick a friendly non-HERO unit wholly within 12\" of this unit to be the target. The target can use 2 FIGHT abilities this phase. After the first is used, however, the target has STRIKE-LAST for the rest of the phase.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "double_fight"
         }
       }]
     }

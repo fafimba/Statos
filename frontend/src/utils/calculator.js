@@ -9,15 +9,25 @@ const calcularProbabilidad = (objetivo) => {
 };
 
 const calcularValorDado = (dado) => {
+  // Si es número, devolver el mismo número
   if (typeof dado === 'number') return dado;
+  
+  // Si es string, procesar como notación de dados
   if (typeof dado === 'string') {
-    const match = dado.toUpperCase().match(/D(\d+)/);
+    // Convertir a mayúsculas y buscar patrones como "2D6" o "D3+2"
+    const match = dado.toUpperCase().match(/^(\d+)?D(\d+)(?:\+(\d+))?$/);
+    
     if (match) {
-      const caras = parseInt(match[1]);
-      return (caras + 1) / 2;
+      const cantidad = match[1] ? parseInt(match[1]) : 1; // Número de dados (1 si no se especifica)
+      const caras = parseInt(match[2]); // Número de caras del dado
+      const modificador = match[3] ? parseInt(match[3]) : 0; // Modificador adicional
+      
+      // Calcular media: (caras + 1)/2 por cada dado + modificador
+      return cantidad * ((caras + 1) / 2) + modificador;
     }
   }
-  return 0;
+  
+  return 0; // Valor por defecto si no es válido
 };
 
 // Cálculos específicos
@@ -101,21 +111,53 @@ const calcularDañoAutoWound = ({ hits, damage, guardia, perforacion, salvaguard
   return dañoFinal;
 };
 
+export const calcularMortalesConDados = ({ cantidad, tipoDado, dificultad, salvaguardia, multiplicador = 1 }) => {
+  console.log('Inputs:', { cantidad, tipoDado, dificultad, salvaguardia });
+
+  // 1. Calcular probabilidad de éxito en la tirada según el tipo de dado
+  let probExito;
+  if (tipoDado === 'd3') {
+    // Para D3, calculamos cuántos números superan o igualan la dificultad
+    const exitosPosibles = 4 - Math.max(1, Math.min(3, dificultad));
+    probExito = exitosPosibles / 3;
+  } else {
+    // Para D6 (por defecto)
+    const exitosPosibles = 7 - Math.max(1, Math.min(6, dificultad));
+    probExito = exitosPosibles / 6;
+  }
+  console.log('Probabilidad de éxito:', probExito);
+  
+  // 2. Calcular media de mortales (1 mortal por cada éxito)
+  const mortalesBase = cantidad * probExito;
+  console.log('Mortales base:', mortalesBase);
+
+  // 3. Aplicar salvaguardia si existe
+  if (salvaguardia > 0) {
+    const probFallarSalva = 1 - calcularProbabilidad(salvaguardia);
+    console.log('Probabilidad fallar salvaguardia:', probFallarSalva);
+    const resultado = mortalesBase * probFallarSalva;
+    console.log('Resultado final con salvaguardia:', resultado);
+    return resultado * multiplicador;
+  }
+
+  console.log('Resultado final sin salvaguardia:', mortalesBase);
+  return mortalesBase;
+};
+
 // Función principal
-export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvaguardia, _save_override }) => {
+export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvaguardia, _save_override, wounds_modificado }) => {
   try {
-    console.log("perfiles_ataque en calculateAttacks", perfiles_ataque);
     const perfilesAtaque = perfiles_ataque || [];
     const numMiniaturas = parseInt(miniaturas || 0);
     const valorGuardia = parseInt(guardia || 0);
     const valorSalvaguardia = parseInt(salvaguardia || 0);
     const guardiaEfectiva = _save_override || valorGuardia;
+    const woundsEfectivas = wounds_modificado || 0;
 
     let dañoTotal = 0;
     const desglosePerfiles = [];
 
     for (const perfil of perfilesAtaque) {
-      console.log("perfil en calculateAttacks", perfil);
       // 1. Preparar datos básicos
       const ataquesPorModelo = calcularValorDado(perfil.attacks || perfil.ataques || 0);
       const totalAtaques = numMiniaturas * ataquesPorModelo;
@@ -123,7 +165,6 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
       const wound = parseInt(perfil.wound || 0);
       const damage = calcularValorDado(perfil.damage || 0);
       const perforacion = parseInt(perfil.rend || perfil.perforacion || 0);
-      console.log("perfil.abilities", perfil.abilities);
       const tipoCritico = (perfil.abilities || [])
         .map(abilityId => weapon_abilities[abilityId])
         .find(ability => ability?.effect?.type === 'critical')?.effect?.action || 
@@ -142,9 +183,8 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
       // 4. Calcular daño según tipo de crítico
       let dañoMortal = 0;
       let dañoNormal = 0;
-      console.log("!!!!!tipoCritico", tipoCritico);
+
       if (tipoCritico === 'mortal_wound') {
-        console.log("ha entrado en mortal_wound");
         dañoMortal = calcularDañoMortal(hits, damage, valorSalvaguardia);
         dañoNormal = calcularDañoNormal({
           hits,
@@ -191,10 +231,10 @@ export const calculateAttacks = ({ perfiles_ataque, miniaturas, guardia, salvagu
 
     return {
       damage_final: round2(dañoTotal),
-      desglose_perfiles: desglosePerfiles
+      desglose_perfiles: desglosePerfiles,
+      wounds: woundsEfectivas
     };
   } catch (error) {
-    console.error("Error in calculateAttacks:", error);
     throw error;
   }
 };

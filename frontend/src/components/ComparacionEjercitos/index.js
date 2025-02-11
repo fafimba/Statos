@@ -15,7 +15,7 @@ import {
   FormControlLabel
 } from '@mui/material';
 import { armies } from '../../data/armies';
-import { calculateAttacks } from '../../utils/calculator';
+import { calculateAttacks, calcularMortalesConDados } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
 
 
@@ -170,7 +170,6 @@ function ComparacionEjercitos() {
   );
 }
 
-
 const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
   // Usar el hook de perfiles de ataque
   const {
@@ -198,23 +197,22 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
   const [danosPorUnidad, setDanosPorUnidad] = useState({});
 
   // Callback para actualizar el daño de una unidad específica
-  const actualizarDano = useCallback((nombreUnidad, dano) => {
-    setDanosPorUnidad(prev => {
-      // Solo actualizar si el valor es diferente
-      if (prev[nombreUnidad] === dano) return prev;
-      return {
-        ...prev,
-        [nombreUnidad]: dano
-      };
-    });
-  }, []); // Sin dependencias porque solo usa setState
-
+  const actualizarDano = useCallback((nombreUnidadOponente, dano) => {
+    if (dano === undefined || dano === null) return;
+    
+    setDanosPorUnidad(prev => ({
+      ...prev,
+      [nombreUnidadOponente]: parseFloat(dano)
+    }));
+  }, []);
 
   // Calcular el daño medio cuando cambien los daños
   const danoMedio = useMemo(() => {
     const danos = Object.values(danosPorUnidad);
-    if (danos.length === 0) return 0;
-    return (danos.reduce((sum, dano) => sum + dano, 0) / danos.length).toFixed(1);
+    if (danos.length === 0) return '0.0';
+    
+    const suma = danos.reduce((sum, dano) => sum + dano, 0);
+    return (suma / danos.length).toFixed(1);
   }, [danosPorUnidad]);
 
   if (!unidad) return null;
@@ -643,12 +641,6 @@ export const usePerfilesAtaque = (unidad) => {
     return [unidad.ability].filter(Boolean);
   }, [unidad]);
 
-  console.log('Estado actual de perfiles:', {
-    perfilesActivos,
-    habilidadesPerfiles,
-    habilidadesUnidad
-  });
-
   return {
     perfilesActivos,
     setPerfilesActivos,
@@ -675,8 +667,7 @@ const DanoBar = React.memo(({
   const habilidadesAtacante = [].concat(unidadAtacante.abilities)
     .filter(Boolean)
     .filter(hab => hab.category === 'offensive');
-    
-  console.log("habilidadesOponente", unidadOponente);
+
   const habilidadesOponente = [].concat(unidadOponente.abilities)
     .filter(Boolean)
     .filter(hab => hab.category === 'defensive');
@@ -792,10 +783,13 @@ const DanoBar = React.memo(({
 
   const { habilidadesActivas, toggleHabilidadOfensiva, toggleHabilidadDefensiva } = useHabilidades(unidadAtacante, unidadOponente);
 
+
+
   // Recalcular el daño cuando cambien las habilidades
   const danoCalculado = useMemo(() => {
     let saveModificado = unidadOponente.save;
     let wardModificado = unidadOponente.ward;
+    let woundsModificado = unidadOponente.wounds;
 
     if (unidadOponente.abilities || unidadOponente.ability) 
       {
@@ -827,11 +821,6 @@ const DanoBar = React.memo(({
               {
               if (target === 'save') 
                 {
-                  console.log('Aplicando modificador defensivo a save:', {
-                    target,
-                    valorModificador: value,
-                    nuevoValor: saveModificado
-                  });
                   saveModificado = saveModificado - parseInt(value);
                 } else if (target === 'ward') 
                 {
@@ -839,7 +828,9 @@ const DanoBar = React.memo(({
                   {
                     wardModificado = parseInt(value);
                   }
-              } 
+                } else if (target === 'wounds') {
+                  woundsModificado = woundsModificado + parseInt(value);
+                }
             }
           }
         });
@@ -878,35 +869,27 @@ const DanoBar = React.memo(({
             
             if (type === 'modifier') 
               {
-           if (affects === 'enemy_atributes') 
+           if (affects === 'enemy_attributes' || affects === 'enemy_atributes') 
                 {
+                  console.log("habilidad afecta a enemigos", habilidad);
+
                     const condicionesCumplidas = Object.entries(habilidad.effect.conditions).every(([key, value]) => {
-                      console.log("Evaluando condición:", {
-                        key,
-                        valorEsperado: value,
-                        valorActual: key === 'attack_type' ? perfilModificado.type : 
-                                     key === 'target_tag' ? unidadAtacante.tags : 
-                                     perfilModificado[key]
-                      });
-                      
                       switch(key) {
                         case 'attack_type':
                           return perfilModificado.type === value;
                         case 'target_tag':
                           return unidadAtacante.tags?.includes(value);
                         default:
-                          return perfilModificado[key] === value;
+                          return true;
                       }
                     });
-
+                    console.log("condicionesCumplidas", condicionesCumplidas);
                     if(condicionesCumplidas) {
-                      perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
-                      console.log('Aplicando modificador de habilidad defensiva:', {
-                        perfil: perfilModificado.name,
-                        target,
-                        valorAnterior: perfil[target],
-                        nuevoValor: perfilModificado[target]
-                      });
+                      if(habilidad.effect.type === 'modifier') {
+                        perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
+                      } else if(habilidad.effect.type === 'ignore_modifier') {
+                        perfilModificado[target] = 0;
+                      }
                     }
 
                 }
@@ -918,25 +901,14 @@ const DanoBar = React.memo(({
       return perfilModificado;
     });
 
-    // Luego lo usamos para las habilidades ofensivas
-    const perfilesConHabilidades = perfilesModificadosDefensa.map(perfil => {
+    let perfilesConHabilidades = perfilesModificadosDefensa.map(perfil => {
       let perfilModificado = { ...perfil };
       
       // Aplicar habilidades de armas
       perfilModificado.abilities?.forEach(habilidadId => {
-        console.log("habilidadId de armas",habilidadId);
 
         const habilidadInfo = weapon_abilities[habilidadId];
         
-        console.log('Procesando habilidad de arma:', {
-          habilidadId,
-          habilidadInfo,
-          estaActiva: habilidadesActivas.ofensivas[perfil.name + "_" + habilidadId]
-        });
-
-        // Solo aplicar si es fixed o está activa en habilidadesActivas
-        console.log("habilidadesActivas",habilidadesActivas);
-
         if (habilidadInfo?.type === 'fixed' || 
             (habilidadInfo?.type === 'toggleable' && habilidadesActivas.ofensivas[perfil.name + "_" + habilidadId])) {
           
@@ -957,22 +929,15 @@ const DanoBar = React.memo(({
             });
 
           if (condicionesCumplidas) {
-            console.log("habilidadId", habilidadId);
             perfilModificado.abilities = perfilModificado.abilities || [];
-            console.log("perfilModificado.abilities", perfilModificado.abilities);
             // Añadir la habilidad al array
             if (!perfilModificado.abilities.includes(habilidadId)) {
               perfilModificado.abilities = [...perfilModificado.abilities, habilidadId];
-              console.log("habilidadId añadida", habilidadId);
             }
 
             // Aplicar el efecto del modificador si es de tipo 'modifier'
             if (habilidadInfo.effect?.type === 'modifier') {
               const { target, value } = habilidadInfo.effect;
-              console.log(`Aplicando modificador ${value} a ${target}`, {
-                valorAnterior: perfilModificado[target],
-                modificador: value
-              });
               
               perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
             }
@@ -999,16 +964,11 @@ const DanoBar = React.memo(({
             
             let aplicarHabilidad = true;
 
-            console.log("efecto de la habilidad en aplicarHabilidad", habilidad.effect);
-            console.log("conditions", conditions);
             if (conditions) {
               Object.entries(conditions).forEach(([key, value]) => {
                 switch(key) {
                   case 'profile_name':
-                    console.log("is profile_name");
-                    console.log("value", value);
                     if (value !== perfil.name) {
-                      console.log("no es el perfil", value, perfil.name);
                       aplicarHabilidad = false;
                     }
                     break;
@@ -1018,6 +978,7 @@ const DanoBar = React.memo(({
                     }
                     break;
                   case 'opponent_size':
+                    
                     const [operador, numero] = value.match(/([<>]=?|=)(\d+)/).slice(1);
                     switch(operador) {
                       case '>=':
@@ -1069,20 +1030,11 @@ const DanoBar = React.memo(({
                   // Para dice_override, asegurarnos de que el valor es numérico
                   perfilModificado[target] = parseInt(value);
                   
-                  // Debug para ver los valores
-                  console.log('Aplicando dice_override:', {
-                    perfil: perfil.name,
-                    target,
-                    originalValue: perfil[target],
-                    newValue: perfilModificado[target]
-                  });
                   break;
 
                 case 'critical':
-                  console.log("es critical");
                   perfilModificado.abilities = perfilModificado.abilities || [];
                   if (!perfilModificado.abilities.includes(value)) {
-                    console.log("añadiendo critical:", habilidad.effect);
                     perfilModificado.abilities = [...perfilModificado.abilities,  habilidad];
                   }
                   break;
@@ -1095,37 +1047,110 @@ const DanoBar = React.memo(({
       return perfilModificado;
     });
 
-    console.log("perfilesConHabilidades antes de calcular", perfilesConHabilidades);
-    return calculateAttacks({
+    let mortalesExtra = 0;
+    // Calcular mortales extra una sola vez, fuera del mapeo de perfiles
+    if (unidadAtacante.abilities || unidadAtacante.ability) {
+      const habilidades = [].concat(unidadAtacante.abilities || unidadAtacante.ability).filter(Boolean);
+      
+      habilidades.forEach(habilidad => {
+        const habilidadId = `${unidadAtacante.name}_${habilidad.name}`;
+        const activa = habilidadesActivas.ofensivas[habilidadId];
+        
+        if (activa && habilidad.effect?.type === "extra_mortal") {
+          console.log("extra_mortal", habilidad);
+          let cantidad = habilidad.effect.dice_amount;
+          if (typeof habilidad.effect.dice_amount === 'string') 
+            {
+            switch(habilidad.effect.dice_amount) {
+              case 'unit_size':
+                cantidad = unidadAtacante.models;
+                break;
+              case 'target_size':
+                cantidad = unidadOponente.models;
+                break;
+              case 'target_wounds':
+                cantidad = woundsModificado;
+                break;
+              default:
+                cantidad = parseInt(habilidad.effect.dice_amount);
+            }
+          }else{
+            cantidad = parseInt(habilidad.effect.dice_amount);
+          }
+          let tipoDado = habilidad.effect.dice_type;
+          let dificultad;
+          switch(typeof habilidad.effect.difficulty) {
+            case 'string':
+              if (habilidad.effect.difficulty === 'target_wounds') {
+                dificultad = woundsModificado;
+              }
+              break;
+            default:
+              dificultad = parseInt(habilidad.effect.difficulty);
+          }
+          let salvaguardia = unidadOponente.ward;
+          console.log('Atributos mortales:', { cantidad, tipoDado, dificultad, salvaguardia });
+          mortalesExtra += calcularMortalesConDados({ 
+            cantidad, 
+            tipoDado, 
+            dificultad, 
+            multiplicador: habilidad.effect.models_slain ? 0 : salvaguardia, 
+            multiplicador: habilidad.effect.models_slain ? habilidad.effect.models_slain * woundsModificado : 1 
+          });
+          console.log("mortalesExtra", mortalesExtra);
+        }else if (activa && habilidad.effect?.type === "double_fight") {
+          console.log("double_fight", habilidad);
+          console.log("perfilesConHabilidades antes", perfilesConHabilidades);
+          perfilesConHabilidades = [
+            ...perfilesConHabilidades,
+            ...perfilesConHabilidades.filter(perfil => perfil.type === "melee")
+          ];
+          console.log("perfilesConHabilidades despues", perfilesConHabilidades);
+        }
+      });
+    }
+    console.log("perfilesConHabilidades final", perfilesConHabilidades);
+
+
+    const resultadoAtaquesPerfiles = calculateAttacks({
       perfiles_ataque: perfilesConHabilidades.map(perfil => ({
         ...perfil,
         _models_override: perfil.models || unidadAtacante.models
       })),
       miniaturas: unidadAtacante.models,
       guardia: saveModificado,
-      salvaguardia: wardModificado
+      salvaguardia: wardModificado,
+      save_override: saveModificado,
+      wounds_modificado: woundsModificado
     });
+
+
+
+
+    return {
+      ...resultadoAtaquesPerfiles,
+      mortales: mortalesExtra
+    };
   }, [perfilesModificados, habilidadesActivas, unidadAtacante, unidadOponente]);
 
   const prevDanoRef = useRef();
 
   // Notificar al padre cuando se calcule el daño y evitar actualizaciones innecesarias
   useEffect(() => {
-    if (danoCalculado?.damage_final !== prevDanoRef.current) {
-      prevDanoRef.current = danoCalculado?.damage_final;
-      onDanoCalculado?.(danoCalculado?.damage_final);
+    const danoTotal = (danoCalculado?.damage_final || 0) + (danoCalculado?.mortales || 0);
+    if (danoTotal !== prevDanoRef.current) {
+      prevDanoRef.current = danoTotal;
+      onDanoCalculado?.(danoTotal);
     }
-  }, [danoCalculado?.damage_final, onDanoCalculado]);
+  }, [danoCalculado?.damage_final, danoCalculado?.mortales, onDanoCalculado]);
 
 
   // Actualizar los manejadores de eventos
   const handleToggleOfensiva = (habilidadId) => {
-    console.log('Toggle habilidad ofensiva:', habilidadId);
     toggleHabilidadOfensiva(habilidadId);
   };
 
   const handleToggleDefensiva = (habilidadId) => {
-    console.log('Toggle habilidad defensiva:', habilidadId);
     toggleHabilidadDefensiva(habilidadId);
   };
 
@@ -1158,18 +1183,9 @@ const DanoBar = React.memo(({
   }, []);
 
   // Usar el daño calculado en lugar del damage_final proporcionado
-  const danoFinal = danoCalculado.damage_final;
-  const vidaTotal = unidadOponente.wounds * unidadOponente.models;
+  const danoFinal = danoCalculado.damage_final + danoCalculado.mortales;
+  const vidaTotal = danoCalculado.wounds * unidadOponente.models;
   const porcentajeVidaTotal = Math.min((danoFinal / vidaTotal) * 100, 100);
-
-  // Debug de los cálculos
-  console.log('DanoBar calcula:', {
-    danoFinal,
-    vidaTotal,
-    porcentajeVidaTotal,
-    wounds: unidadOponente.wounds,
-    models: unidadOponente.models
-  });
 
   return (
     <Box sx={{ 

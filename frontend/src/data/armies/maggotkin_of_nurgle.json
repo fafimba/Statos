@@ -63,6 +63,22 @@
               "range": 7
             }
           }
+        },
+        {
+          "name": "Pestilent Breath",
+          "description": "Pick an enemy unit within 7\" of your general and roll a dice for each model in that unit. For each 5+, inflict 1 mortal damage on that unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "target_size",
+            "dice_type": "d6",
+            "difficulty": 5,
+            "conditions": {
+              "range": 7,
+              "is_general": true
+            }
+          }
         }
       ]
     },
@@ -221,6 +237,22 @@
               "range": 7
             }
           }
+        },
+        {
+          "name": "Wrack and Ruin",
+          "description": "If this unit charged this phase, pick an enemy unit within 1\" of it to be the target and roll a dice. On a 2+, inflict D3 mortal damage on the target.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d3",
+            "difficulty": 1,
+            "conditions": {
+              "charge": true,
+              "range": 1
+            }
+          }
         }
       ]
     },
@@ -272,6 +304,21 @@
             "conditions": {
               "attack_type": "melee",
               "range": 7
+            }
+          }
+        },
+        {
+          "name": "Relentless Attackers",
+          "description": "Pick an enemy INFANTRY unit in combat with this unit to be the target and roll a dice for each model in this unit that is within the target unit's combat range. For each roll that exceeds the target's Health characteristic, inflict 1 mortal damage on it.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "unit_size",
+            "dice_type": "d6",
+            "difficulty": "target_wounds",
+            "conditions": {
+              "target_tag": "infantry"
             }
           }
         }
