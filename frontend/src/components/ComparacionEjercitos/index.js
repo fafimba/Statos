@@ -321,6 +321,17 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
               mb: 2,
               px: 0.5
             }}>
+                         {/* Tags */}
+                         <Box sx={{ 
+                display: 'flex', 
+                gap: 1,
+                flexWrap: 'wrap',
+                width: { xs: '100%', sm: 'auto' }
+              }}>
+                {unidad.tags?.map((tag) => (
+                  <UnitTag key={tag} label={tag} />
+                ))}
+              </Box>
               {/* Stats defensivos */}
               <Box sx={{
                 display: 'flex',
@@ -328,6 +339,8 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
                 flexWrap: 'wrap',
                 width: { xs: '100%', sm: 'auto' }
               }}>
+
+
                 <StatBox 
                   label="Size" 
                   value={unidad.models} 
@@ -350,17 +363,8 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente }) => {
                 />
               </Box>
 
-              {/* Tags */}
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 1,
-                flexWrap: 'wrap',
-                width: { xs: '100%', sm: 'auto' }
-              }}>
-                {unidad.tags?.map((tag) => (
-                  <UnitTag key={tag} label={tag} />
-                ))}
-              </Box>
+
+   
             </Box>
 
             {/* Perfiles de ataque */}
@@ -1570,31 +1574,26 @@ const StatBox = ({ label, value, color }) => (
 
 // Componente para las tags
 const UnitTag = ({ label }) => (
-  <Box
+  <Typography
+    component="span"
     sx={{
-      display: 'inline-flex',
-      alignItems: 'center',
+      fontSize: '0.75rem',
       px: 1.5,
       py: 0.5,
-      borderRadius: '2px',
-      backgroundColor: 'background.darker',
-      border: '1px solid',
-      borderColor: 'primary.dark',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-      '& .MuiTypography-root': {
-        color: 'primary.light',
-        fontSize: '0.75rem',
-        fontWeight: 500,
-        textTransform: 'lowercase',
-        letterSpacing: '0.5px',
-        pb: 0
+      borderRadius: '4px',
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      color: 'text.secondary',
+      textTransform: 'lowercase',
+      letterSpacing: '0.02em',
+      fontWeight: 400,
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
       }
     }}
   >
-    <Typography>
-      {label}
-    </Typography>
-  </Box>
+    {label}
+  </Typography>
 );
 
 export default ComparacionEjercitos; 
