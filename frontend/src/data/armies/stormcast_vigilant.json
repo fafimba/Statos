@@ -128,12 +128,9 @@
         "type": "toggleable",
         "category": "offensive",
         "effect": {
-            "type": "critical",
-            "action": "mortal_wound",
-            "value": 1,
-            "conditions": {
-                "profile_name": "Hallowed Greataxe"
-          }
+            "type": "add_weapon_ability",
+            "ability": "mortal_critical",
+            "profile_name": "Hallowed Greataxe"
           }
       },
       {

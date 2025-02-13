@@ -12,11 +12,11 @@ function App() {
       <Box sx={{ 
         minHeight: '100vh',
         position: 'relative',
-        backgroundColor: '#161616',
+        backgroundColor: theme.colors.background,
         backgroundImage: `
           linear-gradient(to bottom, 
-            rgba(26, 26, 26, 0.8) 0%,
-            rgba(22, 22, 22, 1) 100%
+            rgba(30, 33, 40, 0.29) 0%,
+            rgba(19, 21, 26, 0.8) 100%
           )
         `,
         '&::before': {
@@ -26,7 +26,7 @@ function App() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.03) 0%, transparent 50%)',
+          background: 'radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.05) 0%, transparent 75%)',
           pointerEvents: 'none',
           zIndex: 0,
         },

@@ -717,8 +717,8 @@ export const usePerfilesAtaque = (unidad) => {
 
   // Obtener habilidades de unidad
   const habilidadesUnidad = useMemo(() => {
-    if (!unidad?.ability) return [];
-    return [unidad.ability].filter(Boolean);
+    if (!unidad?.abilities) return [];
+    return unidad.abilities.filter(Boolean);
   }, [unidad]);
 
   return {
@@ -737,408 +737,182 @@ const DanoBar = React.memo(({
   onDanoCalculado
 }) => {
 
+
+  // Convertir perfilesActivos (objeto) a un array de perfiles con comprobación de seguridad
+  const perfilesParaCalcular = useMemo(() => {
+    if (!unidadAtacante?.attack_profiles) return [];
+    
+    return unidadAtacante.attack_profiles.filter(perfil => 
+      perfilesActivos[perfil.name]
+    );
+  }, [perfilesActivos, unidadAtacante?.attack_profiles]);
+
   // Estado para controlar la visibilidad de cada tooltip individualmente
   const [activeTooltip, setActiveTooltip] = useState(null);
   const tooltipTimeoutRef = useRef(null);
 
-  const nombreUnidad = unidadOponente.name;
-
-  // Preparar arrays de habilidades, filtrando por categoría
+  // Preparar arrays de habilidades, filtrando por categoría y condiciones
   const habilidadesAtacante = [].concat(unidadAtacante.abilities)
     .filter(Boolean)
-    .filter(hab => hab.category === 'offensive');
-
-  const habilidadesOponente = [].concat(unidadOponente.abilities)
-    .filter(Boolean)
-    .filter(hab => hab.category === 'defensive');
-
-
-    const perfilesModificados = unidadAtacante.attack_profiles
-    .filter(perfil => perfilesActivos[perfil.name])
-    .map(perfil => ({
-      ...perfil
+    .filter(hab => hab.category === 'offensive')
+    .filter(hab => !hab.effect?.conditions || Object.entries(hab.effect.conditions).every(([key, value]) => {
+      switch(key) {
+        case 'attack_type':
+          return perfilesParaCalcular.some(perfil => perfil.type === value);
+        case 'target_tag':
+          return unidadOponente.tags?.includes(value);
+        case 'target_tag_exclude':
+          return !unidadOponente.tags?.includes(value);
+        case 'profile_name':
+          return perfilesParaCalcular.some(perfil => perfil.name === value);
+        case 'opponent_size':
+          const { opponent_size } = hab.effect.conditions;
+          const comparacion = opponent_size.substring(0,2);
+          const valor = parseInt(opponent_size.substring(2));
+          switch(comparacion) {
+            case '>=':
+              return unidadOponente.models >= valor;
+            case '<=':
+              return unidadOponente.models <= valor;
+            default:
+              return true;
+          }
+        default:
+          return true;
+      }
+    }))
+    .map(hab => ({
+      ...hab,
+      id: `${unidadAtacante.name}_${hab.name}`
     }));
 
-  // Modificar la preparación de habilidades para incluir las habilidades de armas
+    // Habilidades ofensivas de perfiles filtradas por condiciones
+  const habilidadesPerfiles = [].concat(perfilesParaCalcular)
+    .flatMap(perfil => {
+      // Obtener las habilidades del arma desde el array de abilities del perfil
+      const weaponAbilities = (perfil.abilities || [])
+        .filter(Boolean)
+        .map(abilityKey => {
+          // Buscar la habilidad en weapons_abilities usando la key
+          const weaponAbility = weapon_abilities[abilityKey];
+          if (weaponAbility) {
+            return {
+              ...weaponAbility,
+              id: `${perfil.name}_${weaponAbility.name}`,
+              profile: perfil.name,
+              description:  perfil.name + ": " + weaponAbility.description
+            };
+          }
+          return null;
+        })
+        
+        .filter(Boolean)
+        .filter(hab => hab.effect != null)
+        .filter(hab => !hab.effect?.conditions || Object.entries(hab.effect?.conditions).every(([key, value]) => {
+          switch(key) {
+            case 'target_tag':
+              return unidadOponente.tags?.includes(value);
+            default:
+              return true;
+          }
+        }));
+
+      return weaponAbilities;
+    });
+    // Habilidades defensivas filtradas por condiciones
+  const habilidadesOponente = [].concat(unidadOponente.abilities)
+    .filter(Boolean)
+    .filter(hab => hab.category === 'defensive')
+    .filter(hab => !hab.effect?.conditions || Object.entries(hab.effect.conditions).every(([key, value]) => {
+      switch(key) {
+        case 'attack_type':
+          return perfilesParaCalcular.some(perfil => perfil.type === value);
+        default:
+          return true;
+      }
+    }))
+    .map(hab => ({
+      ...hab,
+      id: `${unidadOponente.name}_${hab.name}`
+    }));
+
+  // Habilidades ofensivas y defensivas
   const habilidades = {
     ofensivas: [
       // Habilidades de unidad ofensivas
-      ...habilidadesAtacante
-        .filter(hab => {
-          const condicionesCumplidas = !hab.effect?.conditions || 
-            Object.entries(hab.effect.conditions).every(([key, value]) => {
-              switch(key) {
-                case 'attack_type':
-                  return perfilesModificados.some(perfil => perfil.type === value);
-                case 'target_tag':
-                  return unidadOponente.tags?.includes(value);
-                case 'profile_name':
-                  return perfilesModificados.some(perfil => perfil.name === value);
-                case 'opponent_size':
-                  const [operador, numero] = value.match(/([<>]=?|=)(\d+)/).slice(1);
-                  switch(operador) {
-                    case '>=':
-                      return unidadOponente.models >= parseInt(numero);
-                    case '<=':
-                      return unidadOponente.models <= parseInt(numero); 
-                    case '>':
-                      return unidadOponente.models > parseInt(numero);
-                    case '<':
-                      return unidadOponente.models < parseInt(numero);
-                    case '=':
-                      return unidadOponente.models === parseInt(numero);
-                    default:
-                      return true;
-                  }
-                default:
-                  return true;
-              }
-            });
-          return condicionesCumplidas;
-        })
-        .map(hab => ({
-          id: `${unidadAtacante.name}_${hab.name}`,
-          ...hab
-        })),
-      // Habilidades de armas
-      ...perfilesModificados.flatMap(perfil => 
-        (perfil.abilities || [])
-          .filter(habilidadId => {
-
-            const habilidadInfo = weapon_abilities[habilidadId];
-            
-          // Si no hay efecto, no se muestra
-          if(habilidadInfo?.effect == null)
-          return false;
-
-            return Object.entries(habilidadInfo?.effect?.conditions || {}).every(([key, value]) => {
-            
-              switch(key) {
-                case 'attack_type':
-                  return perfilesModificados.some(perfil => perfil.type === value);
-                case 'target_tag':
-                  return unidadOponente.tags?.includes(value);
-                case undefined:
-                default:
-                  return true;
-              }
-            });
-
-          })
-          .map(habilidadId => {
-            const habilidadInfo = weapon_abilities[habilidadId];
-            return {
-              id: `${perfil.name}_${habilidadId}`,
-              weapon_id: habilidadId,
-              name: habilidadInfo?.name || habilidadId,
-              description: perfil.name + ": " + habilidadInfo?.description || '',
-              type: habilidadInfo?.type || 'fixed',
-              effect: habilidadInfo?.effect,
-              profile: perfil.name
-            };
-          })
-      )
+      ...habilidadesAtacante,
+      ...habilidadesPerfiles
     ],
-    defensivas: habilidadesOponente
-      .filter(hab => {
-        const condicionesCumplidas = !hab.effect?.conditions || 
-          Object.entries(hab.effect.conditions).every(([key, value]) => {
-            
-            switch(key) {
-              case 'attack_type':
-                return perfilesModificados.some(perfil => perfil.type === value);
-              case 'target_tag':
-                return value ? unidadAtacante.tags?.includes(value) : true;
-              default:
-                return true;
-            }
-          });
-        return condicionesCumplidas;
-      })
-      .map(hab => ({
-        id: `${unidadOponente.name}_${hab.name}`,
-        ...hab
-      }))
+    // Habilidades defensivas de unidad oponente
+    defensivas: [...habilidadesOponente]
   };
 
   const { habilidadesActivas, toggleHabilidadOfensiva, toggleHabilidadDefensiva } = useHabilidades(unidadAtacante, unidadOponente);
-
-
 
   // Recalcular el daño cuando cambien las habilidades
   const danoCalculado = useMemo(() => {
     let saveModificado = unidadOponente.save;
     let wardModificado = unidadOponente.ward;
     let woundsModificado = unidadOponente.wounds;
+    let mortalesExtra = 0;
+    
+    // Generar una copia de cada perfil, asignando los efectos activados sin sobrescribir las habilidades originales.
+    let perfilesModificados = perfilesParaCalcular.map(perfil => ({
+      ...perfil
+    }));
 
-    if (unidadOponente.abilities || unidadOponente.ability) 
-      {
-        const habilidadesDefensivas = [].concat(unidadOponente.abilities || unidadOponente.ability).filter(Boolean);
-        habilidadesDefensivas.forEach(habilidad => {
-          const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
-          
-          // Comprobar si las condiciones se cumplen (si hay)
-          const condicionesCumplidas = !habilidad.effect?.conditions || 
-            Object.entries(habilidad.effect.conditions).some(([key, value]) => {
-              switch(key) {
-                case 'attack_type':
-                  return perfilesModificados.some(perfil => perfil.type === value);
-                case 'target_tag':
-                  return unidadAtacante.tags?.includes(value);
-                default:
-                  return true;
-              }
-            });
+    // Luego se recorre para modificar los perfiles según las habilidades activadas:
+    perfilesModificados = perfilesModificados.map(perfil => {
+      const perfilModificado = { ...perfil };
+      let activatedEffects = [];
+      // Por cada habilidad ofensiva disponible en la unidad (basada en el objeto de habilidades)
+      habilidades.ofensivas.filter(h => h.profile).forEach(habilidad => {
+        const habilidadId = `${perfil.name}_${habilidad.name}`;
+        const activa = habilidadesActivas.ofensivas[habilidadId];
 
-          // Solo aplicar si cumple las condiciones y es fixed o está activa
-          const debeAplicarse = condicionesCumplidas && 
-            (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
-          
-          if (debeAplicarse && habilidad.effect) {
-            const { type, target, value, affects } = habilidad.effect;
-            
-            if (type === 'modifier') 
-              {
-              if (target === 'save') 
-                {
-                  saveModificado = saveModificado - parseInt(value);
-                } else if (target === 'ward') 
-                {
-                if (!wardModificado || parseInt(value) < wardModificado) 
-                  {
-                    wardModificado = parseInt(value);
-                  }
-                } else if (target === 'wounds') {
-                  woundsModificado = woundsModificado + parseInt(value);
-                }
-            }
-          }
-        });
-      }
-    // Primero definimos perfilesModificadosDefensa
-    let perfilesModificadosDefensa = perfilesModificados.map(perfil => {
-      let perfilModificado = { ...perfil };
-      
-      // Manejar array de habilidades defensivas
-      if (unidadOponente.abilities || unidadOponente.ability) 
-        {
-        const habilidadesDefensivas = [].concat(unidadOponente.abilities || unidadOponente.ability).filter(Boolean);
+        if (!activa) return;
         
-        habilidadesDefensivas.forEach(habilidad => {
-          const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
-          
-          // Comprobar si las condiciones se cumplen (si hay)
-          const condicionesCumplidas = !habilidad.effect?.conditions || 
-            Object.entries(habilidad.effect.conditions).some(([key, value]) => {
-              switch(key) {
-                case 'attack_type':
-                  return perfilesModificados.some(perfil => perfil.type === value);
-                case 'target_tag':
-                  return unidadAtacante.tags?.includes(value);
-                default:
-                  return true;
-              }
-            });
+        activatedEffects.push(habilidad.effect);
 
-          // Solo aplicar si cumple las condiciones y es fixed o está activa
-          const debeAplicarse = condicionesCumplidas && 
-            (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
-          
-          if (debeAplicarse && habilidad.effect) {
-            const { type, target, value, affects } = habilidad.effect;
-            
-            if (type === 'modifier') 
-              {
-           if (affects === 'enemy_attributes' || affects === 'enemy_atributes') 
-                {
-                  console.log("habilidad afecta a enemigos", habilidad);
-
-                    const condicionesCumplidas = Object.entries(habilidad.effect.conditions).every(([key, value]) => {
-                      switch(key) {
-                        case 'attack_type':
-                          return perfilModificado.type === value;
-                        case 'target_tag':
-                          return unidadAtacante.tags?.includes(value);
-                        default:
-                          return true;
-                      }
-                    });
-                    console.log("condicionesCumplidas", condicionesCumplidas);
-                    if(condicionesCumplidas) {
-                      if(habilidad.effect.type === 'modifier') {
-                        perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
-                      } else if(habilidad.effect.type === 'ignore_modifier') {
-                        perfilModificado[target] = 0;
-                      }
-                    }
-
-                }
-            }
-          }
-        });
-      }
-      
-      return perfilModificado;
-    });
-
-    let perfilesConHabilidades = perfilesModificadosDefensa.map(perfil => {
-      let perfilModificado = { ...perfil };
-      
-      // Aplicar habilidades de armas
-      perfilModificado.abilities?.forEach(habilidadId => {
-
-        const habilidadInfo = weapon_abilities[habilidadId];
-        
-        if (habilidadInfo?.type === 'fixed' || 
-            (habilidadInfo?.type === 'toggleable' && habilidadesActivas.ofensivas[perfil.name + "_" + habilidadId])) {
-          
-          // Verificar si hay condiciones y si se cumplen
-          const condicionesCumplidas = !habilidadInfo?.effect?.conditions || 
-            Object.entries(habilidadInfo?.effect?.conditions || {}).every(([key, value]) => {
-              switch(key) {
-                case 'target_tag':
-                  return unidadOponente?.tags?.includes(value);
-                case 'attack_type':
-                  return perfilModificado?.type === value;
-                case 'profile_name':
-                  return perfilModificado?.name === value;
-               case  undefined:
-                default:
-                  return true;
-              }
-            });
-
-          if (condicionesCumplidas) {
-            perfilModificado.abilities = perfilModificado.abilities || [];
-            // Añadir la habilidad al array
-            if (!perfilModificado.abilities.includes(habilidadId)) {
-              perfilModificado.abilities = [...perfilModificado.abilities, habilidadId];
-            }
-
-            // Aplicar el efecto del modificador si es de tipo 'modifier'
-            if (habilidadInfo.effect?.type === 'modifier') {
-              const { target, value } = habilidadInfo.effect;
-              
-              perfilModificado[target] = parseInt(perfilModificado[target]) + parseInt(value);
-            }
-          }
-        } else {
-          // Si la habilidad no está activa, asegurarnos de que no esté en el array
-          perfilModificado.abilities = (perfilModificado.abilities || [])
-            .filter(id => id !== habilidadId);
-        }
       });
 
-      // Manejar array de habilidades ofensivas
-      if (unidadAtacante.abilities || unidadAtacante.ability) {
-        const habilidades = [].concat(unidadAtacante.abilities || unidadAtacante.ability).filter(Boolean);
-        
-        habilidades.forEach(habilidad => {
-
-          const habilidadId = `${unidadAtacante.name}_${habilidad.name}`;
-          const weapon_id = habilidad.weapon_id;
-          const activa = habilidadesActivas.ofensivas[habilidadId] || habilidadesActivas.ofensivas[weapon_id];
-          
-          if (activa) {
-            const { type, target, value, conditions } = habilidad.effect;
-            
-            let aplicarHabilidad = true;
-
-            if (conditions) {
-              Object.entries(conditions).forEach(([key, value]) => {
-                switch(key) {
-                  case 'profile_name':
-                    if (value !== perfil.name) {
-                      aplicarHabilidad = false;
-                    }
-                    break;
-                  case 'attack_type': 
-                    if (value !== perfil.type) {
-                      aplicarHabilidad = false;
-                    }
-                    break;
-                  case 'opponent_size':
-                    
-                    const [operador, numero] = value.match(/([<>]=?|=)(\d+)/).slice(1);
-                    switch(operador) {
-                      case '>=':
-                        if (!(unidadOponente.models >= parseInt(numero))) {
-                          aplicarHabilidad = false;
-                        }
-                        break;
-                      case '<=':
-                        if (!(unidadOponente.models <= parseInt(numero))) {
-                          aplicarHabilidad = false;
-                        }
-                        break;
-                      case '>':
-                        if (!(unidadOponente.models > parseInt(numero))) {
-                          aplicarHabilidad = false;
-                        }
-                        break;
-                      case '<':
-                        if (!(unidadOponente.models < parseInt(numero))) {
-                          aplicarHabilidad = false;
-                        }
-                        break;
-                      case '=':
-                        if (unidadOponente.models !== parseInt(numero)) {
-                          aplicarHabilidad = false;
-                        }
-                        break;
-                    }
-                      break;
-                }
-              });
-            }
-
-            if (aplicarHabilidad) {
-              switch(type) {
-                case 'modifier':
-                  if (target === 'abilities') {
-                    perfilModificado.abilities = perfilModificado.abilities || [];
-                    if (!perfilModificado.abilities.includes(value)) {
-                      perfilModificado.abilities = [...perfilModificado.abilities, value];
-                    }
-                  } else {
-                    perfilModificado[target] = parseInt(perfilModificado[target]) + 
-                      ((['hit', 'wound'].includes(target)) ? -parseInt(value) : parseInt(value));
-                  }
-                  break;
-
-                case 'dice_override':
-                  // Para dice_override, asegurarnos de que el valor es numérico
-                  perfilModificado[target] = parseInt(value);
-                  
-                  break;
-
-                case 'critical':
-                  perfilModificado.abilities = perfilModificado.abilities || [];
-                  if (!perfilModificado.abilities.includes(value)) {
-                    perfilModificado.abilities = [...perfilModificado.abilities,  habilidad];
-                  }
-                  break;
-              }
-            }
-          }
-        });
-      }
-      
+      // Asignar la propiedad "abilityEffects" en la copia del perfil
+      perfilModificado.abilityEffects = activatedEffects;
       return perfilModificado;
     });
 
-    let mortalesExtra = 0;
-    // Calcular mortales extra una sola vez, fuera del mapeo de perfiles
-    if (unidadAtacante.abilities || unidadAtacante.ability) {
-      const habilidades = [].concat(unidadAtacante.abilities || unidadAtacante.ability).filter(Boolean);
-      
-      habilidades.forEach(habilidad => {
-        const habilidadId = `${unidadAtacante.name}_${habilidad.name}`;
-        const activa = habilidadesActivas.ofensivas[habilidadId];
-        
-        if (activa && habilidad.effect?.type === "extra_mortal") {
-          console.log("extra_mortal", habilidad);
-          let cantidad = habilidad.effect.dice_amount;
+    // Aplicar habilidades ofensivas 
+    habilidades.ofensivas.filter(h => !h.profile).forEach(habilidad => {
+      const habilidadId = `${unidadAtacante.name}_${habilidad.name}`;
+      const activa = habilidadesActivas.ofensivas[habilidadId];
+      if (habilidad.type === 'fixed' || activa) {
+
+        // Si la habilidad tiene condiciones, y no se cumple, se salta
+        if (habilidad.effect?.conditions) {
+
+          switch(habilidad.effect.conditions) {
+            case 'opponent_size':
+              const { opponent_size } = habilidad.effect.conditions;
+              const comparacion = opponent_size.substring(0,2);
+              const valor = parseInt(opponent_size.substring(2));
+              
+            switch(comparacion) {
+              case '>=':
+                if (unidadOponente.models < valor) return;
+                break;
+              case '<=':
+                if (unidadOponente.models > valor) return;
+                break;
+              }
+              break;  
+            default:
+              break;
+          }
+        }
+
+        const { type,target, value } = habilidad.effect;
+        if(type === 'extra_mortal') {
+          let cantidad = 0;
           if (typeof habilidad.effect.dice_amount === 'string') 
             {
             switch(habilidad.effect.dice_amount) {
@@ -1169,7 +943,7 @@ const DanoBar = React.memo(({
               dificultad = parseInt(habilidad.effect.difficulty);
           }
           let salvaguardia = wardModificado;
-          console.log('Atributos mortales:', { cantidad, tipoDado, dificultad, salvaguardia });
+
           mortalesExtra += calcularMortalesConDados({ 
             cantidad, 
             tipoDado, 
@@ -1177,52 +951,142 @@ const DanoBar = React.memo(({
             salvaguardia: habilidad.effect.models_slain ? 0 : salvaguardia, 
             multiplicador: habilidad.effect.models_slain ? habilidad.effect.models_slain * woundsModificado : 1 
           });
-        }else if (activa && habilidad.effect?.type === "double_fight") {
-          console.log("double_fight", habilidad);
-          console.log("perfilesConHabilidades antes", perfilesConHabilidades);
-          perfilesConHabilidades = [
-            ...perfilesConHabilidades,
-            ...perfilesConHabilidades.filter(perfil => perfil.type === "melee")
+        } else if(type === 'add_weapon_ability') {
+          perfilesModificados = perfilesModificados.map(perfil => {
+            const perfilMod = { ...perfil };
+            let activatedEffects = perfilMod.abilityEffects || [];
+
+            if(habilidad.effect.conditions?.profile_name && perfilMod.name != habilidad.effect.conditions.profile_name) return perfilMod;
+            
+            activatedEffects.push(weapon_abilities[habilidad.effect.ability].effect);
+            perfilMod.abilityEffects = activatedEffects;
+            return perfilMod;
+          });
+        } else if(type === 'double_fight') {
+          perfilesModificados = [
+            ...perfilesModificados,
+            ...perfilesModificados.filter(perfil => perfil.type === "melee")
           ];
-          console.log("perfilesConHabilidades despues", perfilesConHabilidades);
+        } else if (type === 'modifier') {
+          perfilesModificados = perfilesModificados.map(perfil => {
+            const perfilMod = { ...perfil };
+            if(habilidad.effect.conditions?.attack_type && perfilMod.type != habilidad.effect.conditions.attack_type) return perfilMod;
+            if(habilidad.effect.conditions?.profile_name && perfilMod.name != habilidad.effect.conditions.profile_name) return perfilMod;
+      
+              // Si es un modificador, se suma o resta el valor dependiendo de si es un modificador de daño o de golpe
+              perfilMod[target] = parseInt(perfilMod[target]) + (target === 'hit' || target === 'wound' ? -parseInt(value) : parseInt(value));
+            return perfilMod;
+          });
+        }else if (type === 'dice_override') {
+          perfilesModificados = perfilesModificados.map(perfil => {
+            const perfilMod = { ...perfil };
+            if(habilidad.effect.conditions?.attack_type && perfilMod.type != habilidad.effect.conditions.attack_type) return perfilMod;
+            if(habilidad.effect.conditions?.profile_name && perfilMod.name != habilidad.effect.conditions.profile_name) return perfilMod;
+            perfilMod[target] = parseInt(value);
+            return perfilMod;
+          });
+        } else if (type === 'critical') {
+          perfilesModificados = perfilesModificados.map(perfil => {
+            const perfilMod = {...perfil};
+
+            if(perfilMod.name != habilidad.effect.profile_name) return perfilMod;
+
+            if (!perfilMod.abilities) {
+              perfilMod.abilities = [];
+            }
+            let abilitiesMod = perfilMod.abilities.map(ability => {
+             const abilityMod = {...ability,};
+             return abilityMod;
+            });
+
+            switch(habilidad.effect.action) {
+              case 'mortal_wound':
+                abilitiesMod.push('mortal_critical');
+                break;
+              case 'auto_wound':
+                abilitiesMod.push('auto_wound_critical');
+                break;
+              case 'extra_hit':
+                abilitiesMod.push('double_hit_critical');
+                break;
+            }
+            perfilMod.abilities = abilitiesMod;
+            return perfilMod;
+          });
         }
-      });
-    }
-    console.log("perfilesConHabilidades final", perfilesConHabilidades);
-
-
-    const resultadoAtaquesPerfiles = calculateAttacks({
-      perfiles_ataque: perfilesConHabilidades.map(perfil => ({
-        ...perfil,
-        _models_override: perfil.models || unidadAtacante.models
-      })),
-      miniaturas: unidadAtacante.models,
-      guardia: saveModificado,
-      salvaguardia: wardModificado,
-      save_override: saveModificado,
-      wounds_modificado: woundsModificado
+      }
     });
 
+    // Aplicar habilidades defensivas
+    habilidades.defensivas.forEach(habilidad => {
+          const habilidadId = `${unidadOponente.name}_${habilidad.name}`;
+          // Solo aplicar si cumple las condiciones y es fixed o está activa
+          const debeAplicarse = (habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidadId]);
+            if (debeAplicarse && habilidad.effect) {
+              const { type, target, value, affects } = habilidad.effect;
+              if (type === 'modifier') {
+                switch (target) {
+                  case 'save':
+                    saveModificado = saveModificado - parseInt(value);
+                    break;
+                  case 'ward':
+                    if (!wardModificado || parseInt(value) < wardModificado) {
+                      wardModificado = parseInt(value);
+                    }
+                    break;
+                  case 'wounds':
+                    woundsModificado = woundsModificado + parseInt(value);
+                    break;
+                  default:
+                    break;
+                }
 
-
+                if (affects === 'enemy_attributes' || affects === 'enemy_atributes') 
+                  {
+                      perfilesModificados = perfilesModificados.map(perfil => {
+                        let perfilMod = {...perfil};
+                        if(habilidad.effect.conditions?.attack_type && perfilMod.type != habilidad.effect.conditions.attack_type) return perfilMod;
+                       
+                        if(habilidad.effect.type === 'modifier') {
+                          perfilMod[target] = parseInt(perfilMod[target]) + parseInt(value);
+                        } else if(habilidad.effect.type === 'ignore_modifier') {
+                          perfilMod[target] = 0;
+                        }
+                        return perfilMod;
+                      });
+                  }
+              }
+            }
+    });
+    console.log("perfilesModificados precalculo", perfilesModificados);
+    const resultadoAtaquesPerfiles = calculateAttacks({
+      perfiles_ataque: perfilesModificados.map(perfil => ({
+        ...perfil,
+        models_override: perfil.models || unidadAtacante.models
+      })),
+      guardia: saveModificado,
+      salvaguardia: wardModificado,
+      enemy_wounds: woundsModificado,
+      enemigo: unidadOponente
+    });
 
     return {
       ...resultadoAtaquesPerfiles,
-      mortales: mortalesExtra
+      mortales: mortalesExtra,
+      damage_final: resultadoAtaquesPerfiles.damage_final + mortalesExtra
     };
-  }, [perfilesModificados, habilidadesActivas, unidadAtacante, unidadOponente]);
+  }, [habilidades,perfilesParaCalcular, unidadAtacante, unidadOponente]);
 
   const prevDanoRef = useRef();
 
   // Notificar al padre cuando se calcule el daño y evitar actualizaciones innecesarias
   useEffect(() => {
-    const danoTotal = (danoCalculado?.damage_final || 0) + (danoCalculado?.mortales || 0);
+    const danoTotal = (danoCalculado?.damage_final || 0);
     if (danoTotal !== prevDanoRef.current) {
       prevDanoRef.current = danoTotal;
       onDanoCalculado?.(danoTotal);
     }
-  }, [danoCalculado?.damage_final, danoCalculado?.mortales, onDanoCalculado]);
-
+  }, [danoCalculado?.damage_final , onDanoCalculado]);
 
   // Actualizar los manejadores de eventos
   const handleToggleOfensiva = (habilidadId) => {
@@ -1262,8 +1126,8 @@ const DanoBar = React.memo(({
   }, []);
 
   // Usar el daño calculado en lugar del damage_final proporcionado
-  const danoFinal = danoCalculado.damage_final + danoCalculado.mortales;
-  const vidaTotal = danoCalculado.wounds * unidadOponente.models;
+  const danoFinal = danoCalculado.damage_final;
+  const vidaTotal = danoCalculado.enemy_wounds * unidadOponente.models;
   const porcentajeVidaTotal = Math.min((danoFinal / vidaTotal) * 100, 100);
 
   return (
@@ -1313,7 +1177,7 @@ const DanoBar = React.memo(({
               whiteSpace: 'nowrap'
             }}
           >
-            {nombreUnidad}
+            {unidadOponente.name}
           </Typography>
           <Box sx={{
             display: 'flex',
@@ -1360,7 +1224,7 @@ const DanoBar = React.memo(({
           width: '100%', // Asegura que el contenedor ocupe todo el ancho
         }}>
           <Tooltip
-            title={`Average damage dealt to ${nombreUnidad}`}
+            title={`Average damage dealt to ${unidadOponente.name}`}
             arrow
             placement="top"
             enterDelay={1000}
@@ -1451,22 +1315,25 @@ const DanoBar = React.memo(({
         }}>
           {/* Habilidades ofensivas */}
           {habilidades.ofensivas.map((habilidad) => (
-            <Tooltip 
-              key={habilidad.id} 
-              title={habilidad.description} 
-              arrow
-              open={activeTooltip === habilidad.id}
-              onClose={() => setActiveTooltip(null)}
-              disableHoverListener
-              placement="top"
-              sx={{
-                backgroundColor: 'custom.tooltipBackground',
-              }}
-            >
+
+        <Tooltip
+                key={habilidad.id} 
+                title={habilidad.description}
+                arrow
+                enterDelay={1}
+                 open={ activeTooltip === habilidad.id }
+                onClose={() => setActiveTooltip(null)}
+                disableHoverListener
+                placement="top"
+                sx={{
+                  backgroundColor: 'custom.tooltipBackground',
+                }}
+              >
+   
               <Box 
-              
                 onMouseEnter={(e) => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
                 onMouseLeave={(e) => window.innerWidth >= 800 && handleMouseLeave()}
+
                 onClick={() => habilidad.type === 'toggleable' && handleToggleOfensiva(habilidad.id)}
                 sx={{
                   display: 'flex',
@@ -1619,29 +1486,37 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
     const ofensivas = [];
     const defensivas = [];
     
-    // Procesar habilidad de unidad atacante
-    if (unidadAtacante?.ability && unidadAtacante.ability.category === 'offensive') {
-      ofensivas.push({
-        id: `${unidadAtacante.name}_${unidadAtacante.ability.name}`,
-        name: unidadAtacante.ability.name,
-        description: unidadAtacante.ability.description,
-        type: unidadAtacante.ability.type,
-        effect: unidadAtacante.ability.effect,
-        profile: unidadAtacante.ability.profile,
-        source: 'unit'
+    // Procesar habilidades de unidad atacante
+    if (unidadAtacante?.abilities && Array.isArray(unidadAtacante.abilities)) {
+      unidadAtacante.abilities.forEach(ability => {
+        if (ability.category === 'offensive') {
+          ofensivas.push({
+            id: `${unidadAtacante.name}_${ability.name}`,
+            name: ability.name,
+            description: ability.description,
+            type: ability.type,
+            effect: ability.effect,
+            profile: ability.profile,
+            source: 'unit'
+          });
+        }
       });
     }
     
-    // Procesar habilidad de unidad defensora
-    if (unidadDefensora?.ability && unidadDefensora.ability.category === 'defensive') {
-      defensivas.push({
-        id: `${unidadDefensora.name}_${unidadDefensora.ability.name}`,
-        name: unidadDefensora.ability.name,
-        description: unidadDefensora.ability.description,
-        type: unidadDefensora.ability.type,
-        effect: unidadDefensora.ability.effect,
-        profile: unidadDefensora.ability.profile,
-        source: 'unit'
+    // Procesar habilidades de unidad defensora
+    if (unidadDefensora?.abilities && Array.isArray(unidadDefensora.abilities)) {
+      unidadDefensora.abilities.forEach(ability => {
+        if (ability.category === 'defensive') {
+          defensivas.push({
+            id: `${unidadDefensora.name}_${ability.name}`,
+            name: ability.name,
+            description: ability.description,
+            type: ability.type,
+            effect: ability.effect,
+            profile: ability.profile,
+            source: 'unit'
+          });
+        }
       });
     }
     

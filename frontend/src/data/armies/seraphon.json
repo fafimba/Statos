@@ -220,9 +220,9 @@
           "type": "toggleable",
           "category": "offensive",
           "effect": {
-            "type": "modifier",
-            "target": "abilities",
-            "value": "double_hit_critical",
+            "type": "add_weapon_ability",
+            "ability": "double_hit_critical",
+            "profile_name": "Drakebite Maul",
             "conditions": {
               "opponent_size": ">=5"
             }

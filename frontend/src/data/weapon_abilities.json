@@ -5,8 +5,7 @@
     "type": "toggleable",
     "effect": {
       "type": "critical",
-      "action": "mortal_wound",
-      "value": 1
+      "action": "mortal_wound"
     }
   },
   "auto_wound_critical": {
@@ -24,18 +23,19 @@
     "type": "toggleable",
     "effect": {
       "type": "critical",
-      "action": "extra_hit",
-      "value": 1
+      "action": "extra_hit"
     }
   },
   "charge_damage": {
-    "name": "Charge",
+    "id": "charge_damage",
+    "name": "Charge: +1 Damage",
     "description": "+1 Damage on charge",
     "type": "toggleable",
+    "category": "offensive",
     "effect": {
-      "type": "modifier",
-      "target": "damage",
-      "value": 1
+       "type": "modifier",
+       "target": "damage",
+       "value": 1
     }
   },
   "companion": {

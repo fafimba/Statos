@@ -3,11 +3,13 @@ import seraphon from './seraphon.json';
 import soulblightGravelords from './soulblight_gravelords.json';
 import stormcastVigilant from './stormcast_vigilant.json';
 import ogor_mawtribes from './ogor_mawtribes.json';
+import orrukWarclans from './orruk_warclans.json';
 
 export const armies = {
   "Maggotkin of Nurgle": maggotkinOfNurgle,
   "Seraphon": seraphon,
   "Soulblight Gravelords": soulblightGravelords,
   "Stormcast: Vigilant Brotherhood": stormcastVigilant,
-  "Ogor Mawtribes": ogor_mawtribes
+  "Ogor Mawtribes": ogor_mawtribes,
+  "Orruk Warclans": orrukWarclans
 }; 

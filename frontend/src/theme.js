@@ -1,10 +1,22 @@
 import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
+  colors: {
+    background: '#1a1d24',
+    surface: '#1e2128',
+    primary: '#ffd700',
+    secondary: '#8b734b',
+    text: {
+      primary: '#ffffff',
+      secondary: '#8b8b8b',
+      gold: '#ffd700'
+    },
+    border: 'rgba(255, 215, 0, 0.2)'
+  },
   palette: {
     mode: 'dark',
     background: {
-      default: '#1a1a1a',
+      default: '#13151a',
       paper: '#242424',
       darker: '#161616',
     },
