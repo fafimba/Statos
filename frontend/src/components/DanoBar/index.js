@@ -78,7 +78,7 @@ export const VidaBar = ({ unidadOponente, porcentajeVidaTotal }) => {
         repeating-linear-gradient(
           to right,
           transparent 0px,
-          transparent 3px,
+          transparent 3.6px,
           white 0,
           white ${100 / (unidadOponente.models)}%
         )`,
@@ -93,7 +93,7 @@ export const VidaBar = ({ unidadOponente, porcentajeVidaTotal }) => {
           repeating-linear-gradient(
             to right,
             transparent 0px,
-            transparent 1.5px,
+            transparent 1px,
             white 0,
             white ${100 / (unidadOponente.models * unidadOponente.wounds)}%
           )`,
@@ -125,10 +125,7 @@ export const DanoBar = ({ unidadOponente, danoFinal, porcentajeVidaTotal, habili
   return (
     <Box sx={{
       display: 'grid',
-      gridTemplateColumns: { 
-        xs: '1fr',  // Móvil: una columna
-        sm: '250px 1fr auto'  // Desktop: tres columnas
-      },
+      gridTemplateColumns: '1fr auto',  // Dos columnas: contenido y cifra
       gap: 1,
       p: 1.5,
       backgroundColor: 'rgba(0,0,0,0.2)',
@@ -138,47 +135,42 @@ export const DanoBar = ({ unidadOponente, danoFinal, porcentajeVidaTotal, habili
         backgroundColor: 'rgba(0,0,0,0.25)',
       }
     }}>
-      {/* Nombre y stats */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      {/* Columna izquierda: nombre y stats */}
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        gap: 1
+      }}>
         <Typography variant="subtitle2">
           {unidadOponente.name}
         </Typography>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {`T${unidadOponente.toughness}`}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {`Sv${unidadOponente.save}+`}
+          </Typography>
+          {unidadOponente.invulnerable && (
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {`Inv${unidadOponente.invulnerable}+`}
+            </Typography>
+          )}
+        </Box>
       </Box>
 
-      {/* Daño y barra */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            color: danoFinal >= 10 ? '#ff4d4d' : danoFinal >= 8 ? 'primary.main' : 'text.primary',
-            fontWeight: 'bold',
-            fontSize: { xs: '1.75rem', md: '2rem' }
-          }}
-        >
-          {danoFinal.toFixed(1)}
-        </Typography>
-        <VidaBar {...{ unidadOponente, porcentajeVidaTotal }} />
-      </Box>
-
-      {/* Habilidades en dos columnas */}
-      <Box sx={{ 
-        display: 'flex',
-        gap: 2,
-        justifyContent: 'flex-end'
-      }}>
-        {habilidades?.ofensivas?.length > 0 && (
-          <HabilidadesList 
-            habilidades={habilidades.ofensivas} 
-            tipo="ofensivas"
-          />
-        )}
-        {habilidades?.defensivas?.length > 0 && (
-          <HabilidadesList 
-            habilidades={habilidades.defensivas} 
-            tipo="defensivas"
-          />
-        )}
-      </Box>
+      {/* Columna derecha: cifra de daño */}
+      <Typography 
+        variant="h4" 
+        sx={{ 
+          color: danoFinal >= 10 ? '#ff4d4d' : danoFinal >= 8 ? 'primary.main' : 'text.primary',
+          fontWeight: 'bold',
+          fontSize: { xs: '1.75rem', md: '2rem' },
+          alignSelf: 'center'
+        }}
+      >
+        {danoFinal.toFixed(1)}
+      </Typography>
     </Box>
   );
 };
