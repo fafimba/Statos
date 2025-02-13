@@ -472,201 +472,207 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercit
   if (!unidad) return null;
 
   return (
-    <Card 
-      sx={{ 
-        background: 'linear-gradient(-160deg, rgba(0, 207, 200, 0.02) 0%, rgba(16, 32, 31, 0.05) 100%)',
-        border: '1px solid',
-        borderColor: 'rgba(0, 207, 200, 0.15)',
-        backdropFilter: 'blur(8px)',
-        overflow: 'hidden',
-        mb: 1.5,
-        '@media (min-width: 800px)': {
+    <Box sx={{ mb: 3 }}>
+      {/* Header de la unidad */}
+      <Box
+        onClick={() => setExpandido(!expandido)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          p: 1.5,
+          background: theme => `linear-gradient(90deg, 
+            ${ejercitoAtacante.color}15 0%, 
+            rgba(0,0,0,0.2) 100%
+          )`,
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: '3px',
+            backgroundColor: theme => ejercitoAtacante.color,
+            opacity: 0.5,
+            borderRadius: '4px 0 0 4px'
+          },
+          borderRadius: '8px',
+          cursor: 'pointer',
           '&:hover': {
-            borderColor: 'primary.main',
-            '&:after': {
-              opacity: 0.3,
+            background: theme => `linear-gradient(90deg, 
+              ${ejercitoAtacante.color}20 0%, 
+              rgba(0,0,0,0.25) 100%
+            )`,
+            '&::before': {
+              opacity: 0.7
             }
           }
-        },
-        '& .MuiCardContent-root': {
-          pb: '0 !important',
-          p: 0
-        }
-      }}
-    >
-      <CardContent>
-        <Box 
-          onClick={() => setExpandido(!expandido)}
-          sx={{
-            background: `linear-gradient(90deg, ${ejercitoAtacante.color}2A 0%, transparent 100%)`,
-            py: 1.5,
-            px: 3,
-            cursor: 'pointer',
+        }}
+      >
+        <Box sx={{ 
+          width: '100%',
+          overflow: 'hidden'
+        }}>
+          <Typography 
+            variant="h6"
+            sx={{ 
+              color: 'text.primary',
+              fontWeight: 400,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: { xs: '1rem', sm: '1.1rem' }
+            }}
+          >
+            {nombreUnidad}
+          </Typography>
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          ml: 'auto'
+        }}>
+          {!expandido && (
+            <Tooltip
+              title="Average damage dealt by this unit against all units in the opposing army"
+              arrow
+              placement="left"
+              enterDelay={1000}
+              leaveDelay={0}
+            >
+              <Typography sx={{ 
+                color: danoMedio >= 8 ? '#ff4d4d' : danoMedio >= 5 ? 'primary.main' : 'text.primary',
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                fontWeight: 600,
+                opacity: 1,
+                minWidth: '60px',
+                textAlign: 'right',
+                cursor: 'help',
+                textShadow: '0 0 10px rgba(0, 207, 200, 0.4)'
+              }}>
+                {danoMedio}
+              </Typography>
+            </Tooltip>
+          )}
+          <Box sx={{ 
+            color: 'text.secondary',
+            opacity: 1,
+            fontSize: '0.8rem',
+            transition: 'transform 0.3s ease',
+            transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </Box>
+        </Box>
+      </Box>
+
+      {expandido && (
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          width: '100%',
+          mt: 1
+        }}>
+          {/* Stats y tags en una línea */}
+          <Box sx={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            position: 'relative'
-          }}
-        >
-          <Box sx={{ 
-            width: '100%',
-            overflow: 'hidden'
-          }}>
-            <Typography 
-              variant="h6"
-              sx={{ 
-                color: 'text.primary',
-                fontWeight: 400,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                fontSize: { xs: '1rem', sm: '1.1rem' }
-              }}
-            >
-              {nombreUnidad}
-            </Typography>
-          </Box>
-
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
+            mb: 2,
+            px: 0.5,
             gap: 2,
-            ml: 'auto'
+            flexWrap: 'wrap'
           }}>
-            {!expandido && (
-              <Tooltip
-                title="Average damage dealt by this unit against all units in the opposing army"
-                arrow
-                placement="left"
-                enterDelay={1000}
-                leaveDelay={0}
-              >
-                <Typography sx={{ 
-                  color: danoMedio >= 8 ? '#ff4d4d' : danoMedio >= 5 ? 'primary.main' : 'text.primary',
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                  fontWeight: 600,
-                  opacity: 1,
-                  minWidth: '60px',
-                  textAlign: 'right',
-                  cursor: 'help',
-                  textShadow: '0 0 10px rgba(0, 207, 200, 0.4)'
-                }}>
-                  {danoMedio}
-                </Typography>
-              </Tooltip>
-            )}
+            {/* Tags */}
             <Box sx={{ 
-              color: 'text.secondary',
-              opacity: 1,
-              fontSize: '0.8rem',
-              transition: 'transform 0.3s ease',
-              transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
+              display: 'flex', 
+              gap: 0.5,
+              flexWrap: 'wrap',
+              flex: 1
             }}>
-              ▼
+              {unidad.tags?.map((tag) => (
+                <UnitTag key={tag} label={tag} />
+              ))}
             </Box>
-          </Box>
-        </Box>
-
-        {/* Contenido expandible con animación */}
-        <Collapse in={expandido}>
-          <Box sx={{ p: 2, pt: 1 }}>
-            {/* Stats y tags en una línea */}
+            {/* Stats defensivos */}
             <Box sx={{
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2,
-              px: 0.5,
-              gap: 2,
-              flexWrap: 'wrap'
-            }}>
-              {/* Tags */}
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 0.5,
-                flexWrap: 'wrap',
-                flex: 1
-              }}>
-                {unidad.tags?.map((tag) => (
-                  <UnitTag key={tag} label={tag} />
-                ))}
-              </Box>
-              {/* Stats defensivos */}
-              <Box sx={{
-                display: 'flex',
-                gap: 1.5,
-                flexWrap: 'wrap',
-                alignItems: 'center'
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                    {unidad.models}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                    {unidad.wounds}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                    {unidad.save}+
-                  </Typography>
-                </Box>
-                {unidad.ward && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                      {unidad.ward}+
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-
-            {/* Perfiles de ataque */}
-            <Box sx={{ mb: 2 }}>
-              {unidad.attack_profiles?.map(perfil => (
-                <PerfilAtaque
-                  key={perfil.name}
-                  perfil={perfil}
-                  activo={perfilesActivos[perfil.name]}
-                  habilidadesPerfil={habilidadesPerfiles[perfil.name]}
-                  onToggleHabilidad={modificarPerfil}
-                />
-              ))}
-            </Box>
-
-            {/* Daños contra unidades */}
-            <Box sx={{
-              display: 'flex', 
+              gap: 1.5,
               flexWrap: 'wrap',
-              gap: 1,
-              width: '100%',
-              pb: 0,
-              '& > *': {
-                flex: 1,
-                maxWidth:  window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)', // forzar máximo de 50%
-                minWidth: window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)' // Ajuste responsivo del ancho mínimo
-              }
+              alignItems: 'center'
             }}>
-              {danoBarData.map((datos, index) => (
-                <DanoBar
-                  key={index}
-                  unidadAtacante={datos.unidadAtacante}
-                  unidadOponente={datos.unidadOponente}
-                  perfilesActivos={datos.perfilesActivos}
-                  onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
-                />
-              ))}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  {unidad.models}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  {unidad.wounds}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  {unidad.save}+
+                </Typography>
+              </Box>
+              {unidad.ward && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {unidad.ward}+
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </Box>
-        </Collapse>
-      </CardContent>
-    </Card>
+
+          {/* Perfiles de ataque */}
+          <Box sx={{ mb: 2 }}>
+            {unidad.attack_profiles?.map(perfil => (
+              <PerfilAtaque
+                key={perfil.name}
+                perfil={perfil}
+                activo={perfilesActivos[perfil.name]}
+                habilidadesPerfil={habilidadesPerfiles[perfil.name]}
+                onToggleHabilidad={modificarPerfil}
+              />
+            ))}
+          </Box>
+
+          {/* Daños contra unidades */}
+          <Box sx={{
+            display: 'flex', 
+            flexWrap: 'wrap',
+            gap: 1,
+            width: '100%',
+            pb: 0,
+            '& > *': {
+              flex: 1,
+              maxWidth:  window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)', // forzar máximo de 50%
+              minWidth: window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)' // Ajuste responsivo del ancho mínimo
+            }
+          }}>
+            {danoBarData.map((datos, index) => (
+              <DanoBar
+                key={index}
+                unidadAtacante={datos.unidadAtacante}
+                unidadOponente={datos.unidadOponente}
+                perfilesActivos={datos.perfilesActivos}
+                onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 });
 
@@ -1620,22 +1626,29 @@ const UnitTag = ({ label }) => (
 
 // Componente para los botones de habilidades
 const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, activeBackgroundColor, hoverBackgroundColor, activeBorderColor, hoverBorderColor, activeTextColor, switchTrackColor }) => {
-  const [openTooltip, setOpenTooltip] = useState(false);
-  
-  const handleTooltipClose = () => {
-    setOpenTooltip(false);
-  };
-  
-  const handleTooltipOpen = () => {
-    setOpenTooltip(true);
-    // Cerrar automáticamente después de 3 segundos
-    setTimeout(handleTooltipClose, 3000);
-  };
-  
+  const isMobile = window.matchMedia('(hover: none)').matches;
+  const [isClickable, setIsClickable] = useState(true);
+
+  const handleClick = useCallback(() => {
+    if (!isClickable || !habilidad.type === 'toggleable') return;
+    
+    setIsClickable(false);
+    onToggle(habilidad.id);
+    
+    // Reactivar clicks después de un pequeño delay
+    setTimeout(() => setIsClickable(true), 300);
+  }, [habilidad.id, isClickable, onToggle]);
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 1, 
+      width: '100%',
+      mb: isMobile ? 1 : 0.5,
+    }}>
       <Box 
-        onClick={() => habilidad.type === 'toggleable' && onToggle(habilidad.id)}
+        onClick={handleClick}
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -1645,14 +1658,16 @@ const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, active
             : 'rgba(255, 255, 255, 0.03)',
           borderRadius: '4px',
           px: 1,
-          py: 0.5,
+          py: isMobile ? 1 : 0.5,
           cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
-          transition: 'all 0.2s ease',
+          transition: 'all 0.1s ease',
           border: '1px solid',
           borderColor: active
             ? 'primary.main'
             : 'divider',
           width: '100%',
+          userSelect: 'none',
+          WebkitTapHighlightColor: 'transparent',
           '@media (min-width: 800px)': {
             '&:hover': habilidad.type === 'toggleable' ? {
               backgroundColor: hoverBackgroundColor,
@@ -1666,6 +1681,9 @@ const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, active
             ? '#e6f7ff'
             : 'text.secondary',
           fontSize: '0.75rem',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
           fontWeight: active 
             ? 500 
             : 400,
@@ -1674,38 +1692,77 @@ const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, active
           {habilidad.name}
         </Typography>
 
-        <Box
-          onClick={(e) => {
-            e.stopPropagation(); // Prevenir que se active el toggle de la habilidad
-            alert(habilidad.description);
-          }}
-          sx={{
-            ml: 1,
-            opacity: 0.5,
-            fontSize: '0.75rem',
-            color: 'text.secondary',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            '&:hover': {
-              opacity: 0.8,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-            },
-            '@media (hover: none)': {
-              // Estilos específicos para dispositivos táctiles
+        {isMobile ? (
+          <Box
+            onClick={(e) => {
+              e.stopPropagation();
+              alert(habilidad.description);
+            }}
+            sx={{
+              ml: 1,
+              opacity: 0.7,
+              fontSize: '0.75rem',
+              color: 'text.secondary',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               width: '20px',
               height: '20px',
-              opacity: 0.7,
-            }
-          }}
-        >
-          ?
-        </Box>
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.05)',
+              '&:hover': {
+                opacity: 0.8,
+                backgroundColor: 'rgba(255,255,255,0.1)',
+              }
+            }}
+          >
+            ?
+          </Box>
+        ) : (
+          <Tooltip
+            title={habilidad.description}
+            arrow
+            placement="right"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  bgcolor: 'rgba(0,0,0,0.9)',
+                  '& .MuiTooltip-arrow': {
+                    color: 'rgba(0,0,0,0.9)',
+                  },
+                  maxWidth: '300px',
+                  p: 1,
+                  fontSize: '0.75rem'
+                }
+              }
+            }}
+          >
+            <Box
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                ml: 1,
+                opacity: 0.5,
+                fontSize: '0.75rem',
+                color: 'text.secondary',
+                cursor: 'help',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                '&:hover': {
+                  opacity: 0.8,
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                }
+              }}
+            >
+              ?
+            </Box>
+          </Tooltip>
+        )}
       </Box>
     </Box>
   );
