@@ -84,6 +84,8 @@ function ComparacionEjercitos() {
     }
   };
 
+  const [activeTooltip, setActiveTooltip] = useState(null);
+
   return (
     <Box sx={{ width: '100%' }}>
       {/* Sidebar fijo para desktop */}
@@ -422,7 +424,7 @@ function ComparacionEjercitos() {
   );
 }
 
-const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercitoAtacante }) => {
+const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoAtacante }) => {
   // Usar el hook de perfiles de ataque
   const {
     perfilesActivos,
@@ -647,8 +649,8 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
               pb: 0,
               '& > *': {
                 flex: 1,
-                maxWidth:  window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(50% - 4px)', // forzar máximo de 50%
-                minWidth: window.innerWidth < 800 ? 'calc(50% - 4px)' : 'calc(30% - 4px)' // Ajuste responsivo del ancho mínimo
+                maxWidth:  window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)', // forzar máximo de 50%
+                minWidth: window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)' // Ajuste responsivo del ancho mínimo
               }
             }}>
               {danoBarData.map((datos, index) => (
@@ -1439,161 +1441,67 @@ const DanoBar = React.memo(({
           flexDirection: 'column',
           gap: 0.5
         }}>
-          {/* Habilidades ofensivas */}
-          {habilidades.ofensivas.map((habilidad) => (
+          <Box sx={{
+            display: 'flex',
+            gap: 1,
+            width: '100%'
+          }}>
+            {/* Columna habilidades ofensivas */}
+            <Box sx={{
+              display: 'flex', 
+              flexDirection: 'column',
+              gap: 0.5,
+              flex: 1
+            }}>
+              {habilidades.ofensivas.map((habilidad) => (
+                <AbilityButton
+                  key={habilidad.id}
+                  habilidad={habilidad}
+                  active={habilidadesActivas.ofensivas[habilidad.id]}
+                  onToggle={handleToggleOfensiva}
+                  onMouseEnter={() => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
+                  onMouseLeave={() => window.innerWidth >= 800 && handleMouseLeave()}
+                  activeTooltip={activeTooltip === habilidad.id}
+                  onTooltipClose={() => setActiveTooltip(null)}
+                  color="primary"
+                  activeBackgroundColor="rgba(0, 207, 200, 0.15)"
+                  hoverBackgroundColor="rgba(0, 207, 200, 0.25)"
+                  activeBorderColor="primary.main"
+                  hoverBorderColor="primary.light"
+                  activeTextColor="#e6f7ff"
+                  switchTrackColor="rgba(0, 207, 200, 0.3)"
+                />
+              ))}
+            </Box>
 
-        <Tooltip
-                key={habilidad.id} 
-                title={habilidad.description}
-                arrow
-                enterDelay={1}
-                 open={ activeTooltip === habilidad.id }
-                onClose={() => setActiveTooltip(null)}
-                disableHoverListener
-                placement="top"
-                sx={{
-                  backgroundColor: 'custom.tooltipBackground',
-                }}
-              >
-   
-              <Box 
-                onMouseEnter={(e) => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
-                onMouseLeave={(e) => window.innerWidth >= 800 && handleMouseLeave()}
-
-                onClick={() => habilidad.type === 'toggleable' && handleToggleOfensiva(habilidad.id)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'rgba(0, 207, 200, 0.15)'
-                    : 'rgba(255, 255, 255, 0.03)',
-                  borderRadius: '4px',
-                  px: 1,
-                  py: 0.5,
-                  cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  border: '1px solid',
-                  borderColor: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id]
-                    ? 'primary.main'
-                    : 'divider',
-                  '@media (min-width: 800px)': {
-                    '&:hover': habilidad.type === 'toggleable' ? {
-                      backgroundColor: 'rgba(0, 207, 200, 0.25)',
-                      borderColor: 'primary.light'
-                    } : {}
-                  }
-                }}
-              >
-                <Typography variant="caption" sx={{ 
-                  color: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
-                    ? '#e6f7ff'
-                    : 'text.secondary',
-                  fontSize: '0.75rem',
-                  fontWeight: habilidad.type === 'fixed' || habilidadesActivas.ofensivas[habilidad.id] 
-                    ? 500 
-                    : 400
-                }}>
-                  {habilidad.name}
-                </Typography>
-                {habilidad.type === 'toggleable' && (
-                  <Switch
-                    size="small"
-                    checked={habilidadesActivas.ofensivas[habilidad.id] || false}
-                    onChange={() => handleToggleOfensiva(habilidad.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    sx={{
-                      transform: 'scale(0.7)',
-                      ml: -0.5,  // Compensar el padding del switch
-                      '& .MuiSwitch-thumb': {
-                        backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'primary.main' : '#404040',
-                      },
-                      '& .MuiSwitch-track': {
-                        backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'rgba(0, 207, 200, 0.3)' : '#242424',
-                        opacity: 1
-                      }
-                    }}
-                  />
-                )}
-              </Box>
-            </Tooltip>
-          ))}
-
-          {/* Habilidades defensivas */}
-          {habilidades.defensivas.map((habilidad) => (
-            <Tooltip 
-              key={habilidad.id} 
-              title={habilidad.description} 
-              arrow
-              open={activeTooltip === habilidad.id}
-              onClose={() => setActiveTooltip(null)}
-              disableHoverListener
-              placement="top"
-              sx={{
-                backgroundColor: 'custom.tooltipBackground',
-              }}
-            >
-              <Box 
-                onMouseEnter={(e) => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
-                onMouseLeave={(e) => window.innerWidth >= 800 && handleMouseLeave()}
-                onClick={() => habilidad.type === 'toggleable' && handleToggleDefensiva(habilidad.id)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? 'rgba(255, 77, 130, 0.15)'
-                    : 'rgba(255, 255, 255, 0.03)',
-                  borderRadius: '4px',
-                  px: 1,
-                  py: 0.5,
-                  cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  border: '1px solid',
-                  borderColor: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id]
-                    ? '#ff9999'
-                    : 'divider',
-                  '@media (min-width: 800px)': {
-                    '&:hover': habilidad.type === 'toggleable' ? {
-                      backgroundColor: 'rgba(255, 77, 130, 0.25)',
-                      borderColor: '#ff9999'
-                    } : {}
-                  }
-                }}
-              >
-                <Typography variant="caption" sx={{ 
-                  color: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
-                    ? '#e6f7ff'
-                    : 'text.secondary',
-                  fontSize: '0.75rem',
-                  fontWeight: habilidad.type === 'fixed' || habilidadesActivas.defensivas[habilidad.id] 
-                    ? 500 
-                    : 400
-                }}>
-                  {habilidad.name}
-                </Typography>
-                {habilidad.type === 'toggleable' && (
-                  <Switch
-                    size="small"
-                    checked={habilidadesActivas.defensivas[habilidad.id] || false}
-                    onChange={() => handleToggleDefensiva(habilidad.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    sx={{
-                      transform: 'scale(0.7)',
-                      ml: -0.5,  // Compensar el padding del switch
-                      '& .MuiSwitch-thumb': {
-                        backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? '#ff9999' : '#404040',
-                      },
-                      '& .MuiSwitch-track': {
-                        backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? 'rgba(255, 77, 130, 0.3)' : '#242424',
-                        opacity: 1
-                      }
-                    }}
-                  />
-                )}
-              </Box>
-            </Tooltip>
-          ))}
+            {/* Columna habilidades defensivas */}
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column', 
+              gap: 0.5,
+              flex: 1
+            }}>
+              {habilidades.defensivas.map((habilidad) => (
+                <AbilityButton
+                  key={habilidad.id}
+                  habilidad={habilidad}
+                  active={habilidadesActivas.defensivas[habilidad.id]}
+                  onToggle={handleToggleDefensiva}
+                  onMouseEnter={() => window.innerWidth >= 800 && handleMouseEnter(habilidad.id)}
+                  onMouseLeave={() => window.innerWidth >= 800 && handleMouseLeave()}
+                  activeTooltip={activeTooltip === habilidad.id}
+                  onTooltipClose={() => setActiveTooltip(null)}
+                  color="secondary"
+                  activeBackgroundColor="rgba(255, 77, 130, 0.15)"
+                  hoverBackgroundColor="rgba(255, 77, 130, 0.25)"
+                  activeBorderColor="#ff9999"
+                  hoverBorderColor="#ff9999"
+                  activeTextColor="#e6f7ff"
+                  switchTrackColor="rgba(255, 77, 130, 0.3)"
+                />
+              ))}
+            </Box>
+          </Box>
         </Box>
       )}
     </Box>
@@ -1709,5 +1617,100 @@ const UnitTag = ({ label }) => (
     {label}
   </Typography>
 );
+
+// Componente para los botones de habilidades
+const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, activeBackgroundColor, hoverBackgroundColor, activeBorderColor, hoverBorderColor, activeTextColor, switchTrackColor }) => {
+  const [openTooltip, setOpenTooltip] = useState(false);
+  
+  const handleTooltipClose = () => {
+    setOpenTooltip(false);
+  };
+  
+  const handleTooltipOpen = () => {
+    setOpenTooltip(true);
+    // Cerrar automáticamente después de 3 segundos
+    setTimeout(handleTooltipClose, 3000);
+  };
+  
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+      <Box 
+        onClick={() => habilidad.type === 'toggleable' && onToggle(habilidad.id)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          backgroundColor: active
+            ? activeBackgroundColor
+            : 'rgba(255, 255, 255, 0.03)',
+          borderRadius: '4px',
+          px: 1,
+          py: 0.5,
+          cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
+          transition: 'all 0.2s ease',
+          border: '1px solid',
+          borderColor: active
+            ? 'primary.main'
+            : 'divider',
+          width: '100%',
+          '@media (min-width: 800px)': {
+            '&:hover': habilidad.type === 'toggleable' ? {
+              backgroundColor: hoverBackgroundColor,
+              borderColor: hoverBorderColor
+            } : {}
+          }
+        }}
+      >
+        <Typography variant="caption" sx={{ 
+          color: active 
+            ? '#e6f7ff'
+            : 'text.secondary',
+          fontSize: '0.75rem',
+          fontWeight: active 
+            ? 500 
+            : 400,
+          marginRight: 'auto'
+        }}>
+          {habilidad.name}
+        </Typography>
+
+        <Box
+          onClick={(e) => {
+            e.stopPropagation(); // Prevenir que se active el toggle de la habilidad
+            alert(habilidad.description);
+          }}
+          sx={{
+            ml: 1,
+            opacity: 0.5,
+            fontSize: '0.75rem',
+            color: 'text.secondary',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.05)',
+            '&:hover': {
+              opacity: 0.8,
+              backgroundColor: 'rgba(255,255,255,0.1)',
+            },
+            '@media (hover: none)': {
+              // Estilos específicos para dispositivos táctiles
+              width: '20px',
+              height: '20px',
+              opacity: 0.7,
+            }
+          }}
+        >
+          ?
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+
 
 export default ComparacionEjercitos; 
