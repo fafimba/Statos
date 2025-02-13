@@ -145,8 +145,9 @@
             "dice_amount": 1,
             "dice_type": "d3",
             "difficulty": 1,
+            "damage": "1d3",
             "conditions": {
-              "charge": true
+              "target_tag": "infantry"
             }
           }
         }

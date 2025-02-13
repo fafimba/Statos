@@ -8,7 +8,7 @@ const calcularProbabilidad = (objetivo) => {
   return Math.max(0, exitosPosibles / 6);
 };
 
-const calcularValorDado = (dado) => {
+export const calcularValorDado = (dado) => {
   // Si es número, devolver el mismo número
   if (typeof dado === 'number') return dado;
   
@@ -143,15 +143,14 @@ export const calcularMortalesConDados = ({ cantidad, tipoDado, dificultad, salva
     const exitosPosibles = 7 - Math.max(1, Math.min(6, dificultad));
     probExito = exitosPosibles / 6;
   }
-  
-  const mortalesBase = cantidad * probExito;
+  let mortalesBase = cantidad * probExito;
+
+  mortalesBase *= multiplicador;
 
   if (salvaguardia > 0) {
     const probFallarSalva = 1 - calcularProbabilidad(salvaguardia);
-    const resultado = mortalesBase * probFallarSalva;
-    return resultado * multiplicador;
+    mortalesBase *= probFallarSalva;
   }
-
   return mortalesBase;
 };
 
@@ -159,10 +158,9 @@ export const calcularMortalesConDados = ({ cantidad, tipoDado, dificultad, salva
 // Ahora se añade el parámetro "enemigo" para aplicar modificadores según las condiciones del objetivo
 export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_wounds, enemigo }) => {
   try {
-    console.log("perfiles_ataque calculateAttacks", perfiles_ataque);
     const perfilesAtaque = perfiles_ataque || [];
 
-    let dañoTotal = 0;
+    let danoTotal = 0;
     const desglosePerfiles = [];
 
     for (const perfil of perfilesAtaque) {
@@ -179,8 +177,6 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
       const tipoCritico = (perfilCalculado.abilityEffects || [])
         .find(ability => ability?.type === 'critical')?.action;
       
-        console.log("perfilCalculado", perfilCalculado);
-      console.log("tipoCritico", tipoCritico);
 
         let hits_roll = {normales:0, criticos:0};
         let hits=0;
@@ -226,17 +222,23 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
           wounds -= (guardia_roll.normales + guardia_roll.criticos);
         }
       }
-      
+      console.log("wounds", wounds);
+      console.log("mortal_wound", mortal_wound);
+      console.log("damage atribute", damage);
+      console.log("damage_final", damage_final);
       damage_final = (wounds + mortal_wound) * damage;
+      console.log("damage_final after damage", damage_final);
 
       // 4. Aplicar salvaguardia
       if (salvaguardia > 0) {
         salvaguardia_roll = calcularRoll(wounds, salvaguardia);
         damage_final -= (salvaguardia_roll.normales + salvaguardia_roll.criticos);
       }
-
+      console.log("damage_final", damage_final);
+      console.log("wounds", wounds);
       const dañoPerfil = damage_final;
-      dañoTotal += dañoPerfil;
+
+      danoTotal += dañoPerfil;
 
       // 5. Guardar resultados
       desglosePerfiles.push({
@@ -252,7 +254,7 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
     }
 
     return {
-      damage_final: round2(dañoTotal),
+      damage_final: round2(danoTotal),
       enemy_wounds: enemy_wounds,
       desglose_perfiles: desglosePerfiles,
     };

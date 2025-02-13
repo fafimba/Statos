@@ -16,7 +16,7 @@ import {
   Stack
 } from '@mui/material';
 import { armies } from '../../data/armies';
-import { calculateAttacks, calcularMortalesConDados } from '../../utils/calculator';
+import { calculateAttacks, calcularMortalesConDados, calcularValorDado } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
 import PersonIcon from '@mui/icons-material/Person';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -944,12 +944,21 @@ const DanoBar = React.memo(({
           }
           let salvaguardia = wardModificado;
 
+          let damage =1;
+          switch(habilidad.effect.damage) {
+            case 'slain':
+              damage = woundsModificado;
+              break;
+            default:
+               damage = calcularValorDado(habilidad.effect.damage || 1);
+          }
+        
           mortalesExtra += calcularMortalesConDados({ 
             cantidad, 
             tipoDado, 
             dificultad, 
             salvaguardia: habilidad.effect.models_slain ? 0 : salvaguardia, 
-            multiplicador: habilidad.effect.models_slain ? habilidad.effect.models_slain * woundsModificado : 1 
+            multiplicador: damage
           });
         } else if(type === 'add_weapon_ability') {
           perfilesModificados = perfilesModificados.map(perfil => {
@@ -1272,39 +1281,62 @@ const DanoBar = React.memo(({
         gap: 0.5
       }}>
         {/* Barra de progreso */}
-        <Box sx={{ 
-          height: '5px', // Reducida la altura de la barra
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: 'secondary.dark',
-          maskImage: `repeating-linear-gradient(
+
+        <Box     sx={{
+        position: 'relative',
+        width: `${Math.min(100, unidadOponente.models * unidadOponente.wounds * 5.6)}%`,
+        height: '8px',
+        maskImage: `
+          repeating-linear-gradient(
             to right,
-            #000 0%,
-            #000 calc(${100 / unidadOponente.models}% - 2px),
-            transparent calc(${100 / unidadOponente.models}% - 2px),
-            transparent ${100 / unidadOponente.models}%,
+            transparent 0px,
+            transparent 3px,
+            white 0,
+            white ${100 / (unidadOponente.models)}%
           )`,
-          WebkitMaskImage: `repeating-linear-gradient(
-            to right,
-            #000 0%,
-            #000 calc(${100 / unidadOponente.models}% - 2px),
-            transparent calc(${100 / unidadOponente.models}% - 2px),
-            transparent ${100 / unidadOponente.models}%
-          )`,
-        }}>
-          {/* Barra de progreso única */}
-          <Box
-            sx={{
+        backgroundRepeat: 'no-repeat',
+      }}
+        >
+                <Box     sx={{
               position: 'absolute',
+              width: '100%',
               height: '100%',
-              width: `${porcentajeVidaTotal}%`,
-              backgroundColor: porcentajeVidaTotal >= 100 ? 'primary.main' : 'secondary.main',
-              transition: 'width 0.3s ease'
-        
-            }}
-          />
+              backgroundColor: 'transparent',
+              maskImage: `
+                repeating-linear-gradient(
+                  to right,
+                 transparent 0px,
+                  transparent 1.5px,
+                  white 0,
+                  white ${100 / (unidadOponente.models * unidadOponente.wounds)}%
+                )`,
+              backgroundRepeat: 'no-repeat',
+            }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'secondary.dark',
+                }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    width: `${porcentajeVidaTotal}%`,
+                    height: '100%',
+                  backgroundColor: 'primary.main',
+                  transition: 'width 0.5s ease'
+                  }}
+                />
+          </Box>
         </Box>
+
+       
+
+     
       </Box>
+      {/* </Box> */}
 
       {/* Lista de habilidades */}
       {(habilidades.ofensivas.length > 0 || habilidades.defensivas.length > 0) && (

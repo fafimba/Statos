@@ -170,7 +170,7 @@
             "dice_amount": 1,
             "dice_type": "d6",
             "difficulty": "target_wounds",
-            "models_slain": 1,
+            "damage": "slain",
             "conditions": {
               "is_general": true,
               "in_combat": true
