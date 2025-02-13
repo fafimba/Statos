@@ -1,6 +1,5 @@
 import React, { useState,useRef,useEffect, useCallback, useMemo } from 'react';
 import {
-  Grid,
   FormControl,
   InputLabel,
   Select,
@@ -8,18 +7,13 @@ import {
   Box,
   Typography,
   Switch,
-  Collapse,
-  Card,
-  CardContent,
   Tooltip,
-  FormControlLabel,
   Stack,
   IconButton,
   Drawer,
   useMediaQuery,
   useTheme,
-  Chip,
-  ToggleButton
+  Chip
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -35,7 +29,10 @@ import InfoIcon from '@mui/icons-material/Info';
 import CoffeeIcon from '@mui/icons-material/Coffee';
 import { RiSwordFill } from "react-icons/ri";
 import { LuCrosshair } from "react-icons/lu";
-import { VidaBar } from '../DanoBar/index';
+import { LifeBar } from './LifeBar';
+import { AbilityButton } from './AbilityButton';
+import { UnitTag } from './UnitTag';  
+
 
 function ComparacionEjercitos() {
   const navigate = useNavigate();
@@ -125,21 +122,21 @@ function ComparacionEjercitos() {
             </Box>
             
             <FormControl fullWidth>
-              <InputLabel>Attacking Army</InputLabel>
-              <Select
-                value={selectedEjercitoAtacante}
-                onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
-                label="Attacking Army"
+            <InputLabel>Attacking Army</InputLabel>
+            <Select
+              value={selectedEjercitoAtacante}
+              onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
+              label="Attacking Army"
                 MenuProps={MENU_PROPS}
               >
                 {Object.keys(armies).map((armyName) => (
                   <MenuItem key={armyName} value={armyName}>
                     {armyName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
             <FormControl fullWidth>
               <InputLabel>Defending Army</InputLabel>
               <Select
@@ -395,7 +392,7 @@ function ComparacionEjercitos() {
           }}>
             {unidadesAtacantesOrdenadas.map(([nombreUnidad, unidad]) => (
               <Box key={nombreUnidad} sx={{ mb: { xs: 1, md: 2 } }}>
-                <UnidadCard
+            <UnidadCard
                   nombreUnidad={nombreUnidad}
                   unidad={unidad}
                   ejercitoOponente={armies[selectedEjercitoDefensor]}
@@ -413,8 +410,8 @@ function ComparacionEjercitos() {
               <Box key={nombreUnidad} sx={{ mb: { xs: 1, md: 2 } }}>
                 <UnidadCard
                   nombreUnidad={nombreUnidad}
-                  unidad={unidad}
-                  ejercitoOponente={armies[selectedEjercitoAtacante]}
+              unidad={unidad}
+              ejercitoOponente={armies[selectedEjercitoAtacante]}
                   ejercitoAtacante={armies[selectedEjercitoDefensor]}
                 />
               </Box>
@@ -677,7 +674,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercit
             }
           }}>
             {danoBarData.map((datos, index) => (
-              <DanoBar
+              <DamageCalculator
                 key={index}
                 unidadAtacante={datos.unidadAtacante}
                 unidadOponente={datos.unidadOponente}
@@ -896,14 +893,12 @@ export const usePerfilesAtaque = (unidad) => {
   };
 };
 
-const DanoBar = React.memo(({ 
+const DamageCalculator = React.memo(({ 
   unidadAtacante,
   unidadOponente,
   perfilesActivos,  
   onDanoCalculado
 }) => {
-
-
   // Convertir perfilesActivos (objeto) a un array de perfiles con comprobación de seguridad
   const perfilesParaCalcular = useMemo(() => {
     if (!unidadAtacante?.attack_profiles) return [];
@@ -1442,7 +1437,7 @@ const DanoBar = React.memo(({
             display: 'flex',
             alignItems: 'center'
           }}>
-            <VidaBar 
+            <LifeBar 
               unidadOponente={unidadOponente}
               porcentajeVidaTotal={porcentajeVidaTotal}
             />
@@ -1518,7 +1513,7 @@ const DanoBar = React.memo(({
   );
 });
 
-export const useHabilidades = (unidadAtacante, unidadDefensora) => {
+  export const useHabilidades = (unidadAtacante, unidadDefensora) => {
   // Estado para las habilidades activas
   const [habilidadesActivas, setHabilidadesActivas] = useState({
     ofensivas: {},
@@ -1602,172 +1597,6 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
     getHabilidadActiva
   };
 };
-
-
-
-// Componente para las tags
-const UnitTag = ({ label }) => (
-  <Typography
-    component="span"
-    sx={{
-      fontSize: '0.75rem',
-      px: 1,
-      py: 0.25,
-      borderRadius: '4px',
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-      color: 'text.secondary',
-      textTransform: 'lowercase',
-      letterSpacing: '0.02em',
-      fontWeight: 300,
-      opacity: 0.8,
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
-      }
-    }}
-  >
-    {label}
-  </Typography>
-);
-
-// Componente para los botones de habilidades
-const AbilityButton = ({ habilidad, active, isOffensive, onToggle, color, activeBackgroundColor, hoverBackgroundColor, activeBorderColor, hoverBorderColor, activeTextColor }) => {
-  const isMobile = window.matchMedia('(hover: none)').matches;
-  const [isClickable, setIsClickable] = useState(true);
-
-  const handleClick = useCallback(() => {
-    if (!isClickable || !habilidad.type === 'toggleable') return;
-    
-    setIsClickable(false);
-    // Intentar quitar el focus explícitamente
-    document.activeElement?.blur();
-    onToggle(habilidad.id);
-    setTimeout(() => setIsClickable(true), 300);
-  }, [habilidad.id, isClickable, onToggle]);
-
-  return (
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 0.5, 
-      width: '100%'
-    }}>
-      <Chip
-        label={habilidad.name}
-        onClick={handleClick}
-        variant="outlined"
-        disabled={!habilidad.type === 'toggleable'}
-        tabIndex={-1}
-        sx={{
-          flex: 1,
-          justifyContent: 'flex-start',
-          backgroundColor: active
-            ? activeBackgroundColor
-            : 'rgba(255, 255, 255, 0.03)',
-          cursor: habilidad.type === 'toggleable' ? 'pointer' : 'default',
-          border: '1px solid',
-          borderColor: active
-            ? activeBorderColor
-            : 'divider',
-          height: isMobile ? '36px' : '32px',
-          WebkitTapHighlightColor: 'transparent',
-          '&.MuiChip-root': {
-            transition: 'none',
-            '&:active': {
-              transform: 'scale(0.98)'
-            },
-            '&.MuiChip-outlined': {
-              backgroundColor: active
-                ? activeBackgroundColor
-                : 'rgba(255, 255, 255, 0.03)'
-            }
-          },
-          '& .MuiChip-label': {
-            color: active ? '#e6f7ff' : 'text.secondary',
-            fontSize: '0.75rem',
-            fontWeight: active ? 500 : 400,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            paddingLeft: 1,
-            paddingRight: 1
-          }
-        }}
-      />
-
-      {isMobile ? (
-        <Box
-          onClick={(e) => {
-            e.stopPropagation();
-            alert(habilidad.description);
-          }}
-          sx={{
-            opacity: 0.7,
-            fontSize: '0.75rem',
-            color: 'text.secondary',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            p: 0.25,
-            '&:hover': {
-              opacity: 0.8,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-            }
-          }}
-        >
-          ?
-        </Box>
-      ) : (
-        <Tooltip
-          title={habilidad.description}
-          arrow
-          placement=  "right"
-          componentsProps={{
-            tooltip: {
-              sx: {
-                bgcolor: 'rgba(0,0,0,0.9)',
-                '& .MuiTooltip-arrow': {
-                  color: 'rgba(0,0,0,0.9)',
-                },
-                maxWidth: '300px',
-                p: 1,
-                fontSize: '0.75rem'
-              }
-            }
-          }}
-        >
-          <Box
-            sx={{
-              opacity: 0.5,
-              fontSize: '0.75rem',
-              color: 'text.secondary',
-              cursor: 'help',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255,255,255,0.05)',
-              p: 0.25,
-              '&:hover': {
-                opacity: 0.8,
-                backgroundColor: 'rgba(255,255,255,0.1)',
-              }
-            }}
-          >
-            ?
-          </Box>
-        </Tooltip>
-      )}
-    </Box>
-  );
-};
-
 
 
 export default ComparacionEjercitos; 
