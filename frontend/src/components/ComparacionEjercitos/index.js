@@ -13,8 +13,15 @@ import {
   CardContent,
   Tooltip,
   FormControlLabel,
-  Stack
+  Stack,
+  IconButton,
+  Drawer,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import MenuIcon from '@mui/icons-material/Menu';
 import { armies } from '../../data/armies';
 import { calculateAttacks, calcularMortalesConDados, calcularValorDado } from '../../utils/calculator';
 import { weapon_abilities } from '../../data/weapon_abilities';
@@ -22,9 +29,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SecurityIcon from '@mui/icons-material/Security';
+import InfoIcon from '@mui/icons-material/Info';
+import CoffeeIcon from '@mui/icons-material/Coffee';
 
 
 function ComparacionEjercitos() {
+  const navigate = useNavigate();
   const [selectedEjercitoAtacante, setSelectedEjercitoAtacante] = useState(() => 
     localStorage.getItem('selectedAttacker') || Object.keys(armies)[0]
   );
@@ -34,6 +44,9 @@ function ComparacionEjercitos() {
   );
 
   const [vistaUnaColumna, setVistaUnaColumna] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const unidadesAtacantesOrdenadas = useMemo(() => {
     const ejercito = armies[selectedEjercitoAtacante];
@@ -71,39 +84,173 @@ function ComparacionEjercitos() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      {/* Header fijo con selectores */}
-      <Box sx={{ 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1100,
-        backgroundColor: 'background.paper',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(8px)',
-        padding: { xs: 2, md: 3 },
-      }}>
-        <Box sx={{ 
-          maxWidth: '1800px',
-          width: '100%',
-          margin: '0 auto',
-          px: { xs: 1, md: 4 },
-          display: 'flex', 
-          gap: 2,
-          flexDirection: { xs: 'column', sm: 'row' }
+      {/* Sidebar fijo para desktop */}
+      {!isMobile && (
+        <Box sx={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: '240px',
+          backgroundColor: 'background.paper',
+          borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 1100,
+          display: 'flex',
+          flexDirection: 'column',
+          p: 2,
+          gap: 2
         }}>
-          <FormControl sx={{ flex: 1 }}>
-            <InputLabel 
-              id="attacking-army-label"
-              sx={{ 
-                color: 'text.secondary',
-                '&.Mui-focused': {
-                  color: 'primary.main'
-                }
-              }}
+          {/* Contenido principal del sidebar */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton 
+                onClick={() => navigate('/')}
+                sx={{ 
+                  color: 'text.secondary',
+                  '&:hover': { color: '#00CED1' }
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Typography variant="h6">
+                PreBattle.net
+              </Typography>
+            </Box>
+            
+            <FormControl fullWidth>
+              <InputLabel>Attacking Army</InputLabel>
+              <Select
+                value={selectedEjercitoAtacante}
+                onChange={(e) => setSelectedEjercitoAtacante(e.target.value)}
+                label="Attacking Army"
+                MenuProps={MENU_PROPS}
+              >
+                {Object.keys(armies).map((armyName) => (
+                  <MenuItem key={armyName} value={armyName}>
+                    {armyName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth>
+              <InputLabel>Defending Army</InputLabel>
+              <Select
+                value={selectedEjercitoDefensor}
+                onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
+                label="Defending Army"
+                MenuProps={MENU_PROPS}
+              >
+                {Object.keys(armies).map((armyName) => (
+                  <MenuItem key={armyName} value={armyName}>
+                    {armyName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Footer del sidebar */}
+          <Box sx={{ 
+            pt: 2,
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1
+          }}>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              alignItems: 'center' 
+            }}>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                v0.1.0 Beta
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => window.open('https://www.buymeacoffee.com/fafimba', '_blank')}
+                  sx={{ 
+                    color: '#FFDD00',
+                    '&:hover': { color: '#FFE44D' }
+                  }}
+                >
+                  <CoffeeIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => {/* Aquí puedes abrir un diálogo de información */}}
+                  sx={{ 
+                    color: 'text.secondary',
+                    '&:hover': { color: '#00CED1' }
+                  }}
+                >
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      )}
+
+      {/* Botón de menú para móvil */}
+      {isMobile && (
+        <Box sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1100,
+          backgroundColor: 'background.paper',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(8px)',
+          padding: 1,
+        }}>
+          <IconButton 
+            onClick={() => setDrawerOpen(true)}
+            sx={{ 
+              color: 'text.secondary',
+              '&:hover': { color: '#00CED1' }
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Box>
+      )}
+
+      {/* Drawer para móvil */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+          sx: {
+            width: '85%',
+            maxWidth: '320px',
+            backgroundColor: 'background.paper',
+            backgroundImage: 'none',
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column'
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton 
+              onClick={() => navigate('/')}
+              sx={{ color: 'text.secondary' }}
             >
-              Attacking Army
-            </InputLabel>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h6">
+              PreBattle.net
+            </Typography>
+          </Box>
+          
+          <FormControl fullWidth>
+            <InputLabel>Attacking Army</InputLabel>
             <Select
               labelId="attacking-army-label"
               value={selectedEjercitoAtacante}
@@ -136,26 +283,15 @@ function ComparacionEjercitos() {
               ))}
             </Select>
           </FormControl>
-
-          <FormControl sx={{ flex: 1 }}>
-            <InputLabel 
-              id="defending-army-label"
-              sx={{ 
-                color: 'text.secondary',
-                '&.Mui-focused': {
-                  color: 'primary.main'
-                }
-              }}
-            >
-              Defending Army
-            </InputLabel>
+          
+          <FormControl fullWidth>
+            <InputLabel>Defending Army</InputLabel>
             <Select
               labelId="defending-army-label"
               value={selectedEjercitoDefensor}
               onChange={(e) => setSelectedEjercitoDefensor(e.target.value)}
               label="Defending Army"
               MenuProps={MENU_PROPS}
-
             >
               {Object.keys(armies).map((armyName) => (
                 <MenuItem 
@@ -183,18 +319,62 @@ function ComparacionEjercitos() {
             </Select>
           </FormControl>
         </Box>
-      </Box>
 
-      {/* Espaciador para compensar el header fijo */}
-      <Box sx={{ height: { xs: '170px', sm: '80px' } }} />
+        {/* Footer del drawer */}
+        <Box sx={{ 
+          pt: 2,
+          mt: 2,
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center' 
+          }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              v0.1.0 Beta
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton
+                size="small"
+                onClick={() => window.open('https://www.buymeacoffee.com/fafimba', '_blank')}
+                sx={{ 
+                  color: '#FFDD00',
+                  '&:hover': { color: '#FFE44D' }
+                }}
+              >
+                <CoffeeIcon fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => {/* Aquí puedes abrir un diálogo de información */}}
+                sx={{ 
+                  color: 'text.secondary',
+                  '&:hover': { color: '#00CED1' }
+                }}
+              >
+                <InfoIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+        </Box>
+      </Drawer>
+
+      {/* Ajustar el espaciador para el nuevo header más pequeño en móvil */}
+      {isMobile && <Box sx={{ height: '56px' }} />}
 
       {/* Contenido principal */}
       <Box sx={{ 
         maxWidth: '1800px',
         width: '100%',
         margin: '0 auto',
-        px: { xs: 1, md: 4 },
-        py: { xs: 1, md: 4 }
+        pl: { xs: 1, sm: '260px' },
+        pr: { xs: 1, sm: 4 },
+        pt: { xs: 1, sm: 4 },
+        pb: 4
       }}>
         <Stack 
           direction={{ xs: 'column', md: 'row' }} 
@@ -295,7 +475,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
         borderColor: 'rgba(0, 207, 200, 0.15)',
         backdropFilter: 'blur(8px)',
         overflow: 'hidden',
-        mb: 2,
+        mb: 1.5,
         '@media (min-width: 800px)': {
           '&:hover': {
             borderColor: 'primary.main',
@@ -315,7 +495,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
           onClick={() => setExpandido(!expandido)}
           sx={{
             background: `linear-gradient(90deg, ${ejercitoAtacante.color}2A 0%, transparent 100%)`,
-            py: 2,
+            py: 1.5,
             px: 3,
             cursor: 'pointer',
             display: 'flex',
@@ -329,13 +509,14 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
             overflow: 'hidden'
           }}>
             <Typography 
-              variant="h5" 
+              variant="h6"
               sx={{ 
                 color: 'text.primary',
-                fontWeight: 500,
+                fontWeight: 400,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                fontSize: { xs: '1rem', sm: '1.1rem' }
               }}
             >
               {nombreUnidad}
@@ -358,7 +539,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
               >
                 <Typography sx={{ 
                   color: danoMedio >= 8 ? '#ff4d4d' : danoMedio >= 5 ? 'primary.main' : 'text.primary',
-                  fontSize: '1.5rem',
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
                   fontWeight: 600,
                   opacity: 1,
                   minWidth: '60px',
@@ -373,6 +554,7 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
             <Box sx={{ 
               color: 'text.secondary',
               opacity: 1,
+              fontSize: '0.8rem',
               transition: 'transform 0.3s ease',
               transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
             }}>
