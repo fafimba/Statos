@@ -31,6 +31,8 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import SecurityIcon from '@mui/icons-material/Security';
 import InfoIcon from '@mui/icons-material/Info';
 import CoffeeIcon from '@mui/icons-material/Coffee';
+import { RiSwordFill } from "react-icons/ri";
+import { LuCrosshair } from "react-icons/lu";
 
 
 function ComparacionEjercitos() {
@@ -569,19 +571,19 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
             {/* Stats y tags en una línea */}
             <Box sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: { xs: 1, sm: 0 },
               justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', sm: 'center' },
+              alignItems: 'center',
               mb: 2,
-              px: 0.5
+              px: 0.5,
+              gap: 2,
+              flexWrap: 'wrap'
             }}>
-                         {/* Tags */}
-                         <Box sx={{ 
+              {/* Tags */}
+              <Box sx={{ 
                 display: 'flex', 
-                gap: 1,
+                gap: 0.5,
                 flexWrap: 'wrap',
-                width: { xs: '100%', sm: 'auto' }
+                flex: 1
               }}>
                 {unidad.tags?.map((tag) => (
                   <UnitTag key={tag} label={tag} />
@@ -590,36 +592,37 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
               {/* Stats defensivos */}
               <Box sx={{
                 display: 'flex',
-                gap: 2,
+                gap: 1.5,
                 flexWrap: 'wrap',
-                width: { xs: '100%', sm: 'auto' }
+                alignItems: 'center'
               }}>
-
-
-                <StatBox 
-                  label="Size" 
-                  value={unidad.models} 
-                  color="text.primary"
-                />
-                <StatBox 
-                  label="Wounds" 
-                  value={unidad.wounds} 
-                  color="text.primary"  
-                />
-                <StatBox 
-                  label="Save" 
-                  value={`${unidad.save}+`} 
-                  color="text.primary"
-                />
-                <StatBox 
-                  label="Ward" 
-                  value={unidad.ward ? `${unidad.ward}+` : '-'} 
-                  color="text.primary"
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {unidad.models}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {unidad.wounds}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {unidad.save}+
+                  </Typography>
+                </Box>
+                {unidad.ward && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                      {unidad.ward}+
+                    </Typography>
+                  </Box>
+                )}
               </Box>
-
-
-   
             </Box>
 
             {/* Perfiles de ataque */}
@@ -665,185 +668,142 @@ const UnidadCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente,ejercito
   );
 });
 
-const PerfilAtaque = React.memo(({ 
-  perfil, 
-  activo, 
-  habilidadesPerfil = {},
-  onToggleHabilidad
-}) => {
-  const statsBase = {
-    attacks: perfil.attacks,
-    hit: perfil.hit,
-    wound: perfil.wound,
-    rend: perfil.rend,
-    damage: perfil.damage
-  };
-
-  const statsModificados = {
-    ...statsBase,
-    ...habilidadesPerfil
-  };
-
-  // Preparar el tooltip de habilidades
-  const habilidadesTooltip = perfil.abilities?.map(habilidadId => {
-    const habilidad = weapon_abilities[habilidadId];
-    return `${habilidad?.name || habilidadId}: ${habilidad?.description || ''}`;
-  }).join('\n\n') || '-';
-
-  // Handler para el toggle
-  const handleToggle = (e) => {
-    // Evitar que el click se propague si viene del switch
-    if (e?.stopPropagation) {
-      e.stopPropagation();
+// Componente para los perfiles de ataque
+const PerfilAtaque = ({ perfil, activo, habilidadesPerfil = {}, onToggleHabilidad }) => (
+  <Box sx={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    py: 0.75,
+    px: 2,
+    borderBottom: '1px solid',
+    borderColor: 'divider',
+    '&:last-child': {
+      borderBottom: 'none'
     }
-    onToggleHabilidad(perfil.name, 'active', !activo);
-  };
+  }}>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center',
+      gap: 1,
+      flex: 1,
+      minWidth: 0
+    }}>
+      {perfil.type === 'melee' ? (
+        <RiSwordFill 
+          style={{
+            fontSize: '1rem',
+            color: '#ff9999',
+            opacity: 0.7,
+            transform: 'scaleX(-1)'  // Flip horizontal
+          }}
+        />
+      ) : (
+        <LuCrosshair
+          style={{
+            fontSize: '1rem',
+            color: '#99ccff',
+            opacity: 0.7
+          }}
+        />
+      )}
+      <Typography sx={{
+        color: 'text.primary',
+        fontSize: { xs: '0.8rem', sm: '0.85rem' },
+        fontWeight: 400,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }}>
+        {perfil.name}
+      </Typography>
+    </Box>
 
-  return (
-    <Box 
-      onClick={handleToggle}
-      sx={{
-        mb: 0.5,
-        backgroundColor: activo ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
-        borderRadius: '4px',
-        border: '1px solid rgba(255,255,255,0.05)',
-        p: 0.5,
-        display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        gap: { xs: 1, sm: 1 },
-        justifyContent: 'space-between',
-        opacity: activo ? 1 : 0.5,
-        transition: 'all 0.2s ease',
-        cursor: 'pointer',
-        '@media (min-width: 800px)': {
-          '&:hover': {
-            backgroundColor: activo ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
-            borderColor: 'rgba(255,255,255,0.1)'
-          }
-        }
-      }}
-    >
-      {/* Nombre, Tipo y Toggle */}
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center',
+      gap: { xs: 1.5, sm: 2 },
+      ml: 1,
+      flexShrink: 0
+    }}>
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center',
-        gap: 1,
-        minWidth: { xs: '100%', sm: '40px' },
-        flex: '0 0 auto',
+        gap: { xs: 1, sm: 1.5 }
       }}>
-        <Switch
-          checked={activo}
-          onChange={handleToggle}
-          onClick={(e) => e.stopPropagation()}
-          size="small"
-          sx={{
-            '& .MuiSwitch-thumb': {
-              backgroundColor: activo ? 'primary.main' : 'grey.600'
-            }
-          }}
-        />
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography 
-            variant="body2" 
-            noWrap 
-            sx={{ 
-              color: 'text.primary',
-              maxWidth: { xs: '100%', sm: '150px' },
-            }}
-          >
-            {perfil.name}
-          </Typography>
-          <Tooltip title={perfil.type === 'melee' ? 'Melee Attack' : 'Range Attack'}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: perfil.type === 'melee' ? '#ff9999' : '#99ccff',
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                px: 1,
-                py: 0.5,
-                borderRadius: '4px',
-                fontSize: '0.7rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}
-            >
-              {perfil.type}
-            </Typography>
-          </Tooltip>
-        </Box>
+        {/* Stats */}
+        <Typography sx={{ 
+          color: 'text.secondary',
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          opacity: 0.8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          A{perfil.attacks}
+        </Typography>
+        <Typography sx={{ 
+          color: 'text.secondary',
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          opacity: 0.8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          H{perfil.hit}+
+        </Typography>
+        <Typography sx={{ 
+          color: 'text.secondary',
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          opacity: 0.8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          W{perfil.wound}+
+        </Typography>
+        <Typography sx={{ 
+          color: 'text.secondary',
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          opacity: 0.8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          R{perfil.rend === 0 ? '-' : perfil.rend}
+        </Typography>
+        <Typography sx={{ 
+          color: 'text.secondary',
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          opacity: 0.8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          D{perfil.damage}
+        </Typography>
       </Box>
 
-      {/* Stats alineados */}
-      <Box sx={{ 
-        display: 'flex',
-        gap: 0.5,
-        ml: { xs: 0, sm: 'auto' },
-        justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-        flexWrap: 'wrap',
-        paddingLeft: { xs: '40px', sm: 0 },
-      }}>
-        {[...['attacks', 'hit', 'wound', 'rend', 'damage'], 'abilities'].map(stat => (
-          <Tooltip 
-            key={stat} 
-            title={stat === 'abilities' ? habilidadesTooltip : ''}
-            arrow
-            placement="top"
-          >
-            <Box sx={{ 
-              textAlign: 'center',
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              borderRadius: '4px',
-              p: 0.5,
-              width: '40px',
-              height: '35px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center'
-            }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
-                {stat === 'abilities' ? 'AB' : stat.charAt(0).toUpperCase()}
-              </Typography>
-              {stat === 'abilities' ? (
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  alignItems: 'center',
-                  height: '16px'
-                }}>
-                  {perfil.abilities?.length ? (
-                    <Box sx={{
-                      width: 6,
-                      height: 6,
-                      backgroundColor: 'primary.main',
-                      borderRadius: '2px',
-                      transform: 'rotate(45deg)'
-                    }} />
-                  ) : (
-                    <Typography sx={{ color: 'text.secondary' }}>-</Typography>
-                  )}
-                </Box>
-              ) : (
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: statsModificados[stat] !== statsBase[stat] ? 'primary.main' : 'text.primary',
-                    fontWeight: 'medium',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  {typeof perfil[stat] === 'string' && perfil[stat].toUpperCase().match(/D\d+/) 
-                    ? perfil[stat].toUpperCase()
-                    : statsModificados[stat]}
-                  {(stat === 'hit' || stat === 'wound') ? '+' : ''}
-                </Typography>
-              )}
-            </Box>
-          </Tooltip>
-        ))}
-      </Box>
+      <Switch
+        checked={activo}
+        onChange={() => onToggleHabilidad(perfil.name, 'active', !activo)}
+        onClick={(e) => e.stopPropagation()}
+        size="small"
+        sx={{
+          transform: 'scale(0.7)',
+          ml: -0.5,
+          '& .MuiSwitch-thumb': {
+            backgroundColor: activo ? 'primary.main' : '#404040'
+          },
+          '& .MuiSwitch-track': {
+            backgroundColor: activo ? 'rgba(0, 207, 200, 0.3)' : '#242424',
+            opacity: 1
+          }
+        }}
+      />
     </Box>
-  );
-});
+  </Box>
+);
 
 export const usePerfilesAtaque = (unidad) => {
   // Estado para perfiles activos
@@ -1591,8 +1551,8 @@ const DanoBar = React.memo(({
                     onChange={() => handleToggleOfensiva(habilidad.id)}
                     onClick={(e) => e.stopPropagation()}
                     sx={{
-                      transform: 'scale(0.6)',
-                      ml: 0.1, // Margen izquierdo de 0.5 unidades para el Switch
+                      transform: 'scale(0.7)',
+                      ml: -0.5,  // Compensar el padding del switch
                       '& .MuiSwitch-thumb': {
                         backgroundColor: habilidadesActivas.ofensivas[habilidad.id] ? 'primary.main' : '#404040',
                       },
@@ -1667,8 +1627,8 @@ const DanoBar = React.memo(({
                     onChange={() => handleToggleDefensiva(habilidad.id)}
                     onClick={(e) => e.stopPropagation()}
                     sx={{
-                      transform: 'scale(0.6)',
-                      ml: 0.5,
+                      transform: 'scale(0.7)',
+                      ml: -0.5,  // Compensar el padding del switch
                       '& .MuiSwitch-thumb': {
                         backgroundColor: habilidadesActivas.defensivas[habilidad.id] ? '#ff9999' : '#404040',
                       },
@@ -1773,30 +1733,6 @@ export const useHabilidades = (unidadAtacante, unidadDefensora) => {
   };
 };
 
-// Componente auxiliar para los stats
-const StatBox = ({ label, value, color }) => (
-  <Box sx={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1
-  }}>
-    <Typography variant="caption" sx={{ 
-      color: color || 'text.primary',
-      opacity: 0.7,
-      fontWeight: 500,
-      fontSize: '0.75rem'
-    }}>
-      {label}
-    </Typography>
-    <Typography sx={{ 
-      color: 'primary.blue',
-      fontWeight: 'bold',
-      fontSize: '0.9rem'
-    }}>
-      {value}
-    </Typography>
-  </Box>
-);
 
 // Componente para las tags
 const UnitTag = ({ label }) => (
@@ -1804,15 +1740,15 @@ const UnitTag = ({ label }) => (
     component="span"
     sx={{
       fontSize: '0.75rem',
-      px: 1.5,
-      py: 0.5,
+      px: 1,
+      py: 0.25,
       borderRadius: '4px',
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backgroundColor: 'rgba(255, 255, 255, 0.03)',
       color: 'text.secondary',
       textTransform: 'lowercase',
       letterSpacing: '0.02em',
-      fontWeight: 400,
+      fontWeight: 300,
+      opacity: 0.8,
       '&:hover': {
         backgroundColor: 'rgba(255, 255, 255, 0.08)',
       }
