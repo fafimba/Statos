@@ -439,144 +439,137 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           borderColor: 'rgba(255,255,255,0.1)',
         }
       }}>
-        {/* Header con daño y stats */}
+        {/* Header con nombres */}
         <Box sx={{
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 2,
           width: '100%',
-          mb: 1.5
+          mb: -0.75
         }}>
-          {/* Daño promedio y texto */}
+          <Typography 
+            sx={{ 
+              color: theme => unidadAtacante.color,
+              opacity: 0.9,
+              fontSize: '1rem',
+              fontWeight: 500
+            }}>
+            {unidadAtacante.name}
+          </Typography>
+
+          <Typography 
+            sx={{ 
+              color: theme => unidadOponente.color,
+              fontSize: '1rem',
+              fontWeight: 500
+            }}>
+            {unidadOponente.name}
+          </Typography>
+        </Box>
+
+        {/* Fila de "Average damage vs" y stats defensivos */}
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          mb: 'auto'
+        }}>
+          <Typography 
+            sx={{ 
+              color: 'text.secondary',
+              fontSize: '0.8rem',
+              opacity: 0.7,
+              letterSpacing: '0.02em'
+            }}>
+            Average damage vs
+          </Typography>
+
           <Box sx={{ 
             display: 'flex', 
-            alignItems: 'flex-start',
-            flexDirection: 'column',
-            gap: 1,
-            minWidth: 'fit-content'
+            gap: 1.5, 
+            alignItems: 'center',
+            opacity: 0.8,
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            borderRadius: '4px',
+            px: 1,
+            py: 0.25,
+            fontSize: '0.8rem'
           }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                fontSize: { xs: '1.75rem', sm: '2rem' },
-                color: danoFinal >= 10 ? '#ff4d4d' : danoFinal >= 8 ? 'primary.main' : '#99ccff',
-                fontWeight: 'bold',
-                lineHeight: 1,
-                cursor: 'help',
-                textShadow: '0 0 10px rgba(0,0,0,0.5)'
-              }}
-            >
-              {danoFinal.toFixed(2)}
-            </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: 'text.secondary',
-                fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                opacity: 0.7,
-                mt: -0.5
-              }}>
-              Average damage vs
-            </Typography>
-          </Box>
-  
-          {/* Stats del enemigo */}
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            alignItems: 'flex-end'
-          }}>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: 'text.primary',
-                fontWeight: 500,
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                letterSpacing: '0.02em',
-                mb: 0.5
-              }}>
-              {unidadOponente.name}
-            </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              gap: 1.5, 
-              alignItems: 'center',
-              opacity: 0.8,
-              backgroundColor: 'rgba(0,0,0,0.1)',
-              borderRadius: '4px',
-              px: 1,
-              py: 0.5
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {unidadOponente.models}
-                </Typography>
-              </Box>
-  
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {unidadOponente.wounds}
-                </Typography>
-              </Box>
-  
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {unidadOponente.save}+
-                </Typography>
-              </Box>
-  
-              {unidadOponente.ward && (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    {unidadOponente.ward}+
-                  </Typography>
-                </Box>
-              )}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {unidadOponente.models}
+              </Typography>
             </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {unidadOponente.wounds}
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {unidadOponente.save}+
+              </Typography>
+            </Box>
+
+            {unidadOponente.ward && (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', mr: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {unidadOponente.ward}+
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
-  
-        {/* Barra de progreso */}
-        <Box sx={{ 
-          width: '100%',
+
+        {/* Fila de daño y porcentaje */}
+        <Box sx={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: 0.5,
-          mb: 2
+          alignItems: 'flex-end',
+          gap: 2,
+          width: '100%',
+          mb: 1.5,
+          mt: 2
         }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontSize: { xs: '2rem', sm: '2.5rem' },
+              color: danoFinal >= 10 ? '#ff4d4d' : danoFinal >= 8 ? 'primary.main' : '#99ccff',
+              fontWeight: 'bold',
+              lineHeight: 1,
+              cursor: 'help',
+              textShadow: '0 0 10px rgba(0,0,0,0.5)',
+              flex: 'none'
+            }}>
+            {danoFinal.toFixed(1)}
+          </Typography>
+
           <Box sx={{
             display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            gap: 0
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: 0.5,
+            flex: 1
           }}>
-            <Box
-              component="span"
+            <Typography
               sx={{
                 color: porcentajeVidaTotal >= 100 ? 'primary.main' : 'secondary.main', 
                 fontWeight: 500,
-                whiteSpace: 'nowrap',
-                cursor: 'help',
                 fontSize: '0.875rem',
-                lineHeight: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                height: '8px',
-                minWidth: '40px'  // Para que no salte cuando cambia de 99% a 100%
-              }}
-            >
+              }}>
               {`${porcentajeVidaTotal.toFixed(0)}%`}
-            </Box>
+            </Typography>
             <Box sx={{ 
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center'
+              width: '100%', 
+              display: 'flex', 
+              justifyContent: 'flex-end' 
             }}>
               <LifeBar 
                 unidadOponente={unidadOponente}
@@ -591,14 +584,17 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           display: 'flex',
           gap: 2,
           width: '100%',
-          mt: 1
+          mt: 1,
+          transition: 'height 0.2s ease',
+          minHeight: 0,
         }}>
           {/* Columna habilidades ofensivas */}
           <Box sx={{
             display: 'flex', 
             flexDirection: 'column',
-            gap: 0.75, // Ajustar espacio entre habilidades
-            flex: 1
+            gap: 0.75,
+            flex: 1,
+            transition: 'all 0.2s ease',
           }}>
             {habilidades.ofensivas.map((habilidad) => (
               <AbilityButton
@@ -626,8 +622,9 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           <Box sx={{
             display: 'flex',
             flexDirection: 'column', 
-            gap: 0.75, // Ajustar espacio entre habilidades
-            flex: 1
+            gap: 0.75,
+            flex: 1,
+            transition: 'all 0.2s ease',
           }}>
             {habilidades.defensivas.map((habilidad) => (
               <AbilityButton

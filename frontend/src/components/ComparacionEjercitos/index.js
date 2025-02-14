@@ -287,7 +287,7 @@ function ComparacionEjercitos() {
               ))}
             </Select>
           </FormControl>
-          
+
           <FormControl fullWidth>
             <InputLabel>Defending Army</InputLabel>
             <Select

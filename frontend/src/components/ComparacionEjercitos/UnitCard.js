@@ -4,6 +4,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SecurityIcon from '@mui/icons-material/Security';
+import CalculateIcon from '@mui/icons-material/Calculate';
 import { UnitTag } from './UnitTag';
 import AttackProfile from './AttackProfile';
 import useActiveAttackProfiles from './hooks/useAttackProfiles';
@@ -18,8 +19,8 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
     modificarPerfil,
   } = useActiveAttackProfiles(unidad);
 
-  // Estado para habilidades toggleables de unidad
-  const [expandido, setExpandido] = useState(false);
+  // Solo mantenemos el estado para los cálculos
+  const [calculosExpandidos, setCalculosExpandidos] = useState(false);
 
   const danoBarData = useMemo(() => {
     if (!ejercitoOponente?.units) return [];
@@ -58,15 +59,23 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
   if (!unidad) return null;
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ 
+      mb: { xs: 2, sm: 3 },
+      mx: { xs: -2, sm: 0 },  // Margen negativo en móvil para extender hasta los bordes
+      backgroundColor: 'rgba(0,0,0,0.2)',
+      borderRadius: { xs: 0, sm: '12px' },  // Sin bordes redondeados en móvil
+      border: '1px solid rgba(255,255,255,0.05)',
+      borderLeft: { xs: 0, sm: '1px solid rgba(255,255,255,0.05)' },
+      borderRight: { xs: 0, sm: '1px solid rgba(255,255,255,0.05)' },
+      overflow: 'hidden'
+    }}>
       {/* Header de la unidad */}
       <Box
-        onClick={() => setExpandido(!expandido)}
         sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          p: 1.5,
+          p: { xs: 2, sm: 1.5 },
           background: theme => `linear-gradient(90deg, 
             ${ejercitoAtacante.color}15 0%, 
             rgba(0,0,0,0.2) 100%
@@ -81,10 +90,7 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
             width: '3px',
             backgroundColor: theme => ejercitoAtacante.color,
             opacity: 0.5,
-            borderRadius: '4px 0 0 4px'
           },
-          borderRadius: '8px',
-          cursor: 'pointer',
           '&:hover': {
             background: theme => `linear-gradient(90deg, 
               ${ejercitoAtacante.color}20 0%, 
@@ -100,16 +106,16 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
           display: 'flex',
           width: '100%',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 2
+          alignItems: 'center',
+          gap: 1
         }}>
-          {/* Columna izquierda: nombre y atributos */}
+          {/* Nombre y tags */}
           <Box sx={{
-            flex: 1,
-            overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5
+            alignItems: 'center',
+            gap: 1,
+            flex: 1,
+            overflow: 'hidden'
           }}>
             <Typography 
               variant="h6"
@@ -124,73 +130,9 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
             >
               {nombreUnidad}
             </Typography>
-          </Box>
-
-          {/* Columna derecha: daño y flecha */}
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            marginLeft: 'auto',
-            minWidth: 'fit-content'
-          }}>
-            {!expandido && (
-              <Tooltip
-                title="Average damage dealt by this unit against all units in the opposing army"
-                arrow
-                placement="left"
-                enterDelay={1000}
-                leaveDelay={0}
-              >
-                <Typography sx={{ 
-                  color: danoMedio >= 8 ? '#ff4d4d' : danoMedio >= 5 ? 'primary.main' : 'text.primary',
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                  fontWeight: 600,
-                  opacity: 1,
-                  minWidth: '60px',
-                  textAlign: 'right',
-                  cursor: 'help',
-                  textShadow: '0 0 10px rgba(0, 207, 200, 0.4)'
-                }}>
-                  {danoMedio}
-                </Typography>
-              </Tooltip>
-            )}
             <Box sx={{ 
-              color: 'text.secondary',
-              opacity: 1,
-              fontSize: '0.8rem',
-              transition: 'transform 0.3s ease',
-              transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)'
-            }}>
-              ▼
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-
-      {expandido && (
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1,
-          width: '100%',
-          mt: 1
-        }}>
-          {/* Stats y tags en una línea */}
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: 2,
-            px: 0.5,
-            gap: 2,
-            flexWrap: 'wrap'
-          }}>
-            {/* Tags */}
-            <Box sx={{ 
-              display: 'flex', 
-              gap: 0.5,
+              display: 'flex',
+              gap: 0.25,
               flexWrap: 'wrap',
               flex: 1
             }}>
@@ -198,66 +140,139 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
                 <UnitTag key={tag} label={tag} />
               ))}
             </Box>
-            {/* Stats defensivos */}
-            <Box sx={{
-              display: 'flex',
-              gap: 1.5,
-              flexWrap: 'wrap',
-              alignItems: 'center'
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                  {unidad.models}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                  {unidad.wounds}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                  {unidad.save}+
-                </Typography>
-              </Box>
-              {unidad.ward && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
-                  <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                    {unidad.ward}+
-                  </Typography>
-                </Box>
-              )}
+          </Box>
+
+          {/* Stats defensivos */}
+          <Box sx={{
+            display: 'flex',
+            gap: 1.5,
+            flexWrap: 'nowrap',
+            alignItems: 'center'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <PersonIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+              <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                {unidad.models}
+              </Typography>
             </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <FavoriteIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+              <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                {unidad.wounds}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <ShieldIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+              <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                {unidad.save}+
+              </Typography>
+            </Box>
+            {unidad.ward && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <SecurityIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', opacity: 0.8 }} />
+                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  {unidad.ward}+
+                </Typography>
+              </Box>
+            )}
           </Box>
+        </Box>
+      </Box>
 
-          {/* Perfiles de ataque */}
-          <Box sx={{ mb: 2 }}>
-            {unidad.attack_profiles?.map(perfil => (
-              <AttackProfile
-                key={perfil.name}
-                perfil={perfil}
-                activo={perfilesActivos[perfil.name]}
-                habilidadesPerfil={habilidadesPerfiles[perfil.name]}
-                onToggleHabilidad={modificarPerfil}
-              />
-            ))}
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        width: '100%',
+        p: { xs: 2, sm: 2 },
+        pt: 1,
+        backgroundColor: 'rgba(0,0,0,0.1)'
+      }}>
+        {/* Perfiles de ataque */}
+        <Box sx={{ 
+        }}>
+          {unidad.attack_profiles?.map(perfil => (
+            <AttackProfile
+              key={perfil.name}
+              perfil={perfil}
+              activo={perfilesActivos[perfil.name]}
+              habilidadesPerfil={habilidadesPerfiles[perfil.name]}
+              onToggleHabilidad={modificarPerfil}
+            />
+          ))}
+        </Box>
+
+        {/* Botón para mostrar cálculos */}
+        <Box 
+          onClick={() => setCalculosExpandidos(!calculosExpandidos)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            py: 0.25,
+            position: 'relative',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            backgroundColor: 'rgba(0,0,0,0.15)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.25)',
+            }
+          }}
+        >
+          <Box sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            px: 1,
+            py: 0.25,
+            borderRadius: '4px',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+          }}>
+            <CalculateIcon sx={{ fontSize: '0.9rem', opacity: 0.7 }} />
+            <Typography sx={{ 
+              fontSize: '0.9rem', 
+              color: 'text.secondary',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5
+            }}>
+              {calculosExpandidos ? 'Hide damage calculations' : 'Show damage calculations'}
+              <Box sx={{ 
+                transform: `rotate(${calculosExpandidos ? '180deg' : '0deg'})`,
+                transition: 'transform 0.2s ease',
+                display: 'flex',
+                fontSize: '0.7rem',
+                opacity: 0.7
+              }}>
+                ▼
+              </Box>
+            </Typography>
           </Box>
+        </Box>
 
-          {/* Daños contra unidades */}
+        {/* Cálculos de daño */}
+        <Box sx={{
+          height: calculosExpandidos ? 'auto' : 0,
+          opacity: calculosExpandidos ? 1 : 0,
+          overflow: 'hidden',
+          transition: 'opacity 0.2s ease',
+          visibility: calculosExpandidos ? 'visible' : 'hidden'
+        }}>
           <Box sx={{
             display: 'flex', 
             flexWrap: 'wrap',
             gap: 1,
             width: '100%',
             pb: 0,
+            mt: 2,
+            transform: `translateY(${calculosExpandidos ? '0' : '-10px'})`,
+            transition: 'transform 0.2s ease',
             '& > *': {
               flex: 1,
-              maxWidth: window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)',
-              minWidth: window.innerWidth < 800 ? 'calc(100% - 4px)' : 'calc(100% - 4px)'
+              width: '100%'
             }
           }}>
             {danoBarData.map((datos, index) => (
@@ -271,7 +286,7 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
             ))}
           </Box>
         </Box>
-      )}
+      </Box>
     </Box>
   );
 });
