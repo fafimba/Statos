@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import ComparacionEjercitos from './components/ComparacionEjercitos';
 import { theme } from './theme';
+import AbilityTester from './pages/AbilityTester';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/spearhead" element={<ComparacionEjercitos />} />
+            <Route path="/ability-tester" element={<AbilityTester />} />
           </Routes>
         </Box>
       </Router>

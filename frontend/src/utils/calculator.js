@@ -73,65 +73,6 @@ const calcularRoll = (totalAtaques, dificultad) => {
   };
 };
 
-
-
-const calcularDañoMortal = (hits, damage, salvaguardia) => {
-  let dañoMortal = hits.criticos * damage;
-
-  if (salvaguardia > 0) {
-    const probFallarSalva = 1 - calcularProbabilidad(salvaguardia);
-    dañoMortal *= probFallarSalva;
-  }
-
-  return dañoMortal;
-};
-
-const calcularDañoNormal = ({ hits, wound, damage, guardia, perforacion, salvaguardia }) => {
-  // 1. Calcular heridas
-  const probWound = calcularProbabilidad(wound);
-  let heridas = hits.normales * probWound;
-
-  // 2. Aplicar guardia
-  if (guardia > 0) {
-    const guardiaModificada = guardia + perforacion;
-    if (guardiaModificada <= 6) {
-      const probFallarGuardia = 1 - calcularProbabilidad(guardiaModificada);
-      heridas *= probFallarGuardia;
-    }
-  }
-
-  // 3. Calcular daño base
-  let dañoNormal = heridas * damage;
-
-  // 4. Aplicar salvaguardia
-  if (salvaguardia > 0) {
-    const probFallarSalva = 1 - calcularProbabilidad(salvaguardia);
-    dañoNormal *= probFallarSalva;
-  }
-
-  return dañoNormal;
-};
-
-const calcularDañoAutoWound = ({ hits, damage, guardia, perforacion, salvaguardia }) => {
-  const totalHeridas = hits.normales + hits.criticos;
-  let dañoFinal = totalHeridas * damage;
-
-  if (guardia > 0) {
-    const guardiaModificada = guardia + perforacion;
-    if (guardiaModificada <= 6) {
-      const probFallarGuardia = 1 - calcularProbabilidad(guardiaModificada);
-      dañoFinal *= probFallarGuardia;
-    }
-  }
-
-  if (salvaguardia > 0) {
-    const probFallarSalva = 1 - calcularProbabilidad(salvaguardia);
-    dañoFinal *= probFallarSalva;
-  }
-
-  return dañoFinal;
-};
-
 export const calcularMortalesConDados = ({ cantidad, tipoDado, dificultad, salvaguardia, multiplicador = 1 }) => {
 
   // 1. Calcular probabilidad de éxito en la tirada según el tipo de dado
@@ -158,6 +99,12 @@ export const calcularMortalesConDados = ({ cantidad, tipoDado, dificultad, salva
 // Ahora se añade el parámetro "enemigo" para aplicar modificadores según las condiciones del objetivo
 export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_wounds, enemigo }) => {
   try {
+    console.log("calculateAttacks perfiles_ataque", perfiles_ataque);
+    console.log("calculateAttacks guardia", guardia);
+    console.log("calculateAttacks salvaguardia", salvaguardia);
+    console.log("calculateAttacks enemy_wounds", enemy_wounds);
+    console.log("calculateAttacks enemigo", enemigo);
+
     const perfilesAtaque = perfiles_ataque || [];
 
     let danoTotal = 0;
@@ -175,8 +122,10 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
       const damage = calcularValorDado(perfilCalculado.damage || 0);
       const perforacion = parseInt(perfilCalculado.rend || perfilCalculado.perforacion || 0);
       const tipoCritico = (perfilCalculado.abilityEffects || [])
-        .find(ability => ability?.type === 'critical')?.action;
-      
+        .find(ability => ability?.type === 'critical')?.action || 
+        (perfilCalculado.abilityEffects || [])
+        .find(ability => ability?.type === 'critical')?.critical?.effect;
+
 
         let hits_roll = {normales:0, criticos:0};
         let hits=0;
@@ -189,6 +138,7 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
       let salvaguardia_roll = {normales:0, criticos:0};
         let damage_final=0;
       
+
       // 1. Calcular hits 
  
        hits_roll = calcularRoll(totalAtaques, hit);
@@ -208,6 +158,9 @@ export const calculateAttacks = ({ perfiles_ataque, guardia, salvaguardia,enemy_
            hits = hits_roll.normales + hits_roll.criticos;
            break;
        }
+       console.log("calculateAttacks hits", hits);
+       console.log("calculateAttacks hits_roll", hits_roll);
+       console.log("calculateAttacks mortal_wound", mortal_wound);
 
       // 2. Calcular wounds
    
