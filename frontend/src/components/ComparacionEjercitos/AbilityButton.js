@@ -4,14 +4,9 @@ import { Box, Chip, Tooltip } from '@mui/material';
 export const AbilityButton = ({ 
   habilidad, 
   active, 
-  isOffensive, 
   onToggle, 
-  color, 
   activeBackgroundColor, 
-  hoverBackgroundColor, 
-  activeBorderColor, 
-  hoverBorderColor, 
-  activeTextColor 
+  activeBorderColor
 }) => {
   const isMobile = window.matchMedia('(hover: none)').matches;
   const [isClickable, setIsClickable] = useState(true);
