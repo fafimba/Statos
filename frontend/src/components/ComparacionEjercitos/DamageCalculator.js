@@ -428,15 +428,11 @@ import { weapon_abilities } from '../../data/weapon_abilities';
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        gap: 1,
+        gap: 0.5,
         p: 2,
-        backgroundColor: 'rgba(0,0,0,0.2)',
-        borderRadius: '8px',
-        border: '1px solid rgba(255,255,255,0.05)',
         transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: 'rgba(0,0,0,0.25)',
-          borderColor: 'rgba(255,255,255,0.1)',
+          backgroundColor: 'rgba(255,255,255,0.02)'
         }
       }}>
         {/* Header con nombres */}
@@ -445,7 +441,7 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           alignItems: 'center',
           justifyContent: 'space-between',
           width: '100%',
-          mb: -0.75
+          mb: -1
         }}>
           <Typography 
             sx={{ 
@@ -473,7 +469,7 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           alignItems: 'center',
           justifyContent: 'space-between',
           width: '100%',
-          mb: 'auto'
+          mb: 1
         }}>
           <Typography 
             sx={{ 
@@ -490,10 +486,6 @@ import { weapon_abilities } from '../../data/weapon_abilities';
             gap: 1.5, 
             alignItems: 'center',
             opacity: 0.8,
-            backgroundColor: 'rgba(0,0,0,0.1)',
-            borderRadius: '4px',
-            px: 1,
-            py: 0.25,
             fontSize: '0.8rem'
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -534,8 +526,7 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           alignItems: 'flex-end',
           gap: 2,
           width: '100%',
-          mb: 1.5,
-          mt: 2
+          mb: 1
         }}>
           <Typography 
             variant="h4" 
@@ -584,7 +575,6 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           display: 'flex',
           gap: 2,
           width: '100%',
-          mt: 1,
           transition: 'height 0.2s ease',
           minHeight: 0,
         }}>
@@ -592,7 +582,7 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           <Box sx={{
             display: 'flex', 
             flexDirection: 'column',
-            gap: 0.75,
+            gap: 0.5,
             flex: 1,
             transition: 'all 0.2s ease',
           }}>
@@ -622,7 +612,7 @@ import { weapon_abilities } from '../../data/weapon_abilities';
           <Box sx={{
             display: 'flex',
             flexDirection: 'column', 
-            gap: 0.75,
+            gap: 0.5,
             flex: 1,
             transition: 'all 0.2s ease',
           }}>

@@ -1,145 +1,116 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Chip, Tooltip } from '@mui/material';
+import { Box, Typography, Switch } from '@mui/material';
 
 export const AbilityButton = React.memo(({ 
   habilidad, 
   active, 
-  onToggle, 
-  activeBackgroundColor, 
+  onToggle,
+  activeBackgroundColor,
   activeBorderColor,
   isMobile
 }) => {
-  const [isClickable, setIsClickable] = useState(true);
-
   const handleClick = useCallback(() => {
-    if (!isClickable || !habilidad.type === 'toggleable') return;
-    
-    setIsClickable(false);
+    if (!habilidad.type === 'toggleable') return;
     onToggle(habilidad.id);
-    setTimeout(() => setIsClickable(true), isMobile ? 50 : 300);
-  }, [habilidad.id, isClickable, onToggle, isMobile]);
+  }, [habilidad.id, onToggle]);
 
   return (
-    <Box sx={{
-      position: 'relative',
-      animation: 'fadeIn 0.2s ease',
-      overflow: 'hidden',
-      transition: `all ${isMobile ? '0.1s' : '0.2s'} ease`,
-      mb: 0.75,
-      '@keyframes fadeIn': {
-        '0%': {
-          opacity: 0,
-          transform: 'translateY(-5px)',
-        },
-        '100%': {
-          opacity: 1,
-          transform: 'translateY(0)',
-        },
-      },
-      display: 'flex',
-      alignItems: 'center',
-      gap: 1,
-    }}>
-      <Chip
-        label={habilidad.name}
-        variant="outlined"
-        disabled={!habilidad.type === 'toggleable'}
-        onClick={handleClick}
-        tabIndex={-1}
-        sx={{
-          flex: 1,
-          justifyContent: 'flex-start',
-          backgroundColor: active
-            ? activeBackgroundColor
-            : 'rgba(255, 255, 255, 0.03)',
-          cursor: 'pointer',
-          border: '1px solid',
-          borderColor: active
-            ? activeBorderColor
-            : 'divider',
-          height: isMobile ? '36px' : '32px',
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-          transition: `all ${isMobile ? '0.1s' : '0.2s'} ease`,
-          transform: active ? 'scale(1)' : 'scale(0.98)',
-          opacity: active ? 1 : 0.8,
-          '&:hover': {
-            backgroundColor: active 
-              ? activeBackgroundColor 
-              : `${activeBackgroundColor}80`,
-            borderColor: active
-              ? activeBorderColor
-              : `${activeBorderColor}80`,
-            transform: 'scale(1)',
-            opacity: 1
-          },
-          '&.MuiChip-root': {
-            transition: `all ${isMobile ? '0.1s' : '0.2s'} ease`,
-            ...(isMobile ? {} : {
-              '&:active': {
-                transform: 'scale(0.98)'
-              }
-            })
-          },
-          '& .MuiChip-label': {
-            color: active ? '#e6f7ff' : 'text.secondary',
-            transition: `color ${isMobile ? '0.1s' : '0.2s'} ease`,
+    <Box
+      onClick={handleClick}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 1,
+        p: 0.75,
+        borderRadius: '4px',
+        border: '1px solid',
+        borderColor: active ? activeBorderColor : 'rgba(255,255,255,0.1)',
+        backgroundColor: active ? activeBackgroundColor : 'rgba(0,0,0,0.1)',
+        cursor: 'pointer',
+        transition: 'all 0.15s ease-out',
+        opacity: active ? 1 : 0.8,
+        '&:hover': {
+          backgroundColor: active ? activeBackgroundColor : 'rgba(0,0,0,0.15)',
+          borderColor: active ? activeBorderColor : 'rgba(255,255,255,0.15)',
+          opacity: 1
+        }
+      }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        gap: 1.5,
+        flex: 1
+      }}>
+        <Typography sx={{ 
+          fontSize: '0.8rem',
+          color: active ? '#e6f7ff' : 'text.secondary',
+          transition: 'color 0.15s ease-out'
+        }}>
+          {habilidad.name}
+        </Typography>
+        
+        <Box
+          onClick={(e) => {
+            e.stopPropagation();
+            alert(habilidad.description);
+          }}
+          sx={{
+            opacity: 0.7,
             fontSize: '0.75rem',
-            fontWeight: active ? 500 : 400,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            paddingLeft: 1,
-            paddingRight: 1,
+            color: 'text.secondary',
+            cursor: 'help',
             '&:hover': {
-              color: '#e6f7ff'
+              opacity: 0.9
             }
+          }}
+        >
+          ?
+        </Box>
+      </Box>
+
+      <Switch
+        checked={active}
+        size="small"
+        sx={{
+          p: 0,
+          transition: 'opacity 0.15s ease-out',
+          '& .MuiSwitch-switchBase': {
+            padding: '4px',
+            color: 'rgba(255,255,255,0.5)',
+            '&.Mui-checked': {
+              transform: 'translateX(16px)',
+              '& + .MuiSwitch-track': {
+                backgroundColor: activeBackgroundColor,
+                opacity: 0.9,
+              },
+              '& .MuiSwitch-thumb': {
+                backgroundColor: '#e6f7ff',
+              }
+            },
+            '&:not(.Mui-checked)': {
+              '& + .MuiSwitch-track': {
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                opacity: 0.5,
+              },
+              '& .MuiSwitch-thumb': {
+                backgroundColor: 'rgba(255,255,255,0.3)',
+              }
+            }
+          },
+          '& .MuiSwitch-track': {
+            transition: 'background-color 0.15s ease-out, opacity 0.15s ease-out',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(255,255,255,0.1)',
+          },
+          '& .MuiSwitch-thumb': {
+            width: 14,
+            height: 14,
+            boxShadow: 'none',
           }
         }}
       />
-
-      {/* Botón de información */}
-      <Box
-        component="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          alert(habilidad.description);
-        }}
-        sx={{
-          opacity: 0.7,
-          fontSize: '0.75rem',
-          color: 'text.secondary',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: '32px',
-          height: '32px',
-          border: 'none',
-          outline: 'none',
-          borderRadius: '50%',
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          touchAction: 'manipulation',
-          zIndex: 1,
-          position: 'relative',
-          '&:hover': {
-            opacity: 0.8,
-            backgroundColor: 'rgba(255,255,255,0.1)',
-          },
-          '&:active': {
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            transform: 'scale(0.95)',
-          }
-        }}
-      >
-        ?
-      </Box>
     </Box>
   );
 });

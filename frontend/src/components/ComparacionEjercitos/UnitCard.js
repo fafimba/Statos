@@ -61,13 +61,34 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
   return (
     <Box sx={{ 
       mb: { xs: 2, sm: 3 },
-      mx: { xs: -2, sm: 0 },  // Margen negativo en móvil para extender hasta los bordes
-      backgroundColor: 'rgba(0,0,0,0.2)',
-      borderRadius: { xs: 0, sm: '12px' },  // Sin bordes redondeados en móvil
-      border: '1px solid rgba(255,255,255,0.05)',
-      borderLeft: { xs: 0, sm: '1px solid rgba(255,255,255,0.05)' },
-      borderRight: { xs: 0, sm: '1px solid rgba(255,255,255,0.05)' },
-      overflow: 'hidden'
+      mx: { xs: -2, sm: 0 },
+      backgroundColor: 'rgba(255,255,255,0.03)',
+      borderRadius: { xs: 0, sm: '12px' },
+      border: '1px solid rgba(255,255,255,0.1)',
+      borderLeft: { xs: 0, sm: '1px solid rgba(255,255,255,0.1)' },
+      borderRight: { xs: 0, sm: '1px solid rgba(255,255,255,0.1)' },
+      overflow: 'hidden',
+      backdropFilter: 'blur(10px)',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `
+          linear-gradient(45deg, transparent 98%, rgba(255,255,255,0.05) 99%),
+          linear-gradient(-45deg, transparent 98%, rgba(255,255,255,0.05) 99%)
+        `,
+        backgroundSize: '10px 10px',
+        opacity: 0.4,
+        pointerEvents: 'none'
+      },
+      '&:hover': {
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderColor: 'rgba(255,255,255,0.12)',
+      }
     }}>
       {/* Header de la unidad */}
       <Box
@@ -77,8 +98,8 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
           gap: 2,
           p: { xs: 2, sm: 1.5 },
           background: theme => `linear-gradient(90deg, 
-            ${ejercitoAtacante.color}15 0%, 
-            rgba(0,0,0,0.2) 100%
+            ${ejercitoAtacante.color}10 0%, 
+            rgba(0,0,0,0.1) 100%
           )`,
           position: 'relative',
           '&::before': {
@@ -93,8 +114,8 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
           },
           '&:hover': {
             background: theme => `linear-gradient(90deg, 
-              ${ejercitoAtacante.color}20 0%, 
-              rgba(0,0,0,0.25) 100%
+              ${ejercitoAtacante.color}15 0%, 
+              rgba(0,0,0,0.15) 100%
             )`,
             '&::before': {
               opacity: 0.7
@@ -182,15 +203,14 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 1,
+        gap: 0,
         width: '100%',
         p: { xs: 2, sm: 2 },
-        pt: 1,
-        backgroundColor: 'rgba(0,0,0,0.1)'
+        pt: 0.5,
+        transition: 'all 0.2s ease',
       }}>
         {/* Perfiles de ataque */}
-        <Box sx={{ 
-        }}>
+        <Box>
           {unidad.attack_profiles?.map(perfil => (
             <AttackProfile
               key={perfil.name}
@@ -208,36 +228,36 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             gap: 1,
-            py: 0.25,
             position: 'relative',
-            borderTop: '1px solid rgba(255,255,255,0.1)',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            backgroundColor: 'rgba(0,0,0,0.15)',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              backgroundColor: 'rgba(0,0,0,0.25)',
-            }
           }}
         >
           <Box sx={{ 
             display: 'flex',
             alignItems: 'center',
             gap: 0.5,
-            px: 1,
-            py: 0.25,
-            borderRadius: '4px',
-            backgroundColor: 'rgba(0,0,0,0.2)',
           }}>
-            <CalculateIcon sx={{ fontSize: '0.9rem', opacity: 0.7 }} />
-            <Typography sx={{ 
+            <CalculateIcon sx={{ 
+              fontSize: '0.9rem', 
+              opacity: 0.5,
+              transition: 'opacity 0.2s ease',
+              '&:hover': {
+                opacity: 0.8
+              }
+            }} />
+            <Box sx={{ 
               fontSize: '0.9rem', 
               color: 'text.secondary',
               display: 'flex',
               alignItems: 'center',
-              gap: 0.5
+              gap: 0.5,
+              opacity: 0.5,
+              transition: 'opacity 0.2s ease',
+              '&:hover': {
+                opacity: 0.8
+              }
             }}>
               {calculosExpandidos ? 'Hide damage calculations' : 'Show damage calculations'}
               <Box sx={{ 
@@ -245,44 +265,56 @@ const UnitCard = React.memo(({ nombreUnidad, unidad, ejercitoOponente, ejercitoA
                 transition: 'transform 0.2s ease',
                 display: 'flex',
                 fontSize: '0.7rem',
-                opacity: 0.7
+                opacity: 0.8
               }}>
                 ▼
               </Box>
-            </Typography>
+            </Box>
           </Box>
         </Box>
 
         {/* Cálculos de daño */}
         <Box sx={{
-          height: calculosExpandidos ? 'auto' : 0,
+          maxHeight: calculosExpandidos ? '2000px' : '0px',
           opacity: calculosExpandidos ? 1 : 0,
           overflow: 'hidden',
-          transition: 'opacity 0.2s ease',
+          transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
           visibility: calculosExpandidos ? 'visible' : 'hidden'
         }}>
           <Box sx={{
             display: 'flex', 
-            flexWrap: 'wrap',
+            flexDirection: 'column',
             gap: 1,
             width: '100%',
             pb: 0,
             mt: 2,
-            transform: `translateY(${calculosExpandidos ? '0' : '-10px'})`,
-            transition: 'transform 0.2s ease',
             '& > *': {
-              flex: 1,
-              width: '100%'
+              width: '100%',
+              opacity: calculosExpandidos ? 1 : 0,
+              transition: 'opacity 0.25s ease-in-out',
+              transitionDelay: '0.1s'
             }
           }}>
             {danoBarData.map((datos, index) => (
-              <DamageCalculator
-                key={index}
-                unidadAtacante={datos.unidadAtacante}
-                unidadOponente={datos.unidadOponente}
-                perfilesActivos={datos.perfilesActivos}
-                onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
-              />
+              <Box key={index} sx={{
+                position: 'relative',
+                '&:not(:last-child)::after': {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: -8,
+                  left: 0,
+                  right: 0,
+                  height: '1px',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}>
+                <DamageCalculator
+                  unidadAtacante={datos.unidadAtacante}
+                  unidadOponente={datos.unidadOponente}
+                  perfilesActivos={datos.perfilesActivos}
+                  onDanoCalculado={(dano) => actualizarDano(datos.unidadOponente.name, dano)}
+                />
+              </Box>
             ))}
           </Box>
         </Box>

@@ -12,10 +12,30 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/spearhead" element={<ComparacionEjercitos />} />
-        </Routes>
+        <Box sx={{
+          minHeight: '100vh',
+          background: `
+            linear-gradient(180deg, #121212 0%, #1a1a1a 100%)
+          `,
+          '&::before': {
+            content: '""',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 50%),
+              radial-gradient(circle at 0% 50%, rgba(255,255,255,0.02) 0%, transparent 50%)
+            `,
+            pointerEvents: 'none'
+          }
+        }}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/spearhead" element={<ComparacionEjercitos />} />
+          </Routes>
+        </Box>
       </Router>
     </ThemeProvider>
   );
