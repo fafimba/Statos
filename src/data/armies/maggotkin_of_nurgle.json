@@ -1,0 +1,329 @@
+{
+  "name": "Maggotkin of Nurgle",
+  "color": "#556B2F",
+  "units": {
+    "Spoilpox Scrivener": {
+      "name": "Spoilpox Scrivener",
+      "models": 1,
+      "wounds": 5,
+      "movement": 4,
+      "control_points": 2,
+      "save": 5,
+      "ward": 5,
+      "tags": ["hero", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Disgusting Sneezes",
+          "type": "range",
+          "range": 7,
+          "attacks": "D6",
+          "hit": 2,
+          "wound": 4,
+          "damage": 1,
+          "rend": 0,
+          "abilities": ["shoot_in_combat"]
+        },
+        {
+          "name": "Distended Maw",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Gardener of Nurgle",
+          "description": "If your general is contesting an objective not contested by any enemy models, roll a dice. On a 3+, that objective is considered by you to be desecrated. Friendly units have WARD (4+) while they are contesting a desecrated objective. If your opponent gains control of a desecrated objective, it is no longer desecrated.",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 4,
+            "conditions": {
+              "objective_status": "desecrated"
+            }
+          }
+        },
+        {
+          "name": "Gift of Febrile Frenzy",
+          "description": "Until the end of the phase, add 1 to the Attacks characteristic of melee weapons used by friendly units while they are wholly within 7\" of your general",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee",
+              "range": 7
+            }
+          }
+        },
+        {
+          "name": "Pestilent Breath",
+          "description": "Pick an enemy unit within 7\" of your general and roll a dice for each model in that unit. For each 5+, inflict 1 mortal damage on that unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "target_size",
+            "dice_type": "d6",
+            "difficulty": 5,
+            "conditions": {
+              "range": 7,
+              "is_general": true
+            }
+          }
+        }
+      ]
+    },
+    "Plaguebearers": {
+      "name": "Plaguebearers",
+      "models": 5,
+      "wounds": 2,
+      "movement": 4,
+      "control_points": 1,
+      "save": 6,
+      "ward": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Plaguesword",
+          "type": "melee",
+          "attacks": 1,
+          "hit": 4,
+          "wound": 3,
+          "damage": 1,
+          "rend": 0,
+         
+                  "abilities": ["mortal_critical"]
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Gardener of Nurgle",
+          "description": "If your general is contesting an objective not contested by any enemy models, roll a dice. On a 3+, that objective is considered by you to be desecrated. Friendly units have WARD (4+) while they are contesting a desecrated objective. If your opponent gains control of a desecrated objective, it is no longer desecrated.",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 4,
+            "conditions": {
+              "objective_status": "desecrated"
+            }
+          }
+        },
+        {
+          "name": "Cloud of Flies",
+          "description": "Subtract 1 from hit rolls for shooting attacks that target this unit",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "value": 1,
+            "affects": "enemy_atributes",
+            "conditions": {
+              "attack_type": "range"
+            }
+          }
+        },
+        {
+          "name": "Tally of Blows",
+          "description": "Add 1 to the Attacks characteristic of the target unit's melee weapons",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Recorded Stamina",
+          "description": "Add 1 to save rolls for the target unit",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "save",
+            "value": 1,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Gift of Febrile Frenzy",
+          "description": "Until the end of the phase, add 1 to the Attacks characteristic of melee weapons used by friendly units while they are wholly within 7\" of your general",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee"
+            }
+          }
+        }
+      ],
+      "keywords": ["infantry", "ward (5+)"]
+    },
+    "Pusgoyle Blightlord": {
+      "name": "Pusgoyle Blightlord",
+      "models": 1,
+      "wounds": 8,
+      "movement": 8,
+      "control_points": 2,
+      "save": 4,
+      "ward": 5,
+      "tags": ["cavalry", "fly"],
+      "attack_profiles": [
+        {
+          "name": "Blighted Scythe",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 2,
+          "abilities": []
+        },
+        {
+          "name": "Rot Fly's Mouthparts and Sting",
+          "type": "melee",
+          "attacks": 6,
+          "hit": 4,
+          "wound": 2,
+          "damage": 1,
+          "rend": 0,
+          "abilities": ["companion"]
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Gardener of Nurgle",
+          "description": "If your general is contesting an objective not contested by any enemy models, roll a dice. On a 3+, that objective is considered by you to be desecrated. Friendly units have WARD (4+) while they are contesting a desecrated objective. If your opponent gains control of a desecrated objective, it is no longer desecrated.",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 4,
+            "conditions": {
+              "objective_status": "desecrated"
+            }
+          }
+        },
+        {
+          "name": "Gift of Febrile Frenzy",
+          "description": "Until the end of the phase, add 1 to the Attacks characteristic of melee weapons used by friendly units while they are wholly within 7\" of your general",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee",
+              "range": 7
+            }
+          }
+        },
+        {
+          "name": "Wrack and Ruin",
+          "description": "If this unit charged this phase, pick an enemy unit within 1\" of it to be the target and roll a dice. On a 2+, inflict D3 mortal damage on the target.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d3",
+            "difficulty": 1,
+            "conditions": {
+              "charge": true,
+              "range": 1
+            }
+          }
+        }
+      ]
+    },
+    "Putrid Blightkings": {
+      "name": "Putrid Blightkings",
+      "models": 5,
+      "wounds": 3,
+      "movement": 4,
+      "control_points": 1,
+      "save": 3,
+      "ward": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Blighted Weapon",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Gardener of Nurgle",
+          "description": "If your general is contesting an objective not contested by any enemy models, roll a dice. On a 3+, that objective is considered by you to be desecrated. Friendly units have WARD (4+) while they are contesting a desecrated objective. If your opponent gains control of a desecrated objective, it is no longer desecrated.",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 4,
+            "conditions": {
+              "objective_status": "desecrated"
+            }
+          }
+        },
+        {
+          "name": "Gift of Febrile Frenzy",
+          "description": "Until the end of the phase, add 1 to the Attacks characteristic of melee weapons used by friendly units while they are wholly within 7\" of your general",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee",
+              "range": 7
+            }
+          }
+        },
+        {
+          "name": "Relentless Attackers",
+          "description": "Pick an enemy INFANTRY unit in combat with this unit to be the target and roll a dice for each model in this unit that is within the target unit's combat range. For each roll that exceeds the target's Health characteristic, inflict 1 mortal damage on it.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "unit_size",
+            "dice_type": "d6",
+            "difficulty": "target_wounds",
+            "conditions": {
+              "target_tag": "infantry"
+            }
+          }
+        }
+      ],
+      "keywords": ["infantry", "ward (5+)"]
+    }
+  }
+} 

@@ -1,0 +1,259 @@
+{
+  "name": "Seraphon",
+  "color": "#00CED1",
+  "units": {
+    "Saurus Warriors": {
+      "name": "Saurus Warriors",
+      "models": 5,
+      "wounds": 2,
+      "movement": 5,
+      "control_points": 1,
+      "save": 4,
+      "ward": null,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Celestite Club",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Ordered Cohorts",
+          "description": "Add 1 to save rolls for this unit while it is contesting an objective you control",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "save",
+            "value": 1,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Predatory Fighters",
+          "description": "Roll a dice for each enemy unit in combat with any friendly units. On a 3+, inflict 1 mortal damage on the unit being rolled for.",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 3,
+            "target": "all_enemies_in_combat"
+          }
+        }
+      ]
+    },
+    "Saurus Oldblood on Carnosaur": {
+      "name": "Saurus Oldblood on Carnosaur",
+      "models": 1,
+      "wounds": 14,
+      "movement": 10,
+      "control_points": 5,
+      "save": 4,
+      "ward": null,
+      "tags": ["monster", "hero"],
+      "attack_profiles": [
+        {
+          "name": "Sunbolt Gauntlet",
+          "type": "range",
+          "range": 12,
+          "attacks": "D6",
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": ["shoot_in_combat"]
+        },
+        {
+          "name": "Carnosaur's Massive Jaws",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 2,
+          "damage": 3,
+          "rend": 2,
+          "abilities": ["companion"]
+        },
+        {
+          "name": "Relic Celestite Weapon",
+          "type": "melee",
+          "attacks": 5,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Battle Damaged",
+          "description": "While this unit has 10 or more damage points, the Attacks characteristic of its Carnosaur's Massive Jaws is 1",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "attacks",
+            "value": -2,
+            "conditions": {
+              "profile_name": "Carnosaur's Massive Jaws"
+            }
+          }
+        },
+        {
+          "name": "Blade of Realities",
+          "description": "Add 1 to the Rend characteristic of your general's Relic Celestite Weapon",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "rend",
+            "value": 1,
+            "conditions": {
+              "profile_name": "Relic Celestite Weapon"
+            }
+          }
+        },
+        {
+          "name": "The Wrath of Chotec",
+          "description": "The Attacks characteristic of your general's Sunbolt Gauntlet is 6 instead of D6",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "dice_override",
+            "target": "attacks",
+            "value": "6",
+            "conditions": {
+              "profile_name": "Sunbolt Gauntlet"
+            }
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Gargantuan Jaws",
+          "description": "Pick an enemy unit in combat with your general and roll a dice. If the roll exceeds that unit's Health characteristic, 1 model in that unit is slain.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": "target_wounds",
+            "damage": "slain",
+            "conditions": {
+              "is_general": true,
+              "in_combat": true
+            }
+          }
+        },
+        {
+          "name": "Predatory Fighters",
+          "description": "Roll a dice for each enemy unit in combat with any friendly units. On a 3+, inflict 1 mortal damage on the unit being rolled for.",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 3,
+            "target": "all_enemies_in_combat"
+          }
+        }
+      ]
+    },
+    "Kroxigor": {
+      "name": "Kroxigor",
+      "models": 3,
+      "wounds": 6,
+      "movement": 5,
+      "control_points": 2,
+      "save": 4,
+      "ward": null,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Drakebite Maul",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 4,
+          "wound": 2,
+          "damage": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Brutal Blows",
+          "description": "This unit's melee weapons have Critical: Double Hit if the target unit has 5 or more models",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "add_weapon_ability",
+            "ability": "double_hit_critical",
+            "profile_name": "Drakebite Maul",
+            "conditions": {
+              "opponent_size": ">=5"
+            }
+          }
+        },
+        {
+          "name": "Temple-City Guardians",
+          "description": "Friendly units have WARD (6+) while they are wholly within friendly territory",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 6,
+            "conditions": null
+          }
+        },
+        {
+          "name": "Predatory Fighters",
+          "description": "Roll a dice for each enemy unit in combat with any friendly units. On a 3+, inflict 1 mortal damage on the unit being rolled for.",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 3,
+            "target": "all_enemies_in_combat"
+          }
+        }
+      ]
+    }
+  }
+} 

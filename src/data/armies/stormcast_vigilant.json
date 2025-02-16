@@ -1,0 +1,288 @@
+{
+  "name": "Stormcast: Vigilant Brotherhood",
+  "color": "#4169E1",
+  "units": {
+    "Lord-Veritant": {
+      "name": "Lord-Veritant",
+      "models": 1,
+      "wounds": 6,
+      "movement": 5,
+      "control_points": 2,
+      "save": 3,
+      "ward": null,
+      "tags": ["hero", "priest", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Judgement Blade",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": "D3",
+          "rend": 1,
+          "abilities": ["anti_wizard_rend_1", "anti_priest_rend_1"]
+        },
+        {
+          "name": "Staff of Abjuration",
+          "type": "melee",
+          "attacks": 1,
+          "hit": 3,
+          "wound": 3,
+          "damage": 3,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "abilities": [{
+        "name": "Sense Unholy Sorcery", 
+        "description": "This unit's Gryph-crow is a token. This unit has WARD (5+) while its Gryph-crow is on the battlefield. If you make an unmodified ward roll of 1 for this unit, remove its Gryph-crow from the battlefield.",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward", 
+          "value": 5
+        }
+      },{
+        "name": "Plan the Attack",
+        "description": "For the rest of the turn, add 1 to hit rolls for combat attacks made by friendly units that target enemy units contesting that objective.",
+        "type": "toggleable",
+        "category": "offensive",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": 1
+        }
+      },{
+        "name": "Shield of Azyr",
+        "description": "Until the start of your next turn, that unit has WARD (5+).",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward",
+          "value": 5
+        }
+      },{
+        "name": "Cleansing Fires",
+        "description": "Pick a visible enemy unit within 12\" of this unit to be the target. Roll a dice for each model in the target unit. For each 5+, inflict 1 mortal damage on the target unit.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "extra_mortal",
+          "dice_amount": "target_size",
+          "dice_type": "d6",
+          "difficulty": 5,
+          "conditions": {
+            "range": 12,
+            "visible": true
+          }
+        }
+      }]
+    },
+    "Lord-Vigilant on Gryph-stalker": {
+      "name": "Lord-Vigilant on Gryph-stalker",
+      "models": 1,
+      "wounds": 8,
+      "movement": 12,
+      "control_points": 2,
+      "save": 3,
+      "ward": null,
+      "tags": ["hero", "cavalry"],
+      "attack_profiles": [
+        {
+          "name": "Gryph-stalker's Beak and Talons",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": ["companion"]
+        },
+        {
+          "name": "Hallowed Greataxe",
+          "type": "melee",
+          "attacks": 5,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 2,
+          "abilities": []
+        }
+      ],
+      "ability": {
+        "name": "Plan the Attack",
+        "description": "For the rest of the turn, add 1 to hit rolls for combat attacks made by friendly units that target enemy units contesting that objective.",
+        "type": "toggleable",
+        "category": "offensive",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": 1
+        }
+      },
+      "abilities": [{
+        "name": "Morrda's Talon",
+        "description": "Your general's Hallowed Greataxe has Crit (Mortal).",
+        "type": "toggleable",
+        "category": "offensive",
+        "effect": {
+            "type": "add_weapon_ability",
+            "ability": "mortal_critical",
+            "profile_name": "Hallowed Greataxe"
+          }
+      },
+      {
+        "name": "Shield of Azyr",
+        "description": "Until the start of your next turn, that unit has WARD (5+).",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward",
+          "value": 5
+        }
+      },{
+        "name": "Hallowed Scrolls",
+        "description": "Your general has WARD (5+).",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward",
+          "value": 5
+        }
+      }]
+    },
+    "Liberators": {
+      "name": "Liberators",
+      "models": 5,
+      "wounds": 2,
+      "movement": 5,
+      "control_points": 1,
+      "save": 3,
+      "ward": null,
+      "tags": ["reinforcements", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Warhammer",
+          "type": "melee",
+          "models": 4,
+          "attacks": 2,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": ["mortal_critical"]
+        },
+        {
+          "name": "Grandhammer",
+          "type": "melee",
+          "models": 1,
+          "attacks": 2,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": ["mortal_critical"]
+        }
+      ],
+      "ability": {
+        "name": "Plan the Attack",
+        "description": "For the rest of the turn, add 1 to hit rolls for combat attacks made by friendly units that target enemy units contesting that objective.",
+        "type": "toggleable",
+        "category": "offensive",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": 1
+        }
+      },
+      "abilities": [{
+        "name": "Shield of Azyr",
+        "description": "Until the start of your next turn, that unit has WARD (5+).",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward",
+          "value": 5
+        }
+      },
+      {
+        "name": "Deliver Judgement",
+        "description": "Pick a friendly non-HERO unit wholly within 12\" of this unit to be the target. The target can use 2 FIGHT abilities this phase. After the first is used, however, the target has STRIKE-LAST for the rest of the phase.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "double_fight"
+        }
+      }]
+    },
+    "Prosecutors": {
+      "name": "Prosecutors",
+      "models": 3,
+      "wounds": 2,
+      "movement": 12,
+      "control_points": 1,
+      "save": 3,
+      "ward": null,
+      "tags": ["infantry", "fly", "reinforcements"],
+      "attack_profiles": [
+        {
+          "name": "Stormcall Javelin (Ranged)",
+          "type": "range",
+          "range": 10,
+          "attacks": 1,
+          "hit": 3,
+          "wound": 3,
+          "damage": "D3",
+          "rend": 1,
+          "abilities": []
+        },
+        {
+          "name": "Stormcall Javelin (Melee)",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": []
+        }
+      ],
+      "ability": {
+        "name": "Plan the Attack",
+        "description": "For the rest of the turn, add 1 to hit rolls for combat attacks made by friendly units that target enemy units contesting that objective.",
+        "type": "toggleable",
+        "category": "offensive",
+        "effect": {
+          "type": "modifier",
+          "target": "hit",
+          "value": 1
+        }
+      },
+      "abilities": [{
+        "name": "Shield of Azyr",
+        "description": "Until the start of your next turn, that unit has WARD (5+).",
+        "type": "toggleable",
+        "category": "defensive",
+        "effect": {
+          "type": "modifier",
+          "target": "ward",
+          "value": 5
+        }
+      },
+      {
+        "name": "Deliver Judgement",
+        "description": "Pick a friendly non-HERO unit wholly within 12\" of this unit to be the target. The target can use 2 FIGHT abilities this phase. After the first is used, however, the target has STRIKE-LAST for the rest of the phase.",
+        "category": "offensive",
+        "type": "toggleable",
+        "effect": {
+          "type": "double_fight"
+        }
+      }]
+    }
+  }
+} 

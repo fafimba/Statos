@@ -47,7 +47,7 @@ export const LifeBar = ({ unidadOponente, porcentajeVidaTotal }) => {
             width: `${porcentajeVidaTotal}%`,
             height: '100%',
             backgroundColor: 'primary.main',
-            transition: 'width 0.5s ease'
+            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
       </Box>

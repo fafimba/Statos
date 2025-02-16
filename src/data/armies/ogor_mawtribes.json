@@ -1,0 +1,391 @@
+{
+  "name": "Ogor Mawtribes",
+  "color": "#FF4500",
+  "units": {
+    "Tyrant": {
+      "name": "Tyrant",
+      "models": 1,
+      "wounds": 8,
+      "move": 6,
+      "save": 4,
+      "control": 5,
+      "tags": ["hero", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Ogor Pistols",
+          "range": 10,
+          "type": "range",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": ["shoot_in_combat"]
+        },
+        {
+          "name": "Beastskewer Glaive",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["anti_monster_rend_1"]
+        },
+        {
+          "name": "Thundermace",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 2,
+          "rend": 2,
+          "damage": 3
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Flask of Stonehorn Blood",
+          "description": "Your general has WARD (3+) this phase.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "ward",
+            "value": 3,
+            "conditions": {
+              "is_general": true
+            }
+          }
+        },
+        {
+          "name": "Booming Roar",
+          "description": "Subtract 1 from hit rolls for attacks made by enemy units this phase while they are within 9\" of your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "affects": "enemy_attributes",
+            "value": 1,
+            "conditions": {
+                "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Pulverising Girth",
+          "description": "Pick any number of friendly units that charged this phase. For each of those units, pick an enemy unit in combat with it and roll a dice. On a 4+, inflict 1 mortal damage on that enemy unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 4
+          }
+        }
+      ]
+    },
+    "Leadbelchers": {
+      "name": "Leadbelchers",
+      "models": 4,
+      "wounds": 4,
+      "move": 6,
+      "save": 5,
+      "control": 2,
+      "tags": ["infantry"],
+      "abilities": [
+        {
+          "name": "Firing from the Belly",
+          "description": "Add 1 to hit rolls for this unit's shooting attacks if it has not used a MOVE ability this turn.",
+          "category": "offensive", 
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "value": 1,
+            "conditions": {
+              "attack_type": "range"
+            }
+          }
+        },
+        {
+          "name": "Booming Roar",
+          "description": "Subtract 1 from hit rolls for attacks made by enemy units this phase while they are within 9\" of your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "affects": "enemy_attributes",
+            "value": 1,
+            "conditions": {
+                "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Pulverising Girth",
+          "description": "Pick any number of friendly units that charged this phase. For each of those units, pick an enemy unit in combat with it and roll a dice. On a 4+, inflict 1 mortal damage on that enemy unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 4
+          }
+        }
+      ],
+      "attack_profiles": [
+        {
+          "name": "Leadbelcher Gun",
+          "range": 15,
+          "type": "range",
+          "attacks": "D3",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": 1
+        },
+        {
+          "name": "Bludgeoning Blow",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 0,
+          "damage": 2
+        }
+      ]
+    },
+    "Ogor Gluttons": {
+      "name": "Ogor Gluttons",
+      "models": 3,
+      "wounds": 4,
+      "move": 6,
+      "save": 5,
+      "control": 2,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Ogor Weapons",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": 2
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Booming Roar",
+          "description": "Subtract 1 from hit rolls for attacks made by enemy units this phase while they are within 9\" of your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "affects": "enemy_attributes",
+            "value": 1,
+            "conditions": {
+                "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Pulverising Girth",
+          "description": "Pick any number of friendly units that charged this phase. For each of those units, pick an enemy unit in combat with it and roll a dice. On a 4+, inflict 1 mortal damage on that enemy unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 4
+          }
+        }
+      ]
+    },
+    "Mournfang Pack": {
+      "name": "Mournfang Pack",
+      "models": 2,
+      "wounds": 6,
+      "move": 9,
+      "save": 4,
+      "control": 2,
+      "tags": ["cavalry"],
+      "abilities": [
+        {
+          "name": "Linebreakers",
+          "description": "Subtract 1 from wound rolls for shooting attacks that target this unit.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "wound",
+            "affects": "enemy_atributes",
+            "value": 1,
+            "conditions": {
+              "attack_type": "range"
+            }
+          }
+        },
+        {
+          "name": "Bred for Toughness",
+          "description": "Add 1 to the Health characteristic of your Ironblaster and your Mournfang Pack unit.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "wounds",
+            "value": 1
+          }
+        },
+        {
+          "name": "Booming Roar",
+          "description": "Subtract 1 from hit rolls for attacks made by enemy units this phase while they are within 9\" of your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "affects": "enemy_attributes",
+            "value": 1,
+            "conditions": {
+                "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Pulverising Girth",
+          "description": "Pick any number of friendly units that charged this phase. For each of those units, pick an enemy unit in combat with it and roll a dice. On a 4+, inflict 1 mortal damage on that enemy unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 4
+          }
+        }
+      ],
+      "attack_profiles": [
+        {
+          "name": "Culling Clubs and Hackers",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": 2
+        },
+        {
+          "name": "Mournfang's Tusks",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["companion"]
+        }
+      ]
+    },
+    "Ironblaster": {
+      "name": "Ironblaster",
+      "models": 1,
+      "wounds": 9,
+      "move": 9,
+      "save": 4,
+      "control": 2,
+      "tags": ["monster"],
+      "abilities": [
+        {
+          "name": "Rhinox Charge",
+          "description": "The Damage characteristic of this unit's Rhinox's Sharp Horns is 3 if it charged in the same turn.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "dice_override",
+            "target": "damage",
+            "value": 3,
+            "conditions": {
+              "profile_name": "Rhinox's Sharp Horns"
+            }
+          }
+        },
+        {
+          "name": "Bred for Toughness",
+          "description": "Add 1 to the Health characteristic of your Ironblaster and your Mournfang Pack unit.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "wounds",
+            "value": 1
+          }
+        },
+        {
+          "name": "Booming Roar",
+          "description": "Subtract 1 from hit rolls for attacks made by enemy units this phase while they are within 9\" of your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "affects": "enemy_attributes",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee"
+            }
+          }
+        },
+        {
+          "name": "Pulverising Girth",
+          "description": "Pick any number of friendly units that charged this phase. For each of those units, pick an enemy unit in combat with it and roll a dice. On a 4+, inflict 1 mortal damage on that enemy unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 4
+          }
+        }
+      ],
+      "attack_profiles": [
+        {
+          "name": "Ironblaster Cannon",
+          "type": "range",
+          "range": 18,
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 2,
+          "damage": "D3+3"
+        },
+        {
+          "name": "Clubber",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 0,
+          "damage": 2
+        },
+        {
+          "name": "Rhinox's Sharp Horns",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 2,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": ["companion"]
+        }
+      ]
+    }
+  }
+} 

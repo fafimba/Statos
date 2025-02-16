@@ -144,7 +144,7 @@ const baseUnits = {
     name: "Pusgoyle Blightlord",
     models: 1,
     wounds: 8,
-    save: 3,
+    save: 4,
     ward: 5,
     tags: ["CHAOS", "MORTAL", "NURGLE", "CAVALRY", "FLY"],
     abilities: [
@@ -262,8 +262,7 @@ const baseUnits = {
         wound: 3,
         rend: 1,
         damage: 1,
-        models_override: 5,
-        abilities: ["charge_damage"]
+        models_override: 5
       },
       {
         name: "Nightmare's Hooves and Teeth",
@@ -274,8 +273,7 @@ const baseUnits = {
         wound: 3,
         rend: 0,
         damage: 1,
-        models_override: 5,
-        abilities: ["companion"]
+        models_override: 5
       }
     ]
   }

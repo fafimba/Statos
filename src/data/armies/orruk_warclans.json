@@ -1,0 +1,151 @@
+{
+  "name": "Orruk Warclans: Swampskulka Gang",
+  "color": "#50C878",
+  "units": {
+    "Killaboss on Great Gnashtoof": {
+      "name": "Killaboss on Great Gnashtoof",
+      "move": 10,
+      "wounds": 10,
+      "save": 3,
+      "bravery": 2,
+      "models": 1,
+      "tags": ["hero", "cavalry"],
+      "attack_profiles": [
+        {
+          "name": "Gnashtoof's Bone-crushing Fangs",
+          "type": "melee",
+          "attacks": 5,
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["companion"]
+        },
+        {
+          "name": "Jagged Boss-stikka",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["mortal_critical"]
+        }
+      ]
+    },
+    "Murknob with Belcha-banna": {
+      "name": "Murknob with Belcha-banna",
+      "move": 5,
+      "wounds": 6,
+      "save": 4,
+      "bravery": 5,
+      "models": 1,
+      "tags": ["hero", "infantry"],
+      "attack_profiles": [
+        {
+          "name": "Murknob Cleaver",
+          "type": "melee",
+          "attacks": 4,
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["mortal_critical"]
+        }
+      ],
+      "ability": {
+        "name": "Breath of the Mire-drakes",
+        "description": "Any Combat Phase",
+        "type": "offensive",
+        "category": "offensive"
+      }
+    },
+    "Gutrippaz": {
+      "name": "Gutrippaz",
+      "move": 5,
+      "wounds": 2,
+      "save": 5,
+      "bravery": 1,
+      "models": 5,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Wicked Hacka",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 3,
+          "rend": 0,
+          "damage": 1,
+          "abilities": ["mortal_critical"]
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Scare Taktikz", 
+          "description": "Subtract 1 from hit rolls for attacks that target this unit this phase. This ability has no effect on attacks made by HEROES.",
+          "type": "toggleable",
+          "category": "defensive",
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "value": 1,
+            "affects": "enemy_attributes",
+            "conditions": {
+                "attack_type": "melee",
+                "target_tag_exclude": "hero"
+              }
+          }
+        }
+      ]
+    },
+    "Man-skewer Boltboyz": {
+      "name": "Man-skewer Boltboyz",
+      "move": 5,
+      "wounds": 2,
+      "save": 5,
+      "bravery": 1,
+      "models": 3,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Man-skewer Crossbow",
+          "type": "range",
+          "range": 18,
+          "attacks": 2,
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": 2,
+          "abilities": ["auto_wound_critical"]
+        },
+        {
+          "name": "Jaggedy Blade",
+          "type": "melee",
+          "attacks": 1,
+          "hit": 4,
+          "wound": 3,
+          "rend": 0,
+          "damage": 1,
+          "abilities": ["mortal_critical"]
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Pick 'Em Off",
+          "description": "Add 1 to hit rolls for this unit's shooting attacks if has not used a MOVE ability this turn.",
+          "type": "toggleable",
+          "category": "offensive", 
+          "effect": {
+            "type": "modifier",
+            "target": "hit",
+            "value": 1,
+            "conditions": {
+                "attack_type": "range"
+              }
+          }
+        }
+      ]
+    }
+  }
+} 

@@ -1,0 +1,179 @@
+{
+  "name": "Soulblight Gravelords",
+  "color": "#8B0000",
+  "units": {
+    "Vampire Lord": {
+      "name": "Vampire Lord",
+      "models": 1,
+      "wounds": 5,
+      "movement": 6,
+      "control_points": 2,
+      "save": 3,
+      "ward": 6,
+      "tags": ["hero", "wizard", "infantry", "vampire"],
+      "abilities": [
+        {
+          "name": "Vile Transference",
+          "description": "Roll a number of dice equal to the target's Health characteristic. For each 5+, inflict 1 mortal damage on the target and Heal (1) this unit.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": "target_wounds",
+            "dice_type": "d6",
+            "difficulty": 5          }
+        },
+        {
+          "name": "Spirit Gale",
+          "description": "Inflict 1 mortal damage on each enemy unit on the battlefield.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d6",
+            "difficulty": 1,
+            "target": "all_enemies"
+          }
+        },
+        {
+          "name": "Aura of Night",
+          "description": "Ignore negative modifiers to save rolls for shooting attacks that target your general.",
+          "category": "defensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "modifier",
+            "affects": "enemy_atributes",
+            "target": "rend",
+            "value": "ignore",
+            "conditions": {
+              "attack_type": "range"
+            }
+          }
+        }
+      ],
+      "attack_profiles": [
+        {
+          "name": "Dynastic War-relic",
+          "type": "melee",
+          "attacks": 5,
+          "hit": 3,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": []
+        }
+      ]
+    },
+    "Deathrattle Skeletons": {
+      "name": "Deathrattle Skeletons",
+      "models": 10,
+      "wounds": 1,
+      "movement": 4,
+      "control_points": 1,
+      "save": 5,
+      "ward": 6,
+      "tags": ["infantry"],
+      "attack_profiles": [
+        {
+          "name": "Ancient Weapon",
+          "type": "melee",
+          "attacks": 2,
+          "hit": 4,
+          "wound": 4,
+          "damage": 1,
+          "rend": 0,
+          "abilities": []
+        }
+      ]
+    },
+    "Vargheists": {
+      "name": "Vargheists",
+      "models": 3,
+      "wounds": 4,
+      "movement": 12,
+      "control_points": 1,
+      "save": 5,
+      "ward": 6,
+      "tags": ["infantry", "vampire", "fly"],
+      "attack_profiles": [
+        {
+          "name": "Murderous Fangs and Talons",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 4,
+          "wound": 3,
+          "damage": 2,
+          "rend": 1,
+          "abilities": ["double_hit_critical"]
+        }
+      ],
+      "abilities": [
+        {
+          "name": "The Scent of Gore",
+          "description": "Add 1 to wound rolls for attacks made by this unit that target a damaged unit",
+          "type": "toggleable",
+          "category": "offensive",
+          "effect": {
+            "type": "modifier",
+            "target": "wound",
+            "value": 1,
+            "conditions": {
+              "attack_type": "melee"
+            }
+          }
+        }
+      ]
+    },
+    "Blood Knights": {
+      "name": "Blood Knights",
+      "models": 5,
+      "wounds": 3,
+      "movement": 10,
+      "control_points": 1,
+      "save": 3,
+      "ward": 6,
+      "tags": ["cavalry", "vampire"],
+      "abilities": [
+        {
+          "name": "Ruinous Chargers",
+          "description": "Inflict D3 mortal damage on each enemy unit it passed across during that CHARGE ability.",
+          "category": "offensive",
+          "type": "toggleable",
+          "effect": {
+            "type": "extra_mortal",
+            "dice_amount": 1,
+            "dice_type": "d3",
+            "difficulty": 1,
+            "damage": "1d3",
+            "conditions": {
+              "target_tag": "infantry"
+            }
+          }
+        }
+      ],
+      "attack_profiles": [
+        {
+          "name": "Templar Lance or Templar Blade",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 3,
+          "wound": 3,
+          "damage": 1,
+          "rend": 1,
+          "abilities": ["charge_damage"]
+        },
+        {
+          "name": "Nightmare's Hooves and Teeth",
+          "type": "melee",
+          "attacks": 3,
+          "hit": 5,
+          "wound": 3,
+          "damage": 1,
+          "rend": 0,
+          "abilities": ["companion"]
+        }
+      ]
+    }
+  }
+} 

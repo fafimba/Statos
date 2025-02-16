@@ -1,0 +1,92 @@
+{
+  "mortal_critical": {
+    "name": "Critical: Mortal",
+    "description": "Critical hits deal 1 mortal wound",
+    "type": "toggleable",
+    "effect": {
+      "type": "critical",
+      "action": "mortal_wound"
+    }
+  },
+  "auto_wound_critical": {
+    "name": "Critical: Auto-wound",
+    "description": "Critical hits automatically wound",
+    "type": "toggleable",
+    "effect": {
+      "type": "critical",
+      "action": "auto_wound"
+    }
+  },
+  "double_hit_critical": {
+    "name": "Critical: Double Hit",
+    "description": "Critical hits score 2 hits",
+    "type": "toggleable",
+    "effect": {
+      "type": "critical",
+      "action": "extra_hit"
+    }
+  },
+  "charge_damage": {
+    "id": "charge_damage",
+    "name": "Charge: +1 Damage",
+    "description": "+1 Damage on charge",
+    "type": "toggleable",
+    "category": "offensive",
+    "effect": {
+       "type": "modifier",
+       "target": "damage",
+       "value": 1
+    }
+  },
+  "companion": {
+    "name": "Companion",
+    "description": "Not affected by modifiers",
+    "type": "fixed",
+    "effect": null
+  },
+  "shoot_in_combat": {
+    "name": "Shoot in Combat",
+    "description": "Can shoot while engaged in combat",
+    "type": "fixed",
+    "effect": null
+  },
+  "anti_wizard_rend_1": {
+    "name": "Anti-WIZARD: Rend +1",
+    "description": "Add 1 to the Rend characteristic when targeting WIZARD units",
+    "type": "toggleable", 
+    "effect": {
+      "type": "modifier",
+      "target": "rend",
+      "value": 1,
+      "conditions": {
+        "target_tag": "wizard"
+      }
+    }
+  },
+  "anti_priest_rend_1": {
+    "name": "Anti-PRIEST: Rend +1",
+    "description": "Add 1 to the Rend characteristic when targeting PRIEST units",
+    "type": "toggleable",
+    "effect": {
+      "type": "modifier",
+      "target": "rend",
+      "value": 1,
+      "conditions": {
+        "target_tag": "priest"
+      }
+    }
+  },
+  "anti_monster_rend_1": {
+    "name": "Anti-MONSTER: Rend +1",
+    "description": "Add 1 to the Rend characteristic when targeting MONSTER units",
+    "type": "toggleable",
+    "effect": {
+      "type": "modifier",
+      "target": "rend",
+      "value": 1,
+      "conditions": {
+        "target_tag": "monster"
+      }
+    }
+  }
+} 

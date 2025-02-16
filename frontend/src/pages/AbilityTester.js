@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Box, Typography, Checkbox, FormControlLabel, Paper, Grid, Divider, Tabs, Tab, Button } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Separator } from "../components/ui/separator";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { Checkbox } from "../components/ui/checkbox";
 import { allUnits } from '../data/test_units';
 import { applyAbilityModifiers } from '../utils/AbilitiesApplier';
 import { calculateAttacks } from '../utils/calculator';
@@ -193,354 +203,324 @@ const AbilityTester = () => {
   console.log('Resultado calculateAttacks BtoA:', damageBtoA);
 
   const renderUnitCard = (unit, title, abilities, profiles) => (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>{title}</Typography>
-      <Box sx={{ pl: 2 }}>
-        <Typography>Models: {unit.models}</Typography>
-        <Typography>Wounds: {unit.wounds}</Typography>
-        <Typography>Save: {unit.save}+</Typography>
-        {unit.ward && <Typography>Ward: {unit.ward}+</Typography>}
-        <Typography>Tags: {unit.tags?.join(", ")}</Typography>
-      </Box>
-      
-      {abilities && abilities.length > 0 && (
-        <>
-          <Typography variant="subtitle1" sx={{ mt: 2 }}>Abilities:</Typography>
-          <Box sx={{ pl: 2 }}>
-            {abilities.map(ability => renderAbility(ability))}
-          </Box>
-        </>
-      )}
-      
-      {profiles && profiles.length > 0 && (
-        <>
-          <Typography variant="subtitle1" sx={{ mt: 2 }}>Attack Profiles:</Typography>
-          <Box sx={{ pl: 2 }}>
-            {profiles.map(profile => (
-              <Box key={profile.name}>
-                <Typography variant="subtitle2">{profile.name}</Typography>
-                <Typography variant="body2">
-                  Type: {profile.type} | Range: {profile.range}" |
-                  Attacks: {profile.attacks} | Hit: {profile.hit}+ | 
-                  Wound: {profile.wound}+ | Rend: {profile.rend} | 
-                  Damage: {profile.damage}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </>
-      )}
-    </Paper>
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Models</p>
+              <p className="text-lg font-semibold">{unit.models}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Wounds</p>
+              <p className="text-lg font-semibold">{unit.wounds}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Save</p>
+              <p className="text-lg font-semibold">{unit.save}+</p>
+            </div>
+            {unit.ward && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Ward</p>
+                <p className="text-lg font-semibold">{unit.ward}+</p>
+              </div>
+            )}
+          </div>
+
+          {unit.tags && unit.tags.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Tags</p>
+              <div className="flex flex-wrap gap-2">
+                {unit.tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {abilities && abilities.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <div>
+                <h4 className="text-sm font-medium mb-2">Abilities</h4>
+                <ScrollArea className="h-[200px] rounded-md border p-4">
+                  <div className="space-y-4">
+                    {abilities.map(ability => (
+                      <div key={ability.id} className="space-y-1">
+                        <h5 className="font-medium">{ability.name}</h5>
+                        <p className="text-sm text-muted-foreground">{ability.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </>
+          )}
+          
+          {profiles && profiles.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <div>
+                <h4 className="text-sm font-medium mb-2">Attack Profiles</h4>
+                <ScrollArea className="h-[200px] rounded-md border p-4">
+                  <div className="space-y-4">
+                    {profiles.map(profile => (
+                      <div key={profile.name} className="space-y-2">
+                        <h5 className="font-medium">{profile.name}</h5>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Type:</span> {profile.type}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Range:</span> {profile.range}"
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Attacks:</span> {profile.attacks}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Hit:</span> {profile.hit}+
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Wound:</span> {profile.wound}+
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Rend:</span> {profile.rend}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Damage:</span> {profile.damage}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 
   const renderDamageCard = (damage, title, defender) => (
-    <Paper sx={{ p: 2, mb: 2, bgcolor: 'action.hover' }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>{title}</Typography>
-      {damage.desglose_perfiles.map((profileDamage, index) => (
-        <Box key={index} sx={{ pl: 2, mb: 1 }}>
-          <Typography variant="subtitle2">{profileDamage.name}</Typography>
-          <Typography>Daño promedio: {profileDamage.damage_final.toFixed(2)}</Typography>
-          {profileDamage.mortal_wound > 0 && (
-            <Typography>Daño mortal: {profileDamage.mortal_wound.toFixed(2)}</Typography>
-          )}
-          <Typography>
-            Modelos eliminados: {Math.floor(profileDamage.damage_final / defender.wounds)}
-          </Typography>
-        </Box>
-      ))}
-      <Divider sx={{ my: 1 }} />
-      <Typography variant="subtitle1">
-        Daño Total: {damage.damage_final.toFixed(2)}
-      </Typography>
-    </Paper>
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {damage.desglose_perfiles.map((profileDamage, index) => (
+            <div key={index} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">{profileDamage.name}</h4>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">Total Damage:</span>
+                  <span className="text-lg font-semibold">{profileDamage.damage_final.toFixed(2)}</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {profileDamage.mortal_wound > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Mortal Wounds</p>
+                    <p className="text-lg font-semibold">{profileDamage.mortal_wound.toFixed(2)}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Models Killed</p>
+                  <p className="text-lg font-semibold">{Math.floor(profileDamage.damage_final / defender.wounds)}</p>
+                </div>
+              </div>
+
+              <div className="relative pt-1">
+                <div className="flex mb-2 items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold inline-block text-primary">
+                      Damage Efficiency
+                    </span>
+                  </div>
+                </div>
+                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary/20">
+                  <div
+                    style={{ width: `${Math.min((profileDamage.damage_final / (defender.wounds * defender.models)) * 100, 100)}%` }}
+                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">Total Unit Damage</span>
+            <span className="text-xl font-bold">{damage.damage_final.toFixed(2)}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
-  const renderAbility = (ability) => (
-    <Box sx={{ ml: 2 }}>
-      <Typography variant="subtitle2">{ability.name}</Typography>
-      <Typography variant="body2">{ability.description}</Typography>
-      <Typography variant="caption">
-        Type: {ability.effect.type} | 
-        Activation: {ability.activation}
-      </Typography>
-    </Box>
+  const renderAbility = (ability, isChecked, onToggle) => (
+    <div className="flex items-start space-x-2">
+      <Checkbox
+        id={ability.id}
+        checked={isChecked}
+        onCheckedChange={onToggle}
+      />
+      <div>
+        <label htmlFor={ability.id} className="text-sm font-medium">
+          {ability.name}
+        </label>
+        <p className="text-sm text-muted-foreground">{ability.description}</p>
+      </div>
+    </div>
   );
 
   // Componente para los controles de una unidad
   const renderUnitControls = (unit, abilities, profiles, handleAbilityToggle, handleProfileToggle) => (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1">Offensive Abilities</Typography>
-      {unit.abilities.map(ability => (
-        <FormControlLabel
-          key={ability.id}
-          control={
-            <Checkbox
-              checked={abilities.offensive[ability.id]}
-              onChange={() => handleAbilityToggle(ability.id, 'offensive')}
-            />
-          }
-          label={ability.name}
-        />
-      ))}
+    <Card className="mb-4">
+      <CardContent>
+        <div className="space-y-6">
+          <div>
+            <h4 className="text-sm font-medium mb-4">Offensive Abilities</h4>
+            <div className="space-y-2">
+              {unit.abilities.map(ability => (
+                <div key={ability.id} className="flex items-start space-x-2">
+                  <Checkbox
+                    id={`offensive-${ability.id}`}
+                    checked={abilities.offensive[ability.id]}
+                    onCheckedChange={() => handleAbilityToggle(ability.id, 'offensive')}
+                  />
+                  <div>
+                    <label htmlFor={`offensive-${ability.id}`} className="text-sm font-medium">
+                      {ability.name}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <Divider sx={{ my: 2 }} />
+          <Separator />
 
-      <Typography variant="subtitle1">Defensive Abilities</Typography>
-      {unit.abilities.map(ability => (
-        <FormControlLabel
-          key={ability.id}
-          control={
-            <Checkbox
-              checked={abilities.defensive[ability.id]}
-              onChange={() => handleAbilityToggle(ability.id, 'defensive')}
-            />
-          }
-          label={ability.name}
-        />
-      ))}
+          <div>
+            <h4 className="text-sm font-medium mb-4">Defensive Abilities</h4>
+            <div className="space-y-2">
+              {unit.abilities.map(ability => (
+                <div key={ability.id} className="flex items-start space-x-2">
+                  <Checkbox
+                    id={`defensive-${ability.id}`}
+                    checked={abilities.defensive[ability.id]}
+                    onCheckedChange={() => handleAbilityToggle(ability.id, 'defensive')}
+                  />
+                  <div>
+                    <label htmlFor={`defensive-${ability.id}`} className="text-sm font-medium">
+                      {ability.name}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <Divider sx={{ my: 2 }} />
+          <Separator />
 
-      <Typography variant="subtitle1">Attack Profiles</Typography>
-      {unit.attack_profiles.map(profile => (
-        <FormControlLabel
-          key={profile.name}
-          control={
-            <Checkbox
-              checked={profiles[profile.name]}
-              onChange={() => handleProfileToggle(profile.name)}
-            />
-          }
-          label={profile.name}
-        />
-      ))}
-    </Paper>
+          <div>
+            <h4 className="text-sm font-medium mb-4">Attack Profiles</h4>
+            <div className="space-y-2">
+              {unit.attack_profiles.map(profile => (
+                <div key={profile.name} className="flex items-start space-x-2">
+                  <Checkbox
+                    id={`profile-${profile.name}`}
+                    checked={profiles[profile.name]}
+                    onCheckedChange={() => handleProfileToggle(profile.name)}
+                  />
+                  <div>
+                    <label htmlFor={`profile-${profile.name}`} className="text-sm font-medium">
+                      {profile.name}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Combat Simulator</Typography>
+    <div className="container mx-auto p-4 space-y-6">
+      <h1 className="text-3xl font-bold mb-6">Ability Tester</h1>
       
-      <Grid container spacing={2}>
-        {/* Unidad A */}
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              {allUnits[selectedUnitA].name}
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={handleNextUnitA}
-              size="small"
-            >
-              Next Unit
-            </Button>
-          </Box>
-          <Grid container spacing={2}>
-            {/* Stats básicos y daño */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2 }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Typography variant="h6">{allUnits[selectedUnitA].name}</Typography>
-                    <Typography>Models: {allUnits[selectedUnitA].models}</Typography>
-                    <Typography>Wounds: {allUnits[selectedUnitA].wounds}</Typography>
-                    <Typography>Save: {allUnits[selectedUnitA].save}+</Typography>
-                    {allUnits[selectedUnitA].ward && 
-                      <Typography>Ward: {allUnits[selectedUnitA].ward}+</Typography>
-                    }
-                  </Grid>
-                  <Grid item xs={6}>
-                    {/* Daño vs B */}
-                    <Box sx={{ bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                      <Typography variant="subtitle1">Damage vs Unit B</Typography>
-                      <Typography>
-                        Total: {damageAtoB.damage_final?.toFixed(2) || '0.00'}
-                      </Typography>
-                      <Typography>
-                        Models killed: {Math.floor((damageAtoB.damage_final || 0) / allUnits[selectedUnitB].wounds)}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Grid>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Unit A: {allUnits[selectedUnitA].name}</h2>
+            <Button onClick={handleNextUnitA}>Next Unit</Button>
+          </div>
+          
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stats">Stats</TabsTrigger>
+              <TabsTrigger value="abilities">Abilities</TabsTrigger>
+              <TabsTrigger value="damage">Damage</TabsTrigger>
+            </TabsList>
+            <TabsContent value="stats">
+              {renderUnitCard(allUnits[selectedUnitA], "Unit A", [], [])}
+            </TabsContent>
+            <TabsContent value="abilities">
+              {renderUnitControls(
+                allUnits[selectedUnitA],
+                unitAAbilities,
+                unitAProfiles,
+                handleUnitAAbilityToggle,
+                handleUnitAProfileToggle
+              )}
+            </TabsContent>
+            <TabsContent value="damage">
+              {renderDamageCard(damageAtoB, "Damage to Unit B", allUnits[selectedUnitB])}
+            </TabsContent>
+          </Tabs>
+        </div>
 
-            {/* Controles en tabs o accordion */}
-            <Grid item xs={12}>
-              <Paper>
-                <Tabs value={tabValueA} onChange={(e, v) => setTabValueA(v)}>
-                  <Tab label="Abilities" />
-                  <Tab label="Profiles" />
-                </Tabs>
-                <Box sx={{ p: 2 }}>
-                  {tabValueA === 0 && (
-                    <Grid container spacing={1}>
-                      {allUnits[selectedUnitA].abilities.map(ability => (
-                        <Grid item xs={12} key={ability.id}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={unitAAbilities.offensive[ability.id]}
-                                onChange={() => handleUnitAAbilityToggle(ability.id, 'offensive')}
-                                size="small"
-                              />
-                            }
-                            label={
-                              <Box>
-                                <Typography variant="subtitle2">{ability.name}</Typography>
-                                <Typography variant="caption" display="block">
-                                  {ability.description}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                  {tabValueA === 1 && (
-                    <Grid container spacing={1}>
-                      {allUnits[selectedUnitA].attack_profiles.map(profile => (
-                        <Grid item xs={12} key={profile.name}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={unitAProfiles[profile.name]}
-                                onChange={() => handleUnitAProfileToggle(profile.name)}
-                                size="small"
-                              />
-                            }
-                            label={
-                              <Box>
-                                <Typography variant="subtitle2">{profile.name}</Typography>
-                                <Typography variant="caption">
-                                  A:{profile.attacks} | H:{profile.hit}+ | W:{profile.wound}+ |
-                                  R:{profile.rend} | D:{profile.damage}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Grid>
-
-        {/* Unidad B */}
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              {allUnits[selectedUnitB].name}
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={handleNextUnitB}
-              size="small"
-            >
-              Next Unit
-            </Button>
-          </Box>
-          <Grid container spacing={2}>
-            {/* Stats básicos y daño */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2 }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Typography variant="h6">{allUnits[selectedUnitB].name}</Typography>
-                    <Typography>Models: {allUnits[selectedUnitB].models}</Typography>
-                    <Typography>Wounds: {allUnits[selectedUnitB].wounds}</Typography>
-                    <Typography>Save: {allUnits[selectedUnitB].save}+</Typography>
-                    {allUnits[selectedUnitB].ward && 
-                      <Typography>Ward: {allUnits[selectedUnitB].ward}+</Typography>
-                    }
-                  </Grid>
-                  <Grid item xs={6}>
-                    {/* Daño vs A */}
-                    <Box sx={{ bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                      <Typography variant="subtitle1">Damage vs Unit A</Typography>
-                      <Typography>
-                        Total: {damageBtoA.damage_final?.toFixed(2) || '0.00'}
-                      </Typography>
-                      <Typography>
-                        Models killed: {Math.floor((damageBtoA.damage_final || 0) / allUnits[selectedUnitA].wounds)}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Grid>
-
-            {/* Controles en tabs o accordion */}
-            <Grid item xs={12}>
-              <Paper>
-                <Tabs value={tabValueB} onChange={(e, v) => setTabValueB(v)}>
-                  <Tab label="Abilities" />
-                  <Tab label="Profiles" />
-                </Tabs>
-                <Box sx={{ p: 2 }}>
-                  {tabValueB === 0 && (
-                    <Grid container spacing={1}>
-                      {allUnits[selectedUnitB].abilities.map(ability => (
-                        <Grid item xs={12} key={ability.id}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={unitBAbilities.offensive[ability.id]}
-                                onChange={() => handleUnitBAbilityToggle(ability.id, 'offensive')}
-                                size="small"
-                              />
-                            }
-                            label={
-                              <Box>
-                                <Typography variant="subtitle2">{ability.name}</Typography>
-                                <Typography variant="caption" display="block">
-                                  {ability.description}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                  {tabValueB === 1 && (
-                    <Grid container spacing={1}>
-                      {allUnits[selectedUnitB].attack_profiles.map(profile => (
-                        <Grid item xs={12} key={profile.name}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={unitBProfiles[profile.name]}
-                                onChange={() => handleUnitBProfileToggle(profile.name)}
-                                size="small"
-                              />
-                            }
-                            label={
-                              <Box>
-                                <Typography variant="subtitle2">{profile.name}</Typography>
-                                <Typography variant="caption">
-                                  A:{profile.attacks} | H:{profile.hit}+ | W:{profile.wound}+ |
-                                  R:{profile.rend} | D:{profile.damage}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Box>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Unit B: {allUnits[selectedUnitB].name}</h2>
+            <Button onClick={handleNextUnitB}>Next Unit</Button>
+          </div>
+          
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stats">Stats</TabsTrigger>
+              <TabsTrigger value="abilities">Abilities</TabsTrigger>
+              <TabsTrigger value="damage">Damage</TabsTrigger>
+            </TabsList>
+            <TabsContent value="stats">
+              {renderUnitCard(allUnits[selectedUnitB], "Unit B", [], [])}
+            </TabsContent>
+            <TabsContent value="abilities">
+              {renderUnitControls(
+                allUnits[selectedUnitB],
+                unitBAbilities,
+                unitBProfiles,
+                handleUnitBAbilityToggle,
+                handleUnitBProfileToggle
+              )}
+            </TabsContent>
+            <TabsContent value="damage">
+              {renderDamageCard(damageBtoA, "Damage to Unit A", allUnits[selectedUnitA])}
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
   );
 };
 
